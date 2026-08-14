@@ -133,105 +133,72 @@
     }
   ];
 
-  const defaultSeedTerms = [
-    {
-      id: 'trm-1',
-      title: 'TERMO DE RESPONSABILIDADE - MULTAS & NÃO INDICAÇÃO',
-      type: 'Termo de Responsabilidade',
-      date: '2026-06-19',
-      responsible: 'Carlos Pinho',
-      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      status: 'Assinado',
-      exactHtml: `
-        <div class="title" style="margin-top: 14px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
+  function buildTermHtml(term) {
+    if (term.templateType === 'desconto_folha' || term.type === 'Termo de ciência e autorização de desconto') {
+      const isParc = term.paymentMode === 'parcelado';
+      const parcelText = isParc 
+        ? `0${term.installments || 5} (${term.installments === 5 ? 'cinco' : term.installments}) parcelas mensais e sucessivas de ${formatCurrency(term.installmentAmount || (term.totalAmount / (term.installments || 5)))}`
+        : `Cota Única com desconto integral no valor de ${formatCurrency(term.totalAmount)}`;
 
-        <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+      return `
+        <div style="text-align: right; margin-bottom: 12px;">
+          <img src="/images/logo.png" alt="Trans Pinho" style="height: 55px; display: inline-block;" />
+        </div>
+
+        <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 18px;">
+          TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO
+        </div>
+
         <p>
-          Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, portador do CPF de nº <strong>002.574.880-73</strong>, na qualidade de condutor dos veículos abaixo identificado:
-        </p>
-        <ul style="list-style-type: disc; margin-left: 22px;">
-          <li><strong>Placa: JCO8C10 &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: 24127</strong></li>
-        </ul>
-
-        <div class="divider"></div>
-
-        <div class="section-title">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
-        <ul style="list-style-type: disc; margin-left: 22px;">
-          <li><strong>Infração 01:</strong>
-            <ul class="sub-list">
-              <li>Auto de Infração nº: <strong>EL00093302</strong></li>
-              <li>Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
-              <li>Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
-              <li>Valor: <strong>R$ 130,16</strong></li>
-            </ul>
-          </li>
-          <li style="margin-top: 4px;"><strong>Infração 02:</strong>
-            <ul class="sub-list">
-              <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
-              <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
-              <li>Motivo/Enquadramento: <strong>MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA</strong></li>
-              <li>Valor: <strong>R$ 130,16</strong></li>
-            </ul>
-          </li>
-        </ul>
-
-        <p style="margin-top: 6px;">
-          O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
+          Eu, <strong>${term.involvedPerson}</strong>, inscrito no CPF sob nº <strong>${term.cpf || '002.574.880-73'}</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>VW Constellation</strong>, placa <strong>${term.plate || 'JCO8C10'}</strong>, envolvido na ocorrência de trânsito nº <strong>SIN-2026-00124</strong>, que:
         </p>
 
-        <p style="font-weight: bold; margin: 6px 0;">
-          VALOR TOTAL ACUMULADO: R$ 260,32
-        </p>
-
-        <div class="divider"></div>
-
-        <div class="section-title">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
+        <div class="section-title">I – Da ciência e reconhecimento da ocorrência</div>
         <p>
-          O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
+          Declaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.
         </p>
-        <p style="margin-left: 15px; margin-bottom: 2px;">☐ Cota Única: Vencimento em 06/07/2026</p>
-        <p style="margin-left: 15px; margin-bottom: 2px;">☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.</p>
-        <p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: 06/07/2026</p>
 
-        <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+        <div class="section-title">II – Do reconhecimento de responsabilidade</div>
         <p>
-          Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
+          Reconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de <strong>${formatCurrency(term.totalAmount || 3500)}</strong>.
         </p>
 
-        <p style="margin-top: 10px; margin-bottom: 20px;">
-          GRAVATAÍ, 19 de Junho de 2026.
+        <div class="section-title">III – Da autorização de desconto em folha</div>
+        <p>
+          Autorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:
+        </p>
+
+        <p style="margin-left: 20px; font-weight: bold; margin: 8px 0;">
+          Valor total: ${formatCurrency(term.totalAmount || 3500)}<br>
+          Parcelamento: ${parcelText}
+        </p>
+
+        <p style="margin-top: 12px;">
+          Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
+        </p>
+
+        <p style="margin-top: 20px; margin-bottom: 30px;">
+          Gravataí, ${term.documentDate || '15 de Junho de 2026'}
         </p>
 
         <div class="signature-section">
           <div class="signature-line"></div>
-          <div class="signature-name">ANDREIA MERCEDES ROCHA DE ARAUJO</div>
+          <div class="signature-name">${term.involvedPerson}</div>
         </div>
+      `;
+    }
 
-        <div class="footer">
-          <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
-          Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
-          (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
-        </div>
-      `
-    },
-    {
-      id: 'trm-2',
-      title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
-      type: 'Termo de Responsabilidade',
-      date: '2026-06-24',
-      responsible: 'Carlos Pinho',
-      involvedPerson: 'MICHELE ROSA DA ROSA',
-      status: 'Assinado',
-      exactHtml: `
+    if (term.templateType === 'infracao_direta') {
+      return `
         <div class="title" style="margin-top: 18px; margin-bottom: 18px;">TERMO DE RESPONSABILIDADE</div>
 
         <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
         <p>
-          Eu, <strong>MICHELE ROSA DA ROSA</strong> portador(a) do CPF nº <strong>016.998.180-02</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
+          Eu, <strong>${term.involvedPerson}</strong> portador(a) do CPF nº <strong>${term.cpf || '016.998.180-02'}</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
         </p>
         <ul style="list-style-type: disc; margin-left: 22px;">
-          <li><strong>Placa: TRD3E72</strong></li>
-          <li><strong>Prefixo do Carro: 226</strong></li>
+          <li><strong>Placa: ${term.plate || 'TRD3E72'}</strong></li>
+          <li><strong>Prefixo do Carro: ${term.prefix || '226'}</strong></li>
         </ul>
 
         <div class="section-title" style="margin-top: 12px;">2. DETALHES DO OCORRIDO</div>
@@ -248,13 +215,13 @@
         </p>
 
         <p style="margin-top: 18px; margin-bottom: 30px;">
-          GRAVATAÍ, 24 de Junho de 2026.
+          GRAVATAÍ, ${term.documentDate || '24 de Junho de 2026'}.
         </p>
 
         <div class="signature-section">
           <div class="signature-line"></div>
           <div class="signature-sub">Assinatura do Condutor</div>
-          <div class="signature-name" style="margin-top: 4px;">MICHELE ROSA DA ROSA</div>
+          <div class="signature-name" style="margin-top: 4px;">${term.involvedPerson}</div>
         </div>
 
         <div class="footer" style="margin-top: 40px;">
@@ -262,62 +229,149 @@
           Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
           (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
         </div>
-      `
+      `;
+    }
+
+    // Default: Termo de Responsabilidade Multas & NIC Duplicada
+    const isParcelado = term.paymentMode === 'parcelado';
+    const cotaUnicaChecked = isParcelado ? '☐' : '☑';
+    const parceladoChecked = isParcelado ? '☑' : '☐';
+    const numParc = term.installments || 2;
+    const valParc = term.installmentAmount || (term.totalAmount / numParc);
+
+    return `
+      <div class="title" style="margin-top: 14px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
+
+      <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+      <p>
+        Eu, <strong>${term.involvedPerson}</strong>, portador do CPF de nº <strong>${term.cpf || '002.574.880-73'}</strong>, na qualidade de condutor dos veículos abaixo identificado:
+      </p>
+      <ul style="list-style-type: disc; margin-left: 22px;">
+        <li><strong>Placa: ${term.plate || 'JCO8C10'} &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: ${term.prefix || '24127'}</strong></li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <div class="section-title">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
+      <ul style="list-style-type: disc; margin-left: 22px;">
+        <li><strong>Infração 01:</strong>
+          <ul class="sub-list">
+            <li>Auto de Infração nº: <strong>EL00093302</strong></li>
+            <li>Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
+            <li>Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
+            <li>Valor: <strong>R$ 130,16</strong></li>
+          </ul>
+        </li>
+        <li style="margin-top: 4px;"><strong>Infração 02:</strong>
+          <ul class="sub-list">
+            <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
+            <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
+            <li>Motivo/Enquadramento: <strong>MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA</strong></li>
+            <li>Valor: <strong>R$ 130,16</strong></li>
+          </ul>
+        </li>
+      </ul>
+
+      <p style="margin-top: 6px;">
+        O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>${formatCurrency(term.totalAmount || 260.32)} (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
+      </p>
+
+      <p style="font-weight: bold; margin: 6px 0;">
+        VALOR TOTAL ACUMULADO: ${formatCurrency(term.totalAmount || 260.32)}
+      </p>
+
+      <div class="divider"></div>
+
+      <div class="section-title">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
+      <p>
+        O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
+      </p>
+      <p style="margin-left: 15px; margin-bottom: 2px;">${cotaUnicaChecked} Cota Única: Vencimento em ${term.singleDueDate || '06/07/2026'}</p>
+      <p style="margin-left: 15px; margin-bottom: 2px;">${parceladoChecked} Parcelado: Em ${numParc} parcelas de ${formatCurrency(valParc)} Mensais.</p>
+      ${isParcelado ? `<p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: ${term.firstDueDate || '06/07/2026'}</p>` : ''}
+
+      <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+      <p>
+        Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
+      </p>
+
+      <p style="margin-top: 10px; margin-bottom: 20px;">
+        GRAVATAÍ, ${term.documentDate || '19 de Junho de 2026'}.
+      </p>
+
+      <div class="signature-section">
+        <div class="signature-line"></div>
+        <div class="signature-name">${term.involvedPerson}</div>
+      </div>
+
+      <div class="footer">
+        <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
+        Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
+        (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
+      </div>
+    `;
+  }
+
+  const defaultSeedTerms = [
+    {
+      id: 'trm-1',
+      title: 'TERMO DE RESPONSABILIDADE - MULTAS & NÃO INDICAÇÃO',
+      type: 'Termo de Responsabilidade',
+      templateType: 'multa_nic',
+      date: '2026-06-19',
+      documentDate: '19 de Junho de 2026',
+      responsible: 'Carlos Pinho',
+      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
+      cpf: '002.574.880-73',
+      plate: 'JCO8C10',
+      prefix: '24127',
+      paymentMode: 'parcelado',
+      installments: 2,
+      installmentAmount: 130.16,
+      totalAmount: 260.32,
+      firstDueDate: '06/07/2026',
+      singleDueDate: '06/07/2026',
+      status: 'Assinado'
+    },
+    {
+      id: 'trm-2',
+      title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
+      type: 'Termo de Responsabilidade',
+      templateType: 'infracao_direta',
+      date: '2026-06-24',
+      documentDate: '24 de Junho de 2026',
+      responsible: 'Carlos Pinho',
+      involvedPerson: 'MICHELE ROSA DA ROSA',
+      cpf: '016.998.180-02',
+      plate: 'TRD3E72',
+      prefix: '226',
+      paymentMode: 'cota_unica',
+      installments: 1,
+      installmentAmount: 130.16,
+      totalAmount: 130.16,
+      firstDueDate: '15/05/2026',
+      singleDueDate: '15/05/2026',
+      status: 'Assinado'
     },
     {
       id: 'trm-3',
       title: 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO',
       type: 'Termo de ciência e autorização de desconto',
+      templateType: 'desconto_folha',
       date: '2026-06-15',
+      documentDate: '15 de Junho de 2026',
       responsible: 'Mariana Souza',
       involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      status: 'Assinado',
-      exactHtml: `
-        <div style="text-align: right; margin-bottom: 12px;">
-          <img src="/images/logo.png" alt="Trans Pinho" style="height: 55px; display: inline-block;" />
-        </div>
-
-        <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 18px;">
-          TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO
-        </div>
-
-        <p>
-          Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, inscrito no CPF sob nº <strong>002.574.880-73</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>VW Constellation</strong>, placa <strong>JCO8C10</strong>, envolvido na ocorrência de trânsito nº <strong>SIN-2026-00124</strong>, que:
-        </p>
-
-        <div class="section-title">I – Da ciência e reconhecimento da ocorrência</div>
-        <p>
-          Declaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.
-        </p>
-
-        <div class="section-title">II – Do reconhecimento de responsabilidade</div>
-        <p>
-          Reconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de <strong>R$ 3.500,00 (Três mil e quinhentos reais)</strong>.
-        </p>
-
-        <div class="section-title">III – Da autorização de desconto em folha</div>
-        <p>
-          Autorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:
-        </p>
-
-        <p style="margin-left: 20px; font-weight: bold; margin: 8px 0;">
-          Valor total: R$ 3.500,00<br>
-          Parcelamento: 05 (cinco) parcelas mensais e sucessivas de R$ 700,00
-        </p>
-
-        <p style="margin-top: 12px;">
-          Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
-        </p>
-
-        <p style="margin-top: 20px; margin-bottom: 30px;">
-          Gravataí, 15 de Junho de 2026
-        </p>
-
-        <div class="signature-section">
-          <div class="signature-line"></div>
-          <div class="signature-name">ANDREIA MERCEDES ROCHA DE ARAUJO</div>
-        </div>
-      `
+      cpf: '002.574.880-73',
+      plate: 'JCO8C10',
+      prefix: '24127',
+      paymentMode: 'parcelado',
+      installments: 5,
+      installmentAmount: 700.00,
+      totalAmount: 3500.00,
+      firstDueDate: '05/07/2026',
+      singleDueDate: '05/07/2026',
+      status: 'Assinado'
     }
   ];
 
@@ -589,37 +643,84 @@
   function renderTermsView() {
     return `
       <div class="space-y-6">
-        <div class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
+        <div class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <span class="badge bg-amber-500 text-slate-950 text-[10px] px-2.5 py-0.5 rounded font-black uppercase mb-1 inline-block">100% IDÊNTICO AOS DOCUMENTOS OFICIAIS</span>
             <h2 class="text-xl font-bold tracking-tight">Emissão & Impressão de Termos Oficial Trans Pinho</h2>
-            <p class="text-xs text-slate-300 mt-1">Layout exato em Times New Roman 11pt, linhas divisórias, caixas de seleção e cabeçalho oficial.</p>
+            <p class="text-xs text-slate-300 mt-1">Selecione entre Cota Única ou Parcelado, altere as datas livremente e imprima o documento oficial A4.</p>
           </div>
-          <button id="terms-open-gen" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm">
+          <button id="terms-open-gen" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm shrink-0">
             <i class="fa-solid fa-wand-magic-sparkles"></i> Emitir Novo Termo
           </button>
         </div>
 
         <div class="space-y-8">
-          ${state.terms.map(t => `
-            <div class="bg-white p-6 rounded-xl border border-slate-300 shadow-md space-y-4">
-              <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <div>
-                  <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded border border-amber-300">${t.type}</span>
-                  <h3 class="font-bold text-slate-900 text-base mt-1">${t.title}</h3>
-                  <p class="text-xs text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Emissão: ${formatDate(t.date)}</p>
-                </div>
-                <button onclick="window.printDocumentDirectly('${t.id}')" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm flex items-center gap-2">
-                  <i class="fa-solid fa-print text-sm"></i> IMPRIMIR PDF OFICIAL A4
-                </button>
-              </div>
+          ${state.terms.map(t => {
+            const isParcelado = t.paymentMode === 'parcelado';
+            const numParc = t.installments || 2;
+            const total = t.totalAmount || 260.32;
+            const valParc = t.installmentAmount || (total / numParc);
 
-              <!-- Pixel-Perfect Term Preview Container -->
-              <div class="bg-white p-8 max-w-[210mm] mx-auto border border-slate-200 shadow-sm rounded-lg" style="font-family: 'Times New Roman', Times, Georgia, serif; color: #000000; line-height: 1.35; font-size: 11pt;">
-                ${t.exactHtml}
+            return `
+              <div class="bg-white p-6 rounded-xl border border-slate-300 shadow-md space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-3 gap-3">
+                  <div>
+                    <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded border border-amber-300">${t.type}</span>
+                    <h3 class="font-bold text-slate-900 text-base mt-1">${t.title}</h3>
+                    <p class="text-xs text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Placa: <strong>${t.plate}</strong></p>
+                  </div>
+                  <button onclick="window.printDocumentDirectly('${t.id}')" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm flex items-center gap-2 shrink-0">
+                    <i class="fa-solid fa-print text-sm"></i> IMPRIMIR PDF OFICIAL A4
+                  </button>
+                </div>
+
+                <!-- Interactive Document Customizer Bar -->
+                <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div class="flex items-center gap-3">
+                    <span class="font-bold text-slate-700">Pagamento:</span>
+                    <label class="flex items-center gap-1.5 cursor-pointer font-bold ${!isParcelado ? 'text-blue-700' : 'text-slate-600'}">
+                      <input type="radio" name="paymode_${t.id}" value="cota_unica" ${!isParcelado ? 'checked' : ''} class="term-paymode-toggle cursor-pointer" data-term-id="${t.id}" />
+                      ☐/☑ Cota Única
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer font-bold ${isParcelado ? 'text-blue-700' : 'text-slate-600'}">
+                      <input type="radio" name="paymode_${t.id}" value="parcelado" ${isParcelado ? 'checked' : ''} class="term-paymode-toggle cursor-pointer" data-term-id="${t.id}" />
+                      ☑/☐ Parcelado
+                    </label>
+                  </div>
+
+                  ${isParcelado ? `
+                    <div class="flex items-center gap-2">
+                      <span class="text-slate-600 font-semibold">Parcelamento:</span>
+                      <select class="term-installments-select form-select text-xs py-1 px-2 font-bold bg-white border-slate-300 rounded" data-term-id="${t.id}">
+                        ${[1,2,3,4,5,6,10,12].map(n => `
+                          <option value="${n}" ${numParc === n ? 'selected' : ''}>${n}x de ${formatCurrency(total / n)}</option>
+                        `).join('')}
+                      </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-slate-600 font-semibold">1ª Parcela:</span>
+                      <input type="text" value="${t.firstDueDate || '06/07/2026'}" class="term-first-due-input form-input text-xs py-1 px-2 w-28 text-center font-bold bg-white border-slate-300 rounded" data-term-id="${t.id}" placeholder="DD/MM/AAAA" />
+                    </div>
+                  ` : `
+                    <div class="flex items-center gap-2">
+                      <span class="text-slate-600 font-semibold">Vencimento Cota Única:</span>
+                      <input type="text" value="${t.singleDueDate || '06/07/2026'}" class="term-single-due-input form-input text-xs py-1 px-2 w-28 text-center font-bold bg-white border-slate-300 rounded" data-term-id="${t.id}" placeholder="DD/MM/AAAA" />
+                    </div>
+                  `}
+
+                  <div class="flex items-center gap-2">
+                    <span class="text-slate-600 font-semibold">Data do Termo:</span>
+                    <input type="text" value="${t.documentDate || '19 de Junho de 2026'}" class="term-doc-date-input form-input text-xs py-1 px-2 w-44 font-bold bg-white border-slate-300 rounded" data-term-id="${t.id}" placeholder="Ex: 19 de Junho de 2026" />
+                  </div>
+                </div>
+
+                <!-- Pixel-Perfect Term Preview Container -->
+                <div class="bg-white p-8 max-w-[210mm] mx-auto border border-slate-200 shadow-sm rounded-lg" style="font-family: 'Times New Roman', Times, Georgia, serif; color: #000000; line-height: 1.32; font-size: 10.5pt;">
+                  ${buildTermHtml(t)}
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -1063,7 +1164,7 @@
         <div class="flex justify-between items-center border-b border-slate-200 pb-3">
           <div>
             <span class="badge bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded font-black uppercase">Modelos Oficiais Trans Pinho (PDF Exato)</span>
-            <h3 class="font-bold text-slate-900 text-base">Gerador Inteligente de Termos</h3>
+            <h3 class="font-bold text-slate-900 text-base">Gerador & Personalizador de Termos</h3>
           </div>
           <button id="close-modal-btn" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -1071,25 +1172,77 @@
         <form id="gen-term-form" class="space-y-4 text-xs">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="form-label text-xs">Selecione o Modelo de Termo *</label>
-              <select id="term-template-select" class="form-select text-xs font-bold text-slate-900">
+              <label class="form-label text-xs font-bold">Modelo de Termo *</label>
+              <select id="modal-term-template-select" class="form-select text-xs font-bold text-slate-900">
                 <option value="multa_nic">1. TERMO DE RESPONSABILIDADE (MULTA + NIC DUPLICADA)</option>
                 <option value="infracao_direta">2. TERMO DE RESPONSABILIDADE (INFRAÇÃO DIRETA)</option>
                 <option value="desconto_folha">3. TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA</option>
               </select>
             </div>
             <div>
-              <label class="form-label text-xs">Condutor *</label>
-              <select id="term-driver-select" class="form-select text-xs font-semibold">
-                <option value="ANDREIA MERCEDES ROCHA DE ARAUJO">ANDREIA MERCEDES ROCHA DE ARAUJO (CPF 002.574.880-73)</option>
-                <option value="MICHELE ROSA DA ROSA">MICHELE ROSA DA ROSA (CPF 016.998.180-02)</option>
+              <label class="form-label text-xs font-bold">Condutor *</label>
+              <select id="modal-term-driver-select" class="form-select text-xs font-semibold">
+                <option value="ANDREIA MERCEDES ROCHA DE ARAUJO|002.574.880-73|JCO8C10|24127">ANDREIA MERCEDES ROCHA DE ARAUJO (CPF 002.574.880-73 - Placa JCO8C10)</option>
+                <option value="MICHELE ROSA DA ROSA|016.998.180-02|TRD3E72|226">MICHELE ROSA DA ROSA (CPF 016.998.180-02 - Placa TRD3E72)</option>
               </select>
+            </div>
+          </div>
+
+          <!-- Payment Options Block -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+            <label class="form-label text-xs font-black text-slate-800">Forma de Pagamento e Quitação</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-1.5 cursor-pointer font-bold text-slate-700">
+                <input type="radio" name="modal_paymode" value="parcelado" checked class="modal-paymode-radio" />
+                ☑ Parcelado
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer font-bold text-slate-700">
+                <input type="radio" name="modal_paymode" value="cota_unica" class="modal-paymode-radio" />
+                ☐ Cota Única
+              </label>
+            </div>
+
+            <div id="modal-parcelado-fields" class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="form-label text-xs">Quantidade de Parcelas</label>
+                <select id="modal-installments-input" class="form-select text-xs font-bold">
+                  <option value="2" selected>2x Parcelas</option>
+                  <option value="3">3x Parcelas</option>
+                  <option value="4">4x Parcelas</option>
+                  <option value="5">5x Parcelas</option>
+                  <option value="6">6x Parcelas</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-xs">Valor Total (R$)</label>
+                <input type="number" step="0.01" id="modal-total-input" value="260.32" class="form-input text-xs font-bold" />
+              </div>
+              <div>
+                <label class="form-label text-xs">Data 1ª Parcela</label>
+                <input type="text" id="modal-first-due-input" value="06/07/2026" class="form-input text-xs font-bold text-center" placeholder="DD/MM/AAAA" />
+              </div>
+            </div>
+
+            <div id="modal-cota-unica-fields" class="hidden">
+              <label class="form-label text-xs">Data de Vencimento (Cota Única)</label>
+              <input type="text" id="modal-single-due-input" value="06/07/2026" class="form-input text-xs font-bold text-center w-44" placeholder="DD/MM/AAAA" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="form-label text-xs">Data do Documento (Exibida no Termo)</label>
+              <input type="text" id="modal-doc-date-input" value="19 de Junho de 2026" class="form-input text-xs font-bold" placeholder="Ex: 19 de Junho de 2026" />
+            </div>
+            <div>
+              <label class="form-label text-xs">Cidade</label>
+              <input type="text" value="GRAVATAÍ" class="form-input text-xs font-bold bg-slate-100" readonly />
             </div>
           </div>
 
           <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
             <button type="button" id="close-modal-btn-2" class="btn btn-secondary text-xs px-4 py-2">Cancelar</button>
-            <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2">Emitir Termo com Layout Oficial</button>
+            <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2">Emitir & Imprimir Termo</button>
           </div>
         </form>
       </div>
@@ -1134,6 +1287,66 @@
       btn.addEventListener('click', (e) => {
         const view = e.currentTarget.getAttribute('data-view');
         if (view) { state.currentView = view; renderApp(); }
+      });
+    });
+
+    // Term Quick Customizer Listeners
+    document.querySelectorAll('.term-paymode-toggle').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const termId = e.currentTarget.getAttribute('data-term-id');
+        const term = state.terms.find(t => t.id === termId);
+        if (term) {
+          term.paymentMode = e.currentTarget.value;
+          renderApp();
+        }
+      });
+    });
+
+    document.querySelectorAll('.term-installments-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const termId = e.currentTarget.getAttribute('data-term-id');
+        const term = state.terms.find(t => t.id === termId);
+        if (term) {
+          term.installments = parseInt(e.currentTarget.value) || 2;
+          term.installmentAmount = (term.totalAmount || 260.32) / term.installments;
+          renderApp();
+        }
+      });
+    });
+
+    document.querySelectorAll('.term-first-due-input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const termId = e.currentTarget.getAttribute('data-term-id');
+        const term = state.terms.find(t => t.id === termId);
+        if (term) {
+          term.firstDueDate = e.currentTarget.value;
+          const previewEl = e.currentTarget.closest('.space-y-4')?.querySelector('.bg-white.p-8');
+          if (previewEl) previewEl.innerHTML = buildTermHtml(term);
+        }
+      });
+    });
+
+    document.querySelectorAll('.term-single-due-input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const termId = e.currentTarget.getAttribute('data-term-id');
+        const term = state.terms.find(t => t.id === termId);
+        if (term) {
+          term.singleDueDate = e.currentTarget.value;
+          const previewEl = e.currentTarget.closest('.space-y-4')?.querySelector('.bg-white.p-8');
+          if (previewEl) previewEl.innerHTML = buildTermHtml(term);
+        }
+      });
+    });
+
+    document.querySelectorAll('.term-doc-date-input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const termId = e.currentTarget.getAttribute('data-term-id');
+        const term = state.terms.find(t => t.id === termId);
+        if (term) {
+          term.documentDate = e.currentTarget.value;
+          const previewEl = e.currentTarget.closest('.space-y-4')?.querySelector('.bg-white.p-8');
+          if (previewEl) previewEl.innerHTML = buildTermHtml(term);
+        }
       });
     });
 
@@ -1194,6 +1407,80 @@
         state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExcelImportModal = false; renderModals();
       };
     });
+
+    // Modal Paymode Switch
+    document.querySelectorAll('.modal-paymode-radio').forEach(r => {
+      r.addEventListener('change', (e) => {
+        const isParc = e.target.value === 'parcelado';
+        const parcFields = document.getElementById('modal-parcelado-fields');
+        const singleFields = document.getElementById('modal-cota-unica-fields');
+        if (parcFields && singleFields) {
+          if (isParc) {
+            parcFields.classList.remove('hidden');
+            singleFields.classList.add('hidden');
+          } else {
+            parcFields.classList.add('hidden');
+            singleFields.classList.remove('hidden');
+          }
+        }
+      });
+    });
+
+    // Generate Term Form Submit
+    const genForm = document.getElementById('gen-term-form');
+    if (genForm) {
+      genForm.onsubmit = function (e) {
+        e.preventDefault();
+        const tmplType = document.getElementById('modal-term-template-select').value;
+        const driverRaw = document.getElementById('modal-term-driver-select').value;
+        const [driverName, driverCpf, driverPlate, driverPrefix] = driverRaw.split('|');
+        const paymode = document.querySelector('.modal-paymode-radio:checked')?.value || 'parcelado';
+        const installments = parseInt(document.getElementById('modal-installments-input')?.value) || 2;
+        const total = parseFloat(document.getElementById('modal-total-input')?.value) || 260.32;
+        const firstDue = document.getElementById('modal-first-due-input')?.value || '06/07/2026';
+        const singleDue = document.getElementById('modal-single-due-input')?.value || '06/07/2026';
+        const docDate = document.getElementById('modal-doc-date-input')?.value || '19 de Junho de 2026';
+
+        const titles = {
+          'multa_nic': 'TERMO DE RESPONSABILIDADE - MULTAS & NÃO INDICAÇÃO',
+          'infracao_direta': 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
+          'desconto_folha': 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO'
+        };
+
+        const newTerm = {
+          id: `trm-gen-${Date.now()}`,
+          title: titles[tmplType] || 'TERMO DE RESPONSABILIDADE',
+          type: tmplType === 'desconto_folha' ? 'Termo de ciência e autorização de desconto' : 'Termo de Responsabilidade',
+          templateType: tmplType,
+          date: new Date().toISOString().split('T')[0],
+          documentDate: docDate,
+          responsible: state.currentUser.name,
+          involvedPerson: driverName,
+          cpf: driverCpf,
+          plate: driverPlate,
+          prefix: driverPrefix,
+          paymentMode: paymode,
+          installments: installments,
+          installmentAmount: total / installments,
+          totalAmount: total,
+          firstDueDate: firstDue,
+          singleDueDate: singleDue,
+          status: 'Assinado'
+        };
+
+        state.terms.unshift(newTerm);
+        state.showTermGeneratorModal = false;
+        renderModals();
+        state.currentView = 'terms';
+        renderApp();
+        showToast('Novo Termo Oficial gerado com sucesso!', 'info');
+
+        // Automatically open pixel-perfect print
+        setTimeout(() => {
+          window.printDocumentDirectly(newTerm.id);
+        }, 300);
+      };
+    }
 
     const dropzone = document.getElementById('excel-dropzone');
     const fileInput = document.getElementById('excel-file-input');
