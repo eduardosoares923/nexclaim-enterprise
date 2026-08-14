@@ -143,13 +143,13 @@
       involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
       status: 'Assinado',
       exactHtml: `
-        <div class="title" style="margin-top: 15px; margin-bottom: 20px;">TERMO DE RESPONSABILIDADE</div>
+        <div class="title" style="margin-top: 10px; margin-bottom: 12px;">TERMO DE RESPONSABILIDADE</div>
 
         <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
         <p>
           Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, portador do CPF de nº <strong>002.574.880-73</strong>, na qualidade de condutor dos veículos abaixo identificado:
         </p>
-        <ul style="list-style-type: disc; margin-left: 25px;">
+        <ul style="list-style-type: disc; margin-left: 20px;">
           <li><strong>Placa: JCO8C10 &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: 24127</strong></li>
         </ul>
 
@@ -165,7 +165,7 @@
               <li>Valor: <strong>R$ 130,16</strong></li>
             </ul>
           </li>
-          <li style="margin-top: 4px;"><strong>Infração 02:</strong>
+          <li style="margin-top: 2px;"><strong>Infração 02:</strong>
             <ul class="sub-list">
               <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
               <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
@@ -175,11 +175,11 @@
           </li>
         </ul>
 
-        <p style="margin-top: 6px;">
+        <p style="margin-top: 4px;">
           O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
         </p>
 
-        <p style="font-weight: bold; margin: 6px 0;">
+        <p style="font-weight: bold; margin: 4px 0;">
           VALOR TOTAL ACUMULADO: R$ 260,32
         </p>
 
@@ -189,16 +189,16 @@
         <p>
           O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
         </p>
-        <p style="margin-left: 15px; margin-bottom: 2px;">☐ Cota Única: Vencimento em 06/07/2026</p>
-        <p style="margin-left: 15px; margin-bottom: 2px;">☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.</p>
+        <p style="margin-left: 15px; margin-bottom: 1px;">☐ Cota Única: Vencimento em 06/07/2026</p>
+        <p style="margin-left: 15px; margin-bottom: 1px;">☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.</p>
         <p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: 06/07/2026</p>
 
-        <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+        <div class="section-title" style="margin-top: 6px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
         <p>
           Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
         </p>
 
-        <p style="margin-top: 10px; margin-bottom: 18px;">
+        <p style="margin-top: 8px; margin-bottom: 14px;">
           GRAVATAÍ, 19 de Junho de 2026.
         </p>
 
@@ -223,31 +223,31 @@
       involvedPerson: 'MICHELE ROSA DA ROSA',
       status: 'Assinado',
       exactHtml: `
-        <div class="title" style="margin-top: 20px; margin-bottom: 20px;">TERMO DE RESPONSABILIDADE</div>
+        <div class="title" style="margin-top: 15px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
 
         <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
         <p>
           Eu, <strong>MICHELE ROSA DA ROSA</strong> portador(a) do CPF nº <strong>016.998.180-02</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
         </p>
-        <ul style="list-style-type: disc; margin-left: 25px;">
+        <ul style="list-style-type: disc; margin-left: 20px;">
           <li><strong>Placa: TRD3E72</strong></li>
           <li><strong>Prefixo do Carro: 226</strong></li>
         </ul>
 
-        <div class="section-title" style="margin-top: 14px;">2. DETALHES DO OCORRIDO</div>
-        <ul style="list-style-type: disc; margin-left: 25px;">
+        <div class="section-title" style="margin-top: 10px;">2. DETALHES DO OCORRIDO</div>
+        <ul style="list-style-type: disc; margin-left: 20px;">
           <li>Auto de Infração nº: <strong>TE02141677</strong></li>
           <li>Data do ocorrido: <strong>15/04/2026</strong></li>
           <li>Horário: <strong>16:50</strong></li>
           <li>Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
         </ul>
 
-        <div class="section-title" style="margin-top: 14px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
+        <div class="section-title" style="margin-top: 10px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
         <p>
           Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
         </p>
 
-        <p style="margin-top: 20px; margin-bottom: 35px;">
+        <p style="margin-top: 15px; margin-bottom: 25px;">
           GRAVATAÍ, 24 de Junho de 2026.
         </p>
 
@@ -257,7 +257,7 @@
           <div class="signature-name" style="margin-top: 4px;">MICHELE ROSA DA ROSA</div>
         </div>
 
-        <div class="footer" style="margin-top: 50px;">
+        <div class="footer" style="margin-top: 30px;">
           <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
           Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
           (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
@@ -363,97 +363,83 @@
         <style>
           @page {
             size: A4 portrait;
-            margin: 18mm 20mm 15mm 20mm;
+            margin: 10mm 15mm 8mm 15mm;
           }
           * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
           }
+          html, body {
+            height: 100%;
+            overflow: hidden;
+          }
           body {
             font-family: 'Times New Roman', Times, Georgia, serif;
-            font-size: 11pt;
-            line-height: 1.35;
+            font-size: 10pt;
+            line-height: 1.25;
             color: #000000;
             background: #ffffff;
-            padding: 10px;
-          }
-          .header {
-            text-align: center;
-            margin-bottom: 8px;
-          }
-          .header h1 {
-            font-size: 11.5pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .header p {
-            font-size: 9pt;
-            color: #222222;
-          }
-          .header-line {
-            border-top: 1.5px solid #000000;
-            margin: 6px 0 12px 0;
+            padding: 4px;
           }
           .title {
             text-align: center;
-            font-size: 12pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 10px 0 12px 0;
-          }
-          .section-title {
             font-size: 11pt;
             font-weight: bold;
             text-transform: uppercase;
-            margin-top: 8px;
-            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            margin: 6px 0 8px 0;
+          }
+          .section-title {
+            font-size: 10pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 6px;
+            margin-bottom: 2px;
           }
           p {
             text-align: justify;
-            margin-bottom: 6px;
-            line-height: 1.35;
+            margin-bottom: 4px;
+            line-height: 1.25;
           }
           ul {
-            margin-left: 20px;
-            margin-bottom: 6px;
+            margin-left: 18px;
+            margin-bottom: 4px;
           }
           li {
-            margin-bottom: 2px;
+            margin-bottom: 1px;
           }
           .sub-list {
-            margin-left: 20px;
+            margin-left: 16px;
             list-style-type: circle;
           }
           .divider {
-            border-top: 0.8px solid #999999;
-            margin: 8px 0;
+            border-top: 0.5px solid #aaaaaa;
+            margin: 6px 0;
           }
           .signature-section {
-            margin-top: 24px;
+            margin-top: 14px;
             text-align: center;
           }
           .signature-line {
-            width: 320px;
+            width: 280px;
             border-top: 1px solid #000000;
-            margin: 0 auto 6px auto;
+            margin: 0 auto 4px auto;
           }
           .signature-name {
-            font-size: 10.5pt;
+            font-size: 10pt;
             font-weight: bold;
           }
           .signature-sub {
-            font-size: 9.5pt;
+            font-size: 9pt;
             font-style: italic;
           }
           .footer {
-            margin-top: 25px;
+            margin-top: 12px;
             text-align: center;
-            font-size: 8.5pt;
+            font-size: 8pt;
             color: #333333;
-            line-height: 1.3;
+            line-height: 1.2;
           }
         </style>
       </head>
