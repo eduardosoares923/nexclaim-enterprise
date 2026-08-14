@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NexClaim Enterprise - Trans Pinho Focused Engine (Zero Dummy Placeholders)
+   NexClaim Enterprise - Trans Pinho Focused Engine (Excel Import + Exact PDF Terms)
    ========================================================================== */
 
 (function () {
@@ -106,33 +106,175 @@
   const defaultSeedTerms = [
     {
       id: 'trm-1',
-      title: 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO',
-      type: 'Termo de ciência e autorização de desconto',
-      date: '2026-06-15',
-      responsible: 'Mariana Souza',
-      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      status: 'Assinado',
-      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com\n\nTERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO\n\nEu, ANDREIA MERCEDES ROCHA DE ARAUJO, inscrito no CPF sob nº 002.574.880-73, declaro, para os devidos fins de direito, na qualidade de condutor do veículo VW Constellation, placa JCO8C10, envolvido na ocorrência de trânsito nº SIN-2026-00124, que:\n\nI – Da ciência e reconhecimento da ocorrência:\nDeclaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.\n\nII – Do reconhecimento de responsabilidade:\nReconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de R$ 3.500,00 (Três mil e quinhentos reais).\n\nIII – Da autorização de desconto em folha:\nAutorizo, de forma expressa, livre, consciente e inequívoca, o desconto do valor acima mencionado em minha folha de pagamento/contracheque em 5 parcelas mensais de R$ 700,00.\n\nGravataí, 15 de Junho de 2026.`
-    },
-    {
-      id: 'trm-2',
       title: 'TERMO DE RESPONSABILIDADE - MULTAS & NÃO INDICAÇÃO',
       type: 'Termo de Responsabilidade',
       date: '2026-06-19',
       responsible: 'Carlos Pinho',
       involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
       status: 'Assinado',
-      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, ANDREIA MERCEDES ROCHA DE ARAUJO, portador do CPF nº 002.574.880-73, condutor do veículo Placa: JCO8C10 Prefixo do Carro: 24127.\n\n2. DETALHAMENTO DAS INFRAÇÕES E VALORES\n- Infração 01: Auto EL00093302 | Data: 27/04/2026 10:44 | TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20% | Valor: R$ 130,16\n- Infração 02: Auto Gerado Duplicada | MULTA POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR, IMPOSTA A PESSOA JURITICA | Valor: R$ 130,16\n\nO condutor reconhece a infração EL00093302. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando R$ 260,32.\n\nVALOR TOTAL ACUMULADO: R$ 260,32\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\nOpção: Parcelado em 2 parcelas de R$ 130,16 mensais. Primeira parcela em: 06/07/2026.\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\nAssumo integral responsabilidade pelo pagamento. Ao concluir o pagamento total, outorgo à empresa João Batista de Souza Pinho EPP (Trans Pinho) a mais ampla quitação.\n\nGRAVATAÍ, 19 de Junho de 2026.`
+      htmlContent: `
+        <div class="trans-pinho-doc text-slate-900">
+          <div class="trans-pinho-header">
+            <h2 class="font-black text-sm uppercase">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
+            <p class="text-[11px] text-slate-600">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+            <p class="text-[11px] text-slate-600">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+          </div>
+
+          <h3 class="trans-pinho-title">TERMO DE RESPONSABILIDADE</h3>
+
+          <div class="trans-pinho-section">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+          <p class="text-xs mb-3">
+            Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, portador do CPF de nº <strong>002.574.880-73</strong>, na qualidade de condutor dos veículos abaixo identificado:
+          </p>
+          <ul class="list-disc pl-6 text-xs mb-4 font-semibold">
+            <li>Placa: <strong>JCO8C10</strong> &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: <strong>24127</strong></li>
+          </ul>
+
+          <div class="trans-pinho-section">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
+          <ul class="space-y-2 text-xs mb-3">
+            <li class="font-bold">• Infração 01:</li>
+            <ul class="pl-6 space-y-1 text-[11px]">
+              <li>o Auto de Infração nº: <strong>EL00093302</strong></li>
+              <li>o Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
+              <li>o Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
+              <li>o Valor: <strong>R$ 130,16</strong></li>
+            </ul>
+
+            <li class="font-bold">• Infração 02:</li>
+            <ul class="pl-6 space-y-1 text-[11px]">
+              <li>o Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
+              <li>o Data: | Horário:</li>
+              <li>o Motivo/Enquadramento: <strong>MULTA. POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR, IMPOSTA A PESSOA JURITICA</strong></li>
+              <li>o Valor: <strong>R$ 130,16</strong></li>
+            </ul>
+          </ul>
+
+          <p class="text-xs text-justify leading-relaxed mb-3">
+            O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
+          </p>
+
+          <p class="font-bold text-xs mb-4">VALOR TOTAL ACUMULADO: R$ 260,32</p>
+
+          <div class="trans-pinho-section">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
+          <p class="text-xs mb-2">O condutor reconhece a dívida total acima mencionada e opta pela seguinte modalidade de quitação:</p>
+          <div class="space-y-1 text-xs mb-4 pl-2 font-semibold">
+            <p>☐ Cota Única: Vencimento em 06/07/2026</p>
+            <p>☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais. (Primeira parcela em: 06/07/2026)</p>
+          </div>
+
+          <div class="trans-pinho-section">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+          <p class="text-xs text-justify leading-relaxed mb-6">
+            Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
+          </p>
+
+          <p class="text-xs mb-10">GRAVATAÍ, 19 de Junho de 2026.</p>
+
+          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
+            <p class="font-bold text-xs">ANDREIA MERCEDES ROCHA DE ARAUJO</p>
+            <p class="text-[10px] text-slate-500">Condutor Responsável</p>
+          </div>
+        </div>
+      `
     },
     {
-      id: 'trm-3',
+      id: 'trm-2',
       title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
       type: 'Termo de Responsabilidade',
       date: '2026-06-24',
       responsible: 'Carlos Pinho',
       involvedPerson: 'MICHELE ROSA DA ROSA',
       status: 'Assinado',
-      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, MICHELE ROSA DA ROSA, portador do CPF nº 016.998.180-02, condutor do veículo Placa: TRD3E72 Prefixo do Carro: 226.\n\n2. DETALHES DO OCORRIDO\n- Auto de Infração nº: TE02141677\n- Data: 15/04/2026 | Horário: 16:50\n- Motivo: ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade.\n\nGRAVATAÍ, 24 de Junho de 2026.`
+      htmlContent: `
+        <div class="trans-pinho-doc text-slate-900">
+          <div class="trans-pinho-header">
+            <h2 class="font-black text-sm uppercase">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
+            <p class="text-[11px] text-slate-600">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+            <p class="text-[11px] text-slate-600">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+          </div>
+
+          <h3 class="trans-pinho-title">TERMO DE RESPONSABILIDADE</h3>
+
+          <div class="trans-pinho-section">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+          <p class="text-xs mb-3">
+            Eu, <strong>MICHELE ROSA DA ROSA</strong> portador(a) do CPF nº <strong>016.998.180-02</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
+          </p>
+          <ul class="list-disc pl-6 text-xs mb-4 font-semibold">
+            <li>Placa: <strong>TRD3E72</strong></li>
+            <li>Prefixo do Carro: <strong>226</strong></li>
+          </ul>
+
+          <div class="trans-pinho-section">2. DETALHES DO OCORRIDO</div>
+          <ul class="space-y-1 text-xs mb-4 pl-4">
+            <li>• Auto de Infração nº: <strong>TE02141677</strong></li>
+            <li>• Data do ocorrido: <strong>15/04/2026</strong></li>
+            <li>• Horário: <strong>16:50</strong></li>
+            <li>• Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
+          </ul>
+
+          <div class="trans-pinho-section">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
+          <p class="text-xs text-justify leading-relaxed mb-6">
+            Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
+          </p>
+
+          <p class="text-xs mb-10">GRAVATAÍ, 24 de Junho de 2026.</p>
+
+          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
+            <p class="font-bold text-xs">Assinatura do Condutor</p>
+            <p class="text-[10px] text-slate-500">MICHELE ROSA DA ROSA</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: 'trm-3',
+      title: 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO',
+      type: 'Termo de ciência e autorização de desconto',
+      date: '2026-06-15',
+      responsible: 'Mariana Souza',
+      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
+      status: 'Assinado',
+      htmlContent: `
+        <div class="trans-pinho-doc text-slate-900">
+          <div class="trans-pinho-header">
+            <h2 class="font-black text-sm uppercase">Trans Pinho</h2>
+          </div>
+
+          <h3 class="trans-pinho-title">TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO</h3>
+
+          <p class="text-xs text-justify leading-relaxed mb-4">
+            Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, inscrito no CPF sob nº <strong>002.574.880-73</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>VW Constellation</strong>, placa <strong>JCO8C10</strong>, envolvido na ocorrência de trânsito nº <strong>SIN-2026-00124</strong>, que:
+          </p>
+
+          <div class="trans-pinho-section">I – Da ciência e reconhecimento da ocorrência</div>
+          <p class="text-xs text-justify leading-relaxed mb-4">
+            Declaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.
+          </p>
+
+          <div class="trans-pinho-section">II – Do reconhecimento de responsabilidade</div>
+          <p class="text-xs text-justify leading-relaxed mb-4">
+            Reconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de <strong>R$ 3.500,00 (Três mil e quinhentos reais)</strong>.
+          </p>
+
+          <div class="trans-pinho-section">III – Da autorização de desconto em folha</div>
+          <p class="text-xs text-justify leading-relaxed mb-3">
+            Autorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:
+          </p>
+          <div class="space-y-1 text-xs mb-4 pl-4 font-semibold">
+            <p>Valor total: R$ 3.500,00</p>
+            <p>Parcelamento: 5 parcelas mensais e sucessivas de R$ 700,00</p>
+          </div>
+
+          <p class="text-xs text-justify leading-relaxed mb-6">
+            Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
+          </p>
+
+          <p class="text-xs mb-10">Gravataí, 15 de Junho de 2026</p>
+
+          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
+            <p class="font-bold text-xs">ANDREIA MERCEDES ROCHA DE ARAUJO</p>
+          </div>
+        </div>
+      `
     }
   ];
 
@@ -151,6 +293,7 @@
     showSearchModal: false,
     showNewClaimModal: false,
     showTermGeneratorModal: false,
+    showExcelImportModal: false,
     toast: null
   };
 
@@ -248,7 +391,7 @@
       { id: 'dashboard', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
       { id: 'claims', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: state.claims.length },
       { id: 'fines', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: state.fines.length },
-      { id: 'terms', label: 'Emitir Termos', icon: 'fa-file-pen', badge: state.terms.length },
+      { id: 'terms', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: state.terms.length },
       { id: 'people', label: 'Condutores', icon: 'fa-users' },
       { id: 'vehicles', label: 'Frota & Prefixos', icon: 'fa-truck-front' }
     ];
@@ -264,7 +407,7 @@
         </div>
 
         <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          <div class="px-3 mb-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Módulos Ativos</div>
+          <div class="px-3 mb-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Sistema Corporativo</div>
           ${menuItems.map(item => {
             const isActive = state.currentView === item.id || (item.id === 'claims' && state.currentView === 'claim-detail');
             return `
@@ -313,6 +456,9 @@
         </div>
 
         <div class="flex items-center gap-3">
+          <button id="open-excel-import" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-xs">
+            <i class="fa-solid fa-file-excel text-xs"></i> Ler Planilha Excel (.xlsx)
+          </button>
           <button id="open-new-claim" class="btn bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-xs">
             <i class="fa-solid fa-plus text-xs text-amber-400"></i> Novo Sinistro
           </button>
@@ -343,11 +489,14 @@
               <span class="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">JOÃO BATISTA DE SOUZA PINHO EPP</span>
             </div>
             <h2 class="text-xl font-bold text-slate-900 tracking-tight mt-1">Gestão Trans Pinho - Gravataí/RS</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Emissão de Termos de Ciência, Desconto em Folha, Multas NIC e Quitação.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Emissão de Termos Oficiais, Leitura de Excel (.xlsx) e Controle de Multas NIC.</p>
           </div>
           <div class="flex flex-wrap gap-2.5">
+            <button id="dash-import-excel" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
+              <i class="fa-solid fa-file-excel"></i> Importar Excel (.xlsx)
+            </button>
             <button id="dash-new-term" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
-              <i class="fa-solid fa-wand-magic-sparkles text-slate-950"></i> Emitir Termo Oficial
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Termo Oficial
             </button>
           </div>
         </div>
@@ -388,7 +537,7 @@
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-file-pen text-amber-500 mr-2"></i> Termos de Responsabilidade e Desconto Recentes</h3>
+            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-file-pen text-amber-500 mr-2"></i> Termos de Responsabilidade Emitidos</h3>
             <button data-view="terms" class="nav-btn text-xs font-semibold text-blue-600 hover:underline">Ver Todos os Termos →</button>
           </div>
           <div class="divide-y divide-slate-100 text-xs">
@@ -399,7 +548,7 @@
                   <h4 class="font-bold text-slate-900 text-sm mt-1">${t.title}</h4>
                   <p class="text-[11px] text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Emissão: ${formatDate(t.date)}</p>
                 </div>
-                <button onclick="alert(\`${t.content.replace(/`/g, "'").replace(/\n/g, "\\n")}\`)" class="btn bg-slate-900 text-white hover:bg-slate-800 text-xs px-3.5 py-1.5 rounded-lg font-bold">Ver Termo Completo</button>
+                <button data-view="terms" class="nav-btn btn bg-slate-900 text-white hover:bg-slate-800 text-xs px-3.5 py-1.5 rounded-lg font-bold">Visualizar Layout PDF</button>
               </div>
             `).join('')}
           </div>
@@ -416,9 +565,14 @@
             <h2 class="text-xl font-bold text-slate-900">Dossiês de Sinistros & Ocorrências</h2>
             <p class="text-xs text-slate-500">Acompanhamento por prefixo, placa, condutor e valores apurados.</p>
           </div>
-          <button id="claims-new-btn" class="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-lg">
-            + Novo Sinistro
-          </button>
+          <div class="flex gap-2">
+            <button id="claims-import-excel" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg">
+              <i class="fa-solid fa-file-excel mr-1"></i> Importar Excel
+            </button>
+            <button id="claims-new-btn" class="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-lg">
+              + Novo Sinistro
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -476,7 +630,7 @@
             </div>
             <div class="flex gap-2">
               <button id="detail-gen-term" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg">
-                <i class="fa-solid fa-file-pen mr-1"></i> Emitir Termo
+                <i class="fa-solid fa-file-pen mr-1"></i> Emitir Termo Oficial
               </button>
             </div>
           </div>
@@ -508,7 +662,16 @@
   function renderFinesView() {
     return `
       <div class="space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">Módulo de Infração de Trânsito & Multas NIC</h2>
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Controle de Multas & Infrações NIC</h2>
+            <p class="text-xs text-slate-500">Importe planilhas Excel (.xlsx) e emita os termos de responsabilidade em 1 clique.</p>
+          </div>
+          <button id="fines-import-excel" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-lg flex items-center gap-2 shadow-xs">
+            <i class="fa-solid fa-file-excel"></i> Importar Planilha Excel (.xlsx)
+          </button>
+        </div>
+
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-slate-500 uppercase text-[10px]">
@@ -544,30 +707,30 @@
       <div class="space-y-6">
         <div class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
           <div>
-            <span class="badge bg-amber-500 text-slate-950 text-[10px] px-2 py-0.5 rounded font-black uppercase mb-1 inline-block">Modelos Oficiais Trans Pinho</span>
-            <h2 class="text-xl font-bold tracking-tight">Emissão Inteligente de Termos & Declarações</h2>
-            <p class="text-xs text-slate-300 mt-1">Preenchimento automático dos modelos de Ciência com Desconto em Folha, Multa NIC e Responsabilidade Direta.</p>
+            <span class="badge bg-amber-500 text-slate-950 text-[10px] px-2 py-0.5 rounded font-black uppercase mb-1 inline-block">Formatos Idênticos aos PDFs Oficiais</span>
+            <h2 class="text-xl font-bold tracking-tight">Emissão & Impressão de Termos Oficial Trans Pinho</h2>
+            <p class="text-xs text-slate-300 mt-1">Gerador com layout idêntico aos documentos digitalizados (Ciência com Desconto em Folha, Multa NIC e Infração Direta).</p>
           </div>
           <button id="terms-open-gen" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm">
             <i class="fa-solid fa-wand-magic-sparkles"></i> Emitir Novo Termo
           </button>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-6">
           ${state.terms.map(t => `
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs text-xs space-y-3">
-              <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-md space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-200 pb-3 btn-no-print">
                 <div>
-                  <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2 py-0.5 rounded border border-amber-300">${t.type}</span>
+                  <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded border border-amber-300">${t.type}</span>
                   <h3 class="font-bold text-slate-900 text-base mt-1">${t.title}</h3>
-                  <p class="text-[11px] text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> | Emissão: ${formatDate(t.date)}</p>
+                  <p class="text-xs text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Emissão: ${formatDate(t.date)}</p>
                 </div>
-                <button onclick="window.print()" class="btn bg-slate-900 text-white hover:bg-slate-800 text-xs px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print mr-1"></i> Imprimir A4</button>
+                <button onclick="window.print()" class="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-lg">
+                  <i class="fa-solid fa-print mr-1.5"></i> Imprimir / Gerar PDF A4
+                </button>
               </div>
 
-              <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 font-mono text-[11px] whitespace-pre-wrap leading-relaxed text-slate-800 max-h-64 overflow-y-auto">
-                ${t.content}
-              </div>
+              ${t.htmlContent}
             </div>
           `).join('')}
         </div>
@@ -578,7 +741,16 @@
   function renderPeopleView() {
     return `
       <div class="space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">Cadastro de Condutores</h2>
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Cadastro de Condutores</h2>
+            <p class="text-xs text-slate-500">Listagem e importação via Excel (.xlsx).</p>
+          </div>
+          <button id="people-import-excel" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-lg flex items-center gap-2">
+            <i class="fa-solid fa-file-excel"></i> Importar Planilha Excel
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           ${state.people.map(p => `
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
@@ -631,6 +803,9 @@
     } else if (state.showTermGeneratorModal) {
       modalRoot.classList.remove('hidden');
       modalRoot.innerHTML = renderTermGeneratorModalHtml();
+    } else if (state.showExcelImportModal) {
+      modalRoot.classList.remove('hidden');
+      modalRoot.innerHTML = renderExcelImportModalHtml();
     } else if (state.showSearchModal) {
       modalRoot.classList.remove('hidden');
       modalRoot.innerHTML = renderSearchModalHtml();
@@ -640,6 +815,40 @@
     }
 
     attachModalEvents();
+  }
+
+  function renderExcelImportModalHtml() {
+    return `
+      <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full p-6 space-y-4" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-file-excel text-emerald-600 text-xl"></i>
+            <h3 class="font-bold text-slate-900 text-base">Importador de Planilhas Excel (.xlsx / .csv)</h3>
+          </div>
+          <button id="close-modal-btn" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <p class="text-slate-600">Selecione uma planilha de multas, condutores ou sinistros. O sistema lerá os dados automaticamente!</p>
+
+          <div id="excel-dropzone" class="border-2 border-dashed border-emerald-400 bg-emerald-50/50 p-8 rounded-xl text-center cursor-pointer hover:bg-emerald-100/50 transition-colors">
+            <i class="fa-solid fa-cloud-arrow-up text-emerald-600 text-3xl mb-2"></i>
+            <p class="font-bold text-slate-800 text-sm">Clique para selecionar ou arraste o arquivo Excel (.xlsx)</p>
+            <span class="text-[11px] text-slate-500">Suporta arquivos .xlsx, .xls e .csv</span>
+            <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden" />
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-700 block mb-1">Colunas recomendadas no Excel:</span>
+            <code class="text-[10px] text-emerald-700 block font-mono">Auto, Placa, Condutor, CPF, Descrição, Valor, Vencimento</code>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" id="close-modal-btn-2" class="btn btn-secondary text-xs px-4 py-2">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   function renderNewClaimModalHtml() {
@@ -690,7 +899,7 @@
 
           <div>
             <label class="form-label text-xs">Descrição Detalhada *</label>
-            <textarea name="description" rows="3" placeholder="Descreva o sinistro ou infração..." class="form-textarea text-xs" required></textarea>
+            <textarea name="description" rows="3" placeholder="Descreva a ocorrência..." class="form-textarea text-xs" required></textarea>
           </div>
 
           <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
@@ -707,7 +916,7 @@
       <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center border-b border-slate-200 pb-3">
           <div>
-            <span class="badge bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded font-black uppercase">Modelos Reais Trans Pinho</span>
+            <span class="badge bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded font-black uppercase">Modelos Trans Pinho (Layout Idêntico aos PDFs)</span>
             <h3 class="font-bold text-slate-900 text-base">Gerador Inteligente de Termos</h3>
           </div>
           <button id="close-modal-btn" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
@@ -718,9 +927,9 @@
             <div>
               <label class="form-label text-xs">Selecione o Modelo de Termo *</label>
               <select id="term-template-select" class="form-select text-xs font-bold text-slate-900">
-                <option value="desconto_folha">1. TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA</option>
-                <option value="multa_nic">2. TERMO DE RESPONSABILIDADE - MULTAS & NIC DUPLICADA</option>
-                <option value="infracao_direta">3. TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA</option>
+                <option value="multa_nic">1. TERMO DE RESPONSABILIDADE (MULTA + NIC DUPLICADA)</option>
+                <option value="infracao_direta">2. TERMO DE RESPONSABILIDADE (INFRAÇÃO DIRETA)</option>
+                <option value="desconto_folha">3. TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA</option>
               </select>
             </div>
             <div>
@@ -732,32 +941,169 @@
             </div>
           </div>
 
-          <div>
-            <label class="form-label text-xs">Texto do Termo Oficial (Editável antes de salvar)</label>
-            <textarea id="term-text-area" rows="8" class="form-textarea text-xs font-mono bg-slate-50 p-3"></textarea>
-          </div>
-
           <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
             <button type="button" id="close-modal-btn-2" class="btn btn-secondary text-xs px-4 py-2">Cancelar</button>
-            <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2">Salvar & Gerar Termo</button>
+            <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2">Emitir Termo com Layout Oficial</button>
           </div>
         </form>
       </div>
     `;
   }
 
-  function getTemplateContent(type, driverName) {
+  function buildTermHtml(type, driverName) {
     const isAndreia = driverName.includes('ANDREIA');
     const cpf = isAndreia ? '002.574.880-73' : '016.998.180-02';
     const placa = isAndreia ? 'JCO8C10' : 'TRD3E72';
     const prefixo = isAndreia ? '24127' : '226';
 
-    if (type === 'desconto_folha') {
-      return `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com\n\nTERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO\n\nEu, ${driverName}, inscrito no CPF sob nº ${cpf}, declaro, para os devidos fins de direito, na qualidade de condutor do veículo Placa ${placa}, prefixo ${prefixo}, envolvido na ocorrência de trânsito nº SIN-2026-00124, que:\n\nI – Da ciência e reconhecimento da ocorrência:\nDeclaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.\n\nII – Do reconhecimento de responsabilidade:\nReconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de R$ 3.500,00 (Três mil e quinhentos reais).\n\nIII – Da autorização de desconto em folha:\nAutorizo, de forma expressa, livre, consciente e inequívoca, o desconto do valor acima mencionado em minha folha de pagamento/contracheque em 5 parcelas mensais de R$ 700,00.\n\nGravataí, ${new Date().getDate()} de Junho de 2026.`;
-    } else if (type === 'multa_nic') {
-      return `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, ${driverName}, portador do CPF nº ${cpf}, condutor do veículo Placa: ${placa} Prefixo do Carro: ${prefixo}.\n\n2. DETALHAMENTO DAS INFRAÇÕES E VALORES\n- Infração 01: Auto EL00093302 | Data: 27/04/2026 10:44 | TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20% | Valor: R$ 130,16\n- Infração 02: Auto Gerado Duplicada | MULTA POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR, IMPOSTA A PESSOA JURITICA | Valor: R$ 130,16\n\nO condutor reconhece a infração EL00093302. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando R$ 260,32.\n\nVALOR TOTAL ACUMULADO: R$ 260,32\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\nOpção: Parcelado em 2 parcelas de R$ 130,16 mensais. Primeira parcela em: 06/07/2026.\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\nAssumo integral responsabilidade pelo pagamento. Ao concluir o pagamento total, outorgo à empresa João Batista de Souza Pinho EPP (Trans Pinho) a mais ampla quitação.\n\nGRAVATAÍ, ${new Date().getDate()} de Junho de 2026.`;
+    if (type === 'multa_nic') {
+      return `
+        <div class="trans-pinho-doc text-slate-900">
+          <div class="trans-pinho-header">
+            <h2 class="font-black text-sm uppercase">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
+            <p class="text-[11px] text-slate-600">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+            <p class="text-[11px] text-slate-600">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+          </div>
+
+          <h3 class="trans-pinho-title">TERMO DE RESPONSABILIDADE</h3>
+
+          <div class="trans-pinho-section">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+          <p class="text-xs mb-3">
+            Eu, <strong>${driverName}</strong>, portador do CPF de nº <strong>${cpf}</strong>, na qualidade de condutor dos veículos abaixo identificado:
+          </p>
+          <ul class="list-disc pl-6 text-xs mb-4 font-semibold">
+            <li>Placa: <strong>${placa}</strong> &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: <strong>${prefixo}</strong></li>
+          </ul>
+
+          <div class="trans-pinho-section">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
+          <ul class="space-y-2 text-xs mb-3">
+            <li class="font-bold">• Infração 01:</li>
+            <ul class="pl-6 space-y-1 text-[11px]">
+              <li>o Auto de Infração nº: <strong>EL00093302</strong></li>
+              <li>o Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
+              <li>o Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
+              <li>o Valor: <strong>R$ 130,16</strong></li>
+            </ul>
+
+            <li class="font-bold">• Infração 02:</li>
+            <ul class="pl-6 space-y-1 text-[11px]">
+              <li>o Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
+              <li>o Data: | Horário:</li>
+              <li>o Motivo/Enquadramento: <strong>MULTA. POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR, IMPOSTA A PESSOA JURITICA</strong></li>
+              <li>o Valor: <strong>R$ 130,16</strong></li>
+            </ul>
+          </ul>
+
+          <p class="text-xs text-justify leading-relaxed mb-3">
+            O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
+          </p>
+
+          <p class="font-bold text-xs mb-4">VALOR TOTAL ACUMULADO: R$ 260,32</p>
+
+          <div class="trans-pinho-section">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
+          <p class="text-xs mb-2">O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:</p>
+          <div class="space-y-1 text-xs mb-4 pl-2 font-semibold">
+            <p>☐ Cota Única: Vencimento em 06/07/2026</p>
+            <p>☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais. (Primeira parcela em: 06/07/2026)</p>
+          </div>
+
+          <div class="trans-pinho-section">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+          <p class="text-xs text-justify leading-relaxed mb-6">
+            Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
+          </p>
+
+          <p class="text-xs mb-10">GRAVATAÍ, ${new Date().getDate()} de Junho de 2026.</p>
+
+          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
+            <p class="font-bold text-xs">${driverName}</p>
+            <p class="text-[10px] text-slate-500">Condutor Responsável</p>
+          </div>
+        </div>
+      `;
+    } else if (type === 'infracao_direta') {
+      return `
+        <div class="trans-pinho-doc text-slate-900">
+          <div class="trans-pinho-header">
+            <h2 class="font-black text-sm uppercase">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
+            <p class="text-[11px] text-slate-600">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+            <p class="text-[11px] text-slate-600">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+          </div>
+
+          <h3 class="trans-pinho-title">TERMO DE RESPONSABILIDADE</h3>
+
+          <div class="trans-pinho-section">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+          <p class="text-xs mb-3">
+            Eu, <strong>${driverName}</strong> portador(a) do CPF nº <strong>${cpf}</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
+          </p>
+          <ul class="list-disc pl-6 text-xs mb-4 font-semibold">
+            <li>Placa: <strong>${placa}</strong></li>
+            <li>Prefixo do Carro: <strong>${prefixo}</strong></li>
+          </ul>
+
+          <div class="trans-pinho-section">2. DETALHES DO OCORRIDO</div>
+          <ul class="space-y-1 text-xs mb-4 pl-4">
+            <li>• Auto de Infração nº: <strong>TE02141677</strong></li>
+            <li>• Data do ocorrido: <strong>15/04/2026</strong></li>
+            <li>• Horário: <strong>16:50</strong></li>
+            <li>• Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
+          </ul>
+
+          <div class="trans-pinho-section">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
+          <p class="text-xs text-justify leading-relaxed mb-6">
+            Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
+          </p>
+
+          <p class="text-xs mb-10">GRAVATAÍ, ${new Date().getDate()} de Junho de 2026.</p>
+
+          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
+            <p class="font-bold text-xs">Assinatura do Condutor</p>
+            <p class="text-[10px] text-slate-500">${driverName}</p>
+          </div>
+        </div>
+      `;
     } else {
-      return `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, ${driverName}, portador do CPF nº ${cpf}, condutor do veículo Placa: ${placa} Prefixo do Carro: ${prefixo}.\n\n2. DETALHES DO OCORRIDO\n- Auto de Infração nº: TE02141677\n- Data: 15/04/2026 | Horário: 16:50\n- Motivo: ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade.\n\nGRAVATAÍ, ${new Date().getDate()} de Junho de 2026.`;
+      return `
+        <div class="trans-pinho-doc text-slate-900">
+          <div class="trans-pinho-header">
+            <h2 class="font-black text-sm uppercase">Trans Pinho</h2>
+          </div>
+
+          <h3 class="trans-pinho-title">TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO</h3>
+
+          <p class="text-xs text-justify leading-relaxed mb-4">
+            Eu, <strong>${driverName}</strong>, inscrito no CPF sob nº <strong>${cpf}</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>VW Constellation</strong>, placa <strong>${placa}</strong>, envolvido na ocorrência de trânsito nº <strong>SIN-2026-00124</strong>, que:
+          </p>
+
+          <div class="trans-pinho-section">I – Da ciência e reconhecimento da ocorrência</div>
+          <p class="text-xs text-justify leading-relaxed mb-4">
+            Declaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.
+          </p>
+
+          <div class="trans-pinho-section">II – Do reconhecimento de responsabilidade</div>
+          <p class="text-xs text-justify leading-relaxed mb-4">
+            Reconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de <strong>R$ 3.500,00 (Três mil e quinhentos reais)</strong>.
+          </p>
+
+          <div class="trans-pinho-section">III – Da autorização de desconto em folha</div>
+          <p class="text-xs text-justify leading-relaxed mb-3">
+            Autorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:
+          </p>
+          <div class="space-y-1 text-xs mb-4 pl-4 font-semibold">
+            <p>Valor total: R$ 3.500,00</p>
+            <p>Parcelamento: 5 parcelas mensais e sucessivas de R$ 700,00</p>
+          </div>
+
+          <p class="text-xs text-justify leading-relaxed mb-6">
+            Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
+          </p>
+
+          <p class="text-xs mb-10">Gravataí, ${new Date().getDate()} de Junho de 2026</p>
+
+          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
+            <p class="font-bold text-xs">${driverName}</p>
+          </div>
+        </div>
+      `;
     }
   }
 
@@ -813,6 +1159,12 @@
     });
 
     document.getElementById('search-trigger')?.addEventListener('click', () => { state.showSearchModal = true; renderModals(); });
+    document.getElementById('open-excel-import')?.addEventListener('click', () => { state.showExcelImportModal = true; renderModals(); });
+    document.getElementById('dash-import-excel')?.addEventListener('click', () => { state.showExcelImportModal = true; renderModals(); });
+    document.getElementById('claims-import-excel')?.addEventListener('click', () => { state.showExcelImportModal = true; renderModals(); });
+    document.getElementById('fines-import-excel')?.addEventListener('click', () => { state.showExcelImportModal = true; renderModals(); });
+    document.getElementById('people-import-excel')?.addEventListener('click', () => { state.showExcelImportModal = true; renderModals(); });
+
     document.getElementById('open-new-claim')?.addEventListener('click', () => { state.showNewClaimModal = true; renderModals(); });
     document.getElementById('claims-new-btn')?.addEventListener('click', () => { state.showNewClaimModal = true; renderModals(); });
     document.getElementById('dash-new-term')?.addEventListener('click', () => { state.showTermGeneratorModal = true; renderModals(); });
@@ -823,7 +1175,7 @@
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault(); state.showSearchModal = true; renderModals();
       } else if (e.key === 'Escape') {
-        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; renderModals();
+        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExcelImportModal = false; renderModals();
       }
     };
   }
@@ -833,26 +1185,70 @@
     if (!modalRoot) return;
 
     modalRoot.onclick = function () {
-      state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; renderModals();
+      state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExcelImportModal = false; renderModals();
     };
 
     document.querySelectorAll('#close-modal-btn, #close-modal-btn-2').forEach(b => {
       b.onclick = function () {
-        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; renderModals();
+        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExcelImportModal = false; renderModals();
       };
     });
 
-    const templateSelect = document.getElementById('term-template-select');
-    const driverSelect = document.getElementById('term-driver-select');
-    const textArea = document.getElementById('term-text-area');
+    const dropzone = document.getElementById('excel-dropzone');
+    const fileInput = document.getElementById('excel-file-input');
 
-    if (templateSelect && driverSelect && textArea) {
-      const updateText = () => {
-        textArea.value = getTemplateContent(templateSelect.value, driverSelect.value);
+    if (dropzone && fileInput) {
+      dropzone.onclick = () => fileInput.click();
+      fileInput.onchange = function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          try {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet);
+
+            if (json && json.length > 0) {
+              json.forEach((row, idx) => {
+                const auto = row['Auto'] || row['Auto de Infração'] || row['Auto de Infracao'] || `AUTO-${Date.now()}-${idx}`;
+                const placa = row['Placa'] || row['Veículo'] || 'JCO8C10';
+                const condutor = row['Condutor'] || row['Nome'] || 'ANDREIA MERCEDES ROCHA DE ARAUJO';
+                const desc = row['Descrição'] || row['Enquadramento'] || row['Motivo'] || 'Infração de trânsito importada via Excel';
+                const valor = parseFloat(row['Valor'] || row['Valor Total'] || 130.16);
+                const venc = row['Vencimento'] || row['Data'] || '2026-07-06';
+
+                state.fines.unshift({
+                  id: `fine-xl-${Date.now()}-${idx}`,
+                  infractionAuto: auto,
+                  vehiclePlate: placa,
+                  driverName: condutor,
+                  description: desc,
+                  amount: valor,
+                  points: 4,
+                  dueDate: venc,
+                  status: 'Pendente'
+                });
+              });
+
+              showToast(`${json.length} registros importados da planilha Excel com sucesso!`, 'info');
+              state.showExcelImportModal = false;
+              renderModals();
+              state.currentView = 'fines';
+              renderApp();
+            } else {
+              alert('A planilha selecionada parece estar vazia.');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Erro ao processar o arquivo Excel. Verifique o formato.');
+          }
+        };
+        reader.readAsArrayBuffer(file);
       };
-      updateText();
-      templateSelect.onchange = updateText;
-      driverSelect.onchange = updateText;
     }
 
     const genTermForm = document.getElementById('gen-term-form');
@@ -861,23 +1257,29 @@
         e.preventDefault();
         const typeSelect = document.getElementById('term-template-select').value;
         const driverName = document.getElementById('term-driver-select').value;
-        const customContent = document.getElementById('term-text-area').value;
 
         const titleMap = {
-          'desconto_folha': 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO',
           'multa_nic': 'TERMO DE RESPONSABILIDADE - MULTAS & NÃO INDICAÇÃO',
-          'infracao_direta': 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA'
+          'infracao_direta': 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
+          'desconto_folha': 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO'
         };
 
         const title = titleMap[typeSelect] || 'TERMO DE RESPONSABILIDADE';
-        const created = await apiFetch('/terms/generate', {
-          method: 'POST',
-          body: JSON.stringify({ claimId: 'claim-1', templateType: title, title, customContent, involvedPerson: driverName })
-        });
+        const htmlContent = buildTermHtml(typeSelect, driverName);
 
-        const newObj = created || { id: `trm-${Date.now()}`, title, type: title, date: new Date().toISOString().split('T')[0], responsible: state.currentUser.name, involvedPerson: driverName, status: 'Assinado', content: customContent };
+        const newObj = {
+          id: `trm-${Date.now()}`,
+          title,
+          type: title,
+          date: new Date().toISOString().split('T')[0],
+          responsible: state.currentUser.name,
+          involvedPerson: driverName,
+          status: 'Assinado',
+          htmlContent
+        };
+
         state.terms.unshift(newObj);
-        showToast('Termo Trans Pinho gerado e salvo!', 'info');
+        showToast('Termo com layout oficial gerado e salvo!', 'info');
         state.showTermGeneratorModal = false;
         renderModals();
         state.currentView = 'terms';
