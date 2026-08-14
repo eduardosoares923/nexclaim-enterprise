@@ -493,7 +493,7 @@
         </style>
       </head>
       <body onload="window.focus(); window.print();">
-        ${term.exactHtml}
+        ${buildTermHtml(term)}
       </body>
       </html>
     `);
