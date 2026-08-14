@@ -375,16 +375,21 @@ body {
   body {
     background-color: #ffffff !important;
     color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  aside, header, #search-trigger, .nav-btn, .btn-no-print {
+  aside, header, #search-trigger, .nav-btn, .btn-no-print, .bg-slate-900, h2, p.text-slate-300, .space-y-6 > div > div:first-child {
     display: none !important;
   }
   main {
     padding: 0 !important;
+    margin: 0 !important;
     overflow: visible !important;
   }
   .trans-pinho-doc {
     border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
   }
 }
