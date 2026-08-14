@@ -143,20 +143,20 @@
       involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
       status: 'Assinado',
       exactHtml: `
-        <div class="title" style="margin-top: 10px; margin-bottom: 12px;">TERMO DE RESPONSABILIDADE</div>
+        <div class="title" style="margin-top: 14px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
 
         <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
         <p>
           Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, portador do CPF de nº <strong>002.574.880-73</strong>, na qualidade de condutor dos veículos abaixo identificado:
         </p>
-        <ul style="list-style-type: disc; margin-left: 20px;">
+        <ul style="list-style-type: disc; margin-left: 22px;">
           <li><strong>Placa: JCO8C10 &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: 24127</strong></li>
         </ul>
 
         <div class="divider"></div>
 
         <div class="section-title">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
-        <ul style="list-style-type: disc; margin-left: 20px;">
+        <ul style="list-style-type: disc; margin-left: 22px;">
           <li><strong>Infração 01:</strong>
             <ul class="sub-list">
               <li>Auto de Infração nº: <strong>EL00093302</strong></li>
@@ -165,7 +165,7 @@
               <li>Valor: <strong>R$ 130,16</strong></li>
             </ul>
           </li>
-          <li style="margin-top: 2px;"><strong>Infração 02:</strong>
+          <li style="margin-top: 4px;"><strong>Infração 02:</strong>
             <ul class="sub-list">
               <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
               <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
@@ -175,11 +175,11 @@
           </li>
         </ul>
 
-        <p style="margin-top: 4px;">
+        <p style="margin-top: 6px;">
           O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
         </p>
 
-        <p style="font-weight: bold; margin: 4px 0;">
+        <p style="font-weight: bold; margin: 6px 0;">
           VALOR TOTAL ACUMULADO: R$ 260,32
         </p>
 
@@ -189,16 +189,16 @@
         <p>
           O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
         </p>
-        <p style="margin-left: 15px; margin-bottom: 1px;">☐ Cota Única: Vencimento em 06/07/2026</p>
-        <p style="margin-left: 15px; margin-bottom: 1px;">☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.</p>
+        <p style="margin-left: 15px; margin-bottom: 2px;">☐ Cota Única: Vencimento em 06/07/2026</p>
+        <p style="margin-left: 15px; margin-bottom: 2px;">☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.</p>
         <p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: 06/07/2026</p>
 
-        <div class="section-title" style="margin-top: 6px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+        <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
         <p>
           Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
         </p>
 
-        <p style="margin-top: 8px; margin-bottom: 14px;">
+        <p style="margin-top: 10px; margin-bottom: 20px;">
           GRAVATAÍ, 19 de Junho de 2026.
         </p>
 
@@ -223,31 +223,31 @@
       involvedPerson: 'MICHELE ROSA DA ROSA',
       status: 'Assinado',
       exactHtml: `
-        <div class="title" style="margin-top: 15px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
+        <div class="title" style="margin-top: 18px; margin-bottom: 18px;">TERMO DE RESPONSABILIDADE</div>
 
         <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
         <p>
           Eu, <strong>MICHELE ROSA DA ROSA</strong> portador(a) do CPF nº <strong>016.998.180-02</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
         </p>
-        <ul style="list-style-type: disc; margin-left: 20px;">
+        <ul style="list-style-type: disc; margin-left: 22px;">
           <li><strong>Placa: TRD3E72</strong></li>
           <li><strong>Prefixo do Carro: 226</strong></li>
         </ul>
 
-        <div class="section-title" style="margin-top: 10px;">2. DETALHES DO OCORRIDO</div>
-        <ul style="list-style-type: disc; margin-left: 20px;">
+        <div class="section-title" style="margin-top: 12px;">2. DETALHES DO OCORRIDO</div>
+        <ul style="list-style-type: disc; margin-left: 22px;">
           <li>Auto de Infração nº: <strong>TE02141677</strong></li>
           <li>Data do ocorrido: <strong>15/04/2026</strong></li>
           <li>Horário: <strong>16:50</strong></li>
           <li>Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
         </ul>
 
-        <div class="section-title" style="margin-top: 10px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
+        <div class="section-title" style="margin-top: 12px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
         <p>
           Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
         </p>
 
-        <p style="margin-top: 15px; margin-bottom: 25px;">
+        <p style="margin-top: 18px; margin-bottom: 30px;">
           GRAVATAÍ, 24 de Junho de 2026.
         </p>
 
@@ -257,7 +257,7 @@
           <div class="signature-name" style="margin-top: 4px;">MICHELE ROSA DA ROSA</div>
         </div>
 
-        <div class="footer" style="margin-top: 30px;">
+        <div class="footer" style="margin-top: 40px;">
           <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
           Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
           (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
@@ -273,12 +273,11 @@
       involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
       status: 'Assinado',
       exactHtml: `
-        <div style="text-align: right; margin-bottom: 20px;">
-          <div style="font-family: 'Brush Script MT', cursive, Georgia, serif; font-size: 26pt; font-weight: bold; color: #1e3a8a;">Trans Pinho</div>
-          <div style="font-size: 14pt; color: #64748b; margin-top: -6px;">☍</div>
+        <div style="text-align: right; margin-bottom: 12px;">
+          <img src="/images/logo.png" alt="Trans Pinho" style="height: 55px; display: inline-block;" />
         </div>
 
-        <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 20px;">
+        <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 18px;">
           TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO
         </div>
 
@@ -301,16 +300,16 @@
           Autorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:
         </p>
 
-        <p style="margin-left: 20px; font-weight: bold;">
+        <p style="margin-left: 20px; font-weight: bold; margin: 8px 0;">
           Valor total: R$ 3.500,00<br>
           Parcelamento: 05 (cinco) parcelas mensais e sucessivas de R$ 700,00
         </p>
 
-        <p style="margin-top: 15px;">
+        <p style="margin-top: 12px;">
           Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
         </p>
 
-        <p style="margin-top: 25px; margin-bottom: 35px;">
+        <p style="margin-top: 20px; margin-bottom: 30px;">
           Gravataí, 15 de Junho de 2026
         </p>
 
@@ -363,83 +362,79 @@
         <style>
           @page {
             size: A4 portrait;
-            margin: 10mm 15mm 8mm 15mm;
+            margin: 14mm 18mm 12mm 18mm;
           }
           * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
           }
-          html, body {
-            height: 100%;
-            overflow: hidden;
-          }
           body {
             font-family: 'Times New Roman', Times, Georgia, serif;
-            font-size: 10pt;
-            line-height: 1.25;
+            font-size: 10.5pt;
+            line-height: 1.32;
             color: #000000;
             background: #ffffff;
             padding: 4px;
           }
           .title {
             text-align: center;
-            font-size: 11pt;
+            font-size: 12pt;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 6px 0 8px 0;
+            margin: 10px 0 12px 0;
           }
           .section-title {
-            font-size: 10pt;
+            font-size: 11pt;
             font-weight: bold;
             text-transform: uppercase;
-            margin-top: 6px;
-            margin-bottom: 2px;
+            margin-top: 10px;
+            margin-bottom: 4px;
           }
           p {
             text-align: justify;
-            margin-bottom: 4px;
-            line-height: 1.25;
+            margin-bottom: 6px;
+            line-height: 1.32;
           }
           ul {
-            margin-left: 18px;
-            margin-bottom: 4px;
+            margin-left: 20px;
+            margin-bottom: 6px;
           }
           li {
-            margin-bottom: 1px;
+            margin-bottom: 2px;
           }
           .sub-list {
-            margin-left: 16px;
+            margin-left: 18px;
             list-style-type: circle;
           }
           .divider {
-            border-top: 0.5px solid #aaaaaa;
-            margin: 6px 0;
+            border-top: 0.8px solid #999999;
+            margin: 8px 0;
           }
           .signature-section {
-            margin-top: 14px;
+            margin-top: 22px;
             text-align: center;
           }
           .signature-line {
-            width: 280px;
+            width: 300px;
             border-top: 1px solid #000000;
-            margin: 0 auto 4px auto;
+            margin: 0 auto 6px auto;
           }
           .signature-name {
-            font-size: 10pt;
+            font-size: 10.5pt;
             font-weight: bold;
           }
           .signature-sub {
-            font-size: 9pt;
+            font-size: 9.5pt;
             font-style: italic;
           }
           .footer {
-            margin-top: 12px;
+            margin-top: 22px;
             text-align: center;
-            font-size: 8pt;
+            font-size: 8.5pt;
             color: #333333;
-            line-height: 1.2;
+            line-height: 1.3;
           }
         </style>
       </head>
@@ -504,7 +499,9 @@
     return `
       <aside class="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col flex-shrink-0 z-30 select-none">
         <div class="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg">TP</div>
+          <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-lg overflow-hidden">
+            <img src="/images/logo.png" alt="Trans Pinho Logo" class="w-full h-full object-contain" />
+          </div>
           <div class="min-w-0 flex-1">
             <h1 class="font-black text-white text-sm tracking-tight leading-none truncate">Trans Pinho</h1>
             <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">Gravataí / RS</span>
