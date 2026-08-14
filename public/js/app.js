@@ -1,9 +1,8 @@
 /* ==========================================================================
-   NexClaim Enterprise - Full-Stack SPA Engine (Trans Pinho Templates Included)
+   NexClaim Enterprise - Trans Pinho Focused Engine (Zero Dummy Placeholders)
    ========================================================================== */
 
 (function () {
-  // Trans Pinho Seed Fallback Data
   const defaultCompany = {
     name: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)',
     address: 'Rua Florida, 116 – Nossa Chácara – Gravataí/ RS',
@@ -26,7 +25,7 @@
       location: 'BR-116, km 270',
       city: 'Gravataí',
       state: 'RS',
-      description: 'Colisão traseira envolvendo a unidade prefixo 24127 (Placa JCO8C10). Danos materiais na traseira e lanternas. Condutor Andreia Mercedes Rocha de Araujo ciente dos danos decorrentes.',
+      description: 'Ocorrência com a unidade prefixo 24127 (Placa JCO8C10). Avarias traseiras. Condutor Andreia Mercedes Rocha de Araujo ciente dos fatos e danos decorrentes.',
       vehiclePlate: 'JCO8C10',
       vehicleModel: 'VW Constellation (Prefixo 24127)',
       driverName: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
@@ -50,17 +49,17 @@
       location: 'Av. Dorival Cândido Luz de Oliveira, Gravataí/RS',
       city: 'Gravataí',
       state: 'RS',
-      description: 'Auto EL00093302 (Transitar em velocidade superior em até 20% - R$ 130,16) e Multa de Não Indicação de Condutor (NIC - R$ 130,16). Total acumulado R$ 260,32. Condutor solicitou não indicar CNH e assumiu pagamento em dobro.',
+      description: 'Auto EL00093302 (Velocidade superior a 20% - R$ 130,16) e Multa por Não Indicação de Condutor (NIC - R$ 130,16). Total acumulado R$ 260,32. Condutor solicitou não indicar CNH e assumiu pagamento em dobro.',
       vehiclePlate: 'JCO8C10',
       vehicleModel: 'VW Constellation (Prefixo 24127)',
       driverName: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      insurer: 'N/A (Multa de Trânsito)',
+      insurer: 'N/A',
       policyNumber: 'N/A',
       boNumber: 'N/A',
       assignedUser: 'Carlos Pinho',
       estimatedCost: 260.32,
       approvedCost: 260.32,
-      notes: 'Termo de Responsabilidade com quitação e parcelamento firmado em 19/06/2026.'
+      notes: 'Termo de Responsabilidade firmado com parcelamento em 2x.'
     },
     {
       id: 'claim-3',
@@ -81,10 +80,10 @@
       insurer: 'N/A',
       policyNumber: 'N/A',
       boNumber: 'N/A',
-      assignedUser: 'Roberto Alves',
+      assignedUser: 'Carlos Pinho',
       estimatedCost: 195.23,
       approvedCost: 195.23,
-      notes: 'Termo de Responsabilidade assinado em 24/06/2026.'
+      notes: 'Termo de Responsabilidade assinado.'
     }
   ];
 
@@ -95,8 +94,8 @@
   ];
 
   const defaultSeedPeople = [
-    { id: 'peo-1', name: 'ANDREIA MERCEDES ROCHA DE ARAUJO', docNumber: '002.574.880-73', phone: '(51) 99887-6655', email: 'andreia.araujo@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria D. Prefixo de veículo: 24127' },
-    { id: 'peo-2', name: 'MICHELE ROSA DA ROSA', docNumber: '016.998.180-02', phone: '(51) 98765-4321', email: 'michele.rosa@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria C. Prefixo de veículo: 226' }
+    { id: 'peo-1', name: 'ANDREIA MERCEDES ROCHA DE ARAUJO', docNumber: '002.574.880-73', phone: '(51) 99887-6655', email: 'andreia.araujo@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria D. Prefixo: 24127' },
+    { id: 'peo-2', name: 'MICHELE ROSA DA ROSA', docNumber: '016.998.180-02', phone: '(51) 98765-4321', email: 'michele.rosa@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria C. Prefixo: 226' }
   ];
 
   const defaultSeedVehicles = [
@@ -130,54 +129,33 @@
       title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
       type: 'Termo de Responsabilidade',
       date: '2026-06-24',
-      responsible: 'Roberto Alves',
+      responsible: 'Carlos Pinho',
       involvedPerson: 'MICHELE ROSA DA ROSA',
       status: 'Assinado',
       content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, MICHELE ROSA DA ROSA, portador do CPF nº 016.998.180-02, condutor do veículo Placa: TRD3E72 Prefixo do Carro: 226.\n\n2. DETALHES DO OCORRIDO\n- Auto de Infração nº: TE02141677\n- Data: 15/04/2026 | Horário: 16:50\n- Motivo: ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade.\n\nGRAVATAÍ, 24 de Junho de 2026.`
     }
   ];
 
-  // Global State
   const state = {
     currentView: 'dashboard',
     selectedClaimId: 'claim-1',
-    currentUser: { id: 'usr-1', name: 'Carlos Pinho', email: 'carlos@transpinho.com', role: 'ADMINISTRADOR', avatar: 'CP', department: 'Gestão de Frotas' },
+    currentUser: { id: 'usr-1', name: 'Carlos Pinho', email: 'carlos@transpinho.com', role: 'ADMINISTRADOR', avatar: 'CP' },
     company: defaultCompany,
     claims: defaultSeedClaims,
     fines: defaultSeedFines,
-    documents: [],
-    media: [],
     terms: defaultSeedTerms,
     people: defaultSeedPeople,
     vehicles: defaultSeedVehicles,
-    timeline: [
-      { id: 'evt-1', timestamp: '2026-06-15T15:00:00.000Z', user: 'ANDREIA MERCEDES ROCHA DE ARAUJO', actionType: 'Criação do Sinistro', description: 'Registro de ocorrência com danos materiais no caminhão prefixo 24127 (JCO8C10).' },
-      { id: 'evt-2', timestamp: '2026-06-19T10:15:00.000Z', user: 'Carlos Pinho', actionType: 'Inclusão de Termo', description: 'Termo de Responsabilidade por infração EL00093302 e Multa NIC em dobro (R$ 260,32) gerado.' }
-    ],
-    auditLogs: [
-      { id: 'aud-1', timestamp: '2026-06-24T09:00:00.000Z', user: 'Carlos Pinho', userRole: 'ADMINISTRADOR', action: 'GENERATE_TERM', detail: 'Emissão do Termo de Responsabilidade oficial Trans Pinho em Gravataí/RS.' }
-    ],
-    users: [
-      { id: 'usr-1', name: 'Carlos Pinho', role: 'ADMINISTRADOR', avatar: 'CP' },
-      { id: 'usr-2', name: 'Mariana Souza', role: 'GESTOR', avatar: 'MS' },
-      { id: 'usr-3', name: 'Roberto Alves', role: 'OPERADOR', avatar: 'RA' },
-      { id: 'usr-4', name: 'Beatriz Lima', role: 'VISUALIZADOR', avatar: 'BL' }
-    ],
     activeClaimDossier: null,
-    activeTab: 'visao-geral',
     searchQuery: '',
     showSearchModal: false,
     showNewClaimModal: false,
     showTermGeneratorModal: false,
-    showExportModal: false,
-    filters: { status: '', priority: '' },
     toast: null
   };
 
-  // Helper Functions
   function formatCurrency(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0); }
   function formatDate(str) { if (!str) return 'N/A'; const d = new Date(str); return isNaN(d.getTime()) ? str : new Intl.DateTimeFormat('pt-BR').format(d); }
-  function formatDateTime(iso) { if (!iso) return 'N/A'; const d = new Date(iso); return isNaN(d.getTime()) ? iso : new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d); }
   function maskCpfCnpj(val) { if (!val) return 'N/A'; const clean = val.replace(/\D/g, ''); if (clean.length === 11) return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); if (clean.length === 14) return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5'); return val; }
 
   function getStatusBadgeClass(status) {
@@ -190,16 +168,6 @@
       'Paga': 'bg-emerald-100 text-emerald-800 border-emerald-200'
     };
     return map[status] || 'bg-slate-100 text-slate-700 border-slate-200';
-  }
-
-  function getPriorityBadgeClass(priority) {
-    const map = {
-      'Baixa': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'Média': 'bg-amber-50 text-amber-700 border-amber-200',
-      'Alta': 'bg-orange-50 text-orange-700 border-orange-200',
-      'Crítica': 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
-    };
-    return map[priority] || 'bg-slate-50 text-slate-700 border-slate-200';
   }
 
   function showToast(msg, type = 'info') {
@@ -249,9 +217,6 @@
       const c = state.claims.find(cl => cl.id === claimId) || state.claims[0];
       state.activeClaimDossier = {
         claim: c,
-        timeline: state.timeline,
-        documents: state.documents,
-        media: state.media,
         fines: state.fines.filter(f => f.claimId === claimId),
         terms: state.terms.filter(t => t.claimId === claimId),
         vehicle: state.vehicles[0],
@@ -280,20 +245,18 @@
 
   function renderSidebar() {
     const menuItems = [
-      { id: 'dashboard', label: 'Dashboard Trans Pinho', icon: 'fa-chart-pie' },
+      { id: 'dashboard', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
       { id: 'claims', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: state.claims.length },
       { id: 'fines', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: state.fines.length },
-      { id: 'terms', label: 'Termos Trans Pinho', icon: 'fa-file-pen', isAuto: true, badge: state.terms.length },
+      { id: 'terms', label: 'Emitir Termos', icon: 'fa-file-pen', badge: state.terms.length },
       { id: 'people', label: 'Condutores', icon: 'fa-users' },
-      { id: 'vehicles', label: 'Frota & Prefixos', icon: 'fa-truck-front' },
-      { id: 'reports', label: 'Relatórios A4', icon: 'fa-chart-column' },
-      { id: 'activity', label: 'Auditoria LGPD', icon: 'fa-shield-halved' }
+      { id: 'vehicles', label: 'Frota & Prefixos', icon: 'fa-truck-front' }
     ];
 
     return `
       <aside class="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col flex-shrink-0 z-30 select-none">
         <div class="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-slate-900 font-black text-xl shadow-lg">TP</div>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg">TP</div>
           <div class="min-w-0 flex-1">
             <h1 class="font-black text-white text-sm tracking-tight leading-none truncate">Trans Pinho</h1>
             <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">Gravataí / RS</span>
@@ -301,7 +264,7 @@
         </div>
 
         <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          <div class="px-3 mb-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Gestão Corporativa</div>
+          <div class="px-3 mb-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Módulos Ativos</div>
           ${menuItems.map(item => {
             const isActive = state.currentView === item.id || (item.id === 'claims' && state.currentView === 'claim-detail');
             return `
@@ -328,7 +291,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-xs font-bold text-white truncate">${state.currentUser.name}</p>
-              <p class="text-[10px] text-amber-400 font-semibold truncate">${state.currentUser.role}</p>
+              <p class="text-[10px] text-amber-400 font-semibold truncate">${state.currentUser.email}</p>
             </div>
           </div>
         </div>
@@ -343,25 +306,15 @@
           <div id="search-trigger" class="w-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-lg px-3.5 py-2 flex items-center justify-between text-xs text-slate-500 cursor-pointer transition-all">
             <div class="flex items-center gap-2.5">
               <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
-              <span>Pesquisar por Condutor, Placa, Prefixo, Auto...</span>
+              <span>Pesquisar por Condutor, Placa, Prefixo...</span>
             </div>
             <kbd class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-[10px] font-mono text-slate-500">Ctrl + K</kbd>
           </div>
         </div>
 
         <div class="flex items-center gap-3">
-          <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-            <span class="text-[10px] font-bold text-slate-500 uppercase px-2">Perfil:</span>
-            <select id="role-select" class="bg-white border border-slate-200 rounded text-xs font-semibold px-2 py-1 text-slate-700 cursor-pointer">
-              <option value="ADMINISTRADOR" ${state.currentUser.role === 'ADMINISTRADOR' ? 'selected' : ''}>ADMINISTRADOR</option>
-              <option value="GESTOR" ${state.currentUser.role === 'GESTOR' ? 'selected' : ''}>GESTOR</option>
-              <option value="OPERADOR" ${state.currentUser.role === 'OPERADOR' ? 'selected' : ''}>OPERADOR</option>
-              <option value="VISUALIZADOR" ${state.currentUser.role === 'VISUALIZADOR' ? 'selected' : ''}>VISUALIZADOR</option>
-            </select>
-          </div>
-
           <button id="open-new-claim" class="btn bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-xs">
-            <i class="fa-solid fa-plus text-xs text-amber-400"></i> Novo Sinistro / Ocorrência
+            <i class="fa-solid fa-plus text-xs text-amber-400"></i> Novo Sinistro
           </button>
         </div>
       </header>
@@ -377,8 +330,6 @@
       case 'terms': return renderTermsView();
       case 'people': return renderPeopleView();
       case 'vehicles': return renderVehiclesView();
-      case 'reports': return renderReportsView();
-      case 'activity': return renderAuditView();
       default: return renderDashboardView();
     }
   }
@@ -389,58 +340,46 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
           <div>
             <div class="flex items-center gap-2">
-              <span class="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">TRANS PINHO - GRAVATAÍ/RS</span>
+              <span class="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">JOÃO BATISTA DE SOUZA PINHO EPP</span>
             </div>
-            <h2 class="text-xl font-bold text-slate-900 tracking-tight mt-1">Gestão Integrada de Sinistros, Multas e Termos</h2>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight mt-1">Gestão Trans Pinho - Gravataí/RS</h2>
             <p class="text-xs text-slate-500 mt-0.5">Emissão de Termos de Ciência, Desconto em Folha, Multas NIC e Quitação.</p>
           </div>
           <div class="flex flex-wrap gap-2.5">
             <button id="dash-new-term" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
-              <i class="fa-solid fa-wand-magic-sparkles text-slate-950"></i> Emitir Termo Trans Pinho
+              <i class="fa-solid fa-wand-magic-sparkles text-slate-950"></i> Emitir Termo Oficial
             </button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase text-slate-400">Total Sinistros</span>
-              <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-folder-closed"></i></div>
-            </div>
-            <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-xs font-bold uppercase text-slate-400">Total Sinistros</span>
+            <div class="mt-2 flex items-baseline gap-2">
               <span class="text-2xl font-black text-slate-900">${state.claims.length}</span>
-              <span class="text-[11px] font-semibold text-blue-600">Registrados</span>
+              <span class="text-[11px] font-semibold text-blue-600">Cadastrados</span>
             </div>
           </div>
 
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase text-slate-400">Multas & Infração</span>
-              <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-            </div>
-            <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-xs font-bold uppercase text-slate-400">Multas & Infração</span>
+            <div class="mt-2 flex items-baseline gap-2">
               <span class="text-2xl font-black text-slate-900">${state.fines.length}</span>
               <span class="text-[11px] font-semibold text-rose-600">Com NIC e Parcelamento</span>
             </div>
           </div>
 
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase text-slate-400">Termos Emitidos</span>
-              <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-file-signature"></i></div>
-            </div>
-            <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-xs font-bold uppercase text-slate-400">Termos Emitidos</span>
+            <div class="mt-2 flex items-baseline gap-2">
               <span class="text-2xl font-black text-slate-900">${state.terms.length}</span>
               <span class="text-[11px] font-semibold text-amber-600">Modelos Oficiais</span>
             </div>
           </div>
 
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase text-slate-400">Veículos em Frota</span>
-              <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm"><i class="fa-solid fa-truck-front"></i></div>
-            </div>
-            <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-xs font-bold uppercase text-slate-400">Veículos em Frota</span>
+            <div class="mt-2 flex items-baseline gap-2">
               <span class="text-2xl font-black text-slate-900">${state.vehicles.length}</span>
               <span class="text-[11px] font-semibold text-purple-600">Com Prefixo</span>
             </div>
@@ -474,8 +413,8 @@
       <div class="space-y-6">
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">Dossiês de Sinistros & Ocorrências Trans Pinho</h2>
-            <p class="text-xs text-slate-500">Acompanhamento completo por prefixo, placa, condutor e orçamentos.</p>
+            <h2 class="text-xl font-bold text-slate-900">Dossiês de Sinistros & Ocorrências</h2>
+            <p class="text-xs text-slate-500">Acompanhamento por prefixo, placa, condutor e valores apurados.</p>
           </div>
           <button id="claims-new-btn" class="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-lg">
             + Novo Sinistro
@@ -489,7 +428,7 @@
                 <th class="p-3.5">Ocorrência</th>
                 <th class="p-3.5">Condutor</th>
                 <th class="p-3.5">Placa / Modelo</th>
-                <th class="p-3.5">Valor Estimado</th>
+                <th class="p-3.5">Valor Apurado</th>
                 <th class="p-3.5">Status</th>
                 <th class="p-3.5 text-right">Ação</th>
               </tr>
@@ -518,14 +457,14 @@
   }
 
   function renderClaimDetailView() {
-    const d = state.activeClaimDossier || { claim: state.claims[0], timeline: state.timeline, documents: state.documents, media: state.media, fines: state.fines, terms: state.terms };
+    const d = state.activeClaimDossier || { claim: state.claims[0], fines: state.fines, terms: state.terms };
     const claim = d.claim || state.claims[0];
 
     return `
       <div class="space-y-6">
         <div class="flex items-center justify-between text-xs text-slate-500">
           <button data-view="claims" class="nav-btn font-bold text-blue-600 hover:underline">← Voltar para Sinistros</button>
-          <span class="font-mono text-[11px]">Empresa: JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</span>
+          <span class="font-mono text-[11px]">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</span>
         </div>
 
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
@@ -537,7 +476,7 @@
             </div>
             <div class="flex gap-2">
               <button id="detail-gen-term" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg">
-                <i class="fa-solid fa-file-pen mr-1"></i> Emissão de Termos
+                <i class="fa-solid fa-file-pen mr-1"></i> Emitir Termo
               </button>
             </div>
           </div>
@@ -621,9 +560,9 @@
                 <div>
                   <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2 py-0.5 rounded border border-amber-300">${t.type}</span>
                   <h3 class="font-bold text-slate-900 text-base mt-1">${t.title}</h3>
-                  <p class="text-[11px] text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> | Data de Emissão: ${formatDate(t.date)} | Responsável: ${t.responsible}</p>
+                  <p class="text-[11px] text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> | Emissão: ${formatDate(t.date)}</p>
                 </div>
-                <button onclick="window.print()" class="btn bg-slate-900 text-white hover:bg-slate-800 text-xs px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print mr-1"></i> Imprimir / PDF</button>
+                <button onclick="window.print()" class="btn bg-slate-900 text-white hover:bg-slate-800 text-xs px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-print mr-1"></i> Imprimir A4</button>
               </div>
 
               <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 font-mono text-[11px] whitespace-pre-wrap leading-relaxed text-slate-800 max-h-64 overflow-y-auto">
@@ -639,7 +578,7 @@
   function renderPeopleView() {
     return `
       <div class="space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">Cadastro de Condutores & Funcionários Trans Pinho</h2>
+        <h2 class="text-xl font-bold text-slate-900">Cadastro de Condutores</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           ${state.people.map(p => `
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
@@ -657,7 +596,7 @@
   function renderVehiclesView() {
     return `
       <div class="space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">Frota Corporativa & Prefixos Trans Pinho</h2>
+        <h2 class="text-xl font-bold text-slate-900">Frota Corporativa & Prefixos</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           ${state.vehicles.map(v => `
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
@@ -670,50 +609,6 @@
               <p class="text-slate-600 font-semibold">Condutor Habitual: ${v.defaultDriver}</p>
             </div>
           `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  function renderReportsView() {
-    return `
-      <div class="space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">Relatórios Oficiais A4</h2>
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-          <h3 class="font-bold text-sm">Exportação em PDF com Cabeçalho Trans Pinho</h3>
-          <button id="reports-export-btn" class="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-lg flex items-center gap-2">
-            <i class="fa-solid fa-file-pdf text-amber-400"></i> Gerar Dossiê para Impressão A4
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderAuditView() {
-    return `
-      <div class="space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">Rastreabilidade & Logs de Auditoria LGPD</h2>
-        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-500 uppercase text-[10px]">
-              <tr>
-                <th class="p-3.5">Data / Hora</th>
-                <th class="p-3.5">Usuário</th>
-                <th class="p-3.5">Ação</th>
-                <th class="p-3.5">Detalhamento</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${state.auditLogs.map(l => `
-                <tr>
-                  <td class="p-3.5 font-mono text-[11px] text-slate-500">${formatDateTime(l.timestamp)}</td>
-                  <td class="p-3.5 font-bold">${l.user}</td>
-                  <td class="p-3.5"><span class="badge bg-slate-100 border text-[10px] font-mono">${l.action}</span></td>
-                  <td class="p-3.5 text-slate-700">${l.detail}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
         </div>
       </div>
     `;
@@ -736,9 +631,6 @@
     } else if (state.showTermGeneratorModal) {
       modalRoot.classList.remove('hidden');
       modalRoot.innerHTML = renderTermGeneratorModalHtml();
-    } else if (state.showExportModal) {
-      modalRoot.classList.remove('hidden');
-      modalRoot.innerHTML = renderDossierExportModalHtml();
     } else if (state.showSearchModal) {
       modalRoot.classList.remove('hidden');
       modalRoot.innerHTML = renderSearchModalHtml();
@@ -754,7 +646,7 @@
     return `
       <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-          <h3 class="font-bold text-slate-900 text-base">Cadastrar Novo Sinistro / Ocorrência Trans Pinho</h3>
+          <h3 class="font-bold text-slate-900 text-base">Cadastrar Novo Sinistro / Ocorrência</h3>
           <button id="close-modal-btn" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -798,7 +690,7 @@
 
           <div>
             <label class="form-label text-xs">Descrição Detalhada *</label>
-            <textarea name="description" rows="3" placeholder="Descreva o sinistro ou infração de trânsito..." class="form-textarea text-xs" required></textarea>
+            <textarea name="description" rows="3" placeholder="Descreva o sinistro ou infração..." class="form-textarea text-xs" required></textarea>
           </div>
 
           <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
@@ -869,31 +761,6 @@
     }
   }
 
-  function renderDossierExportModalHtml() {
-    return `
-      <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-        <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-          <h3 class="font-bold text-slate-900 text-base">Relatório de Dossiê Oficial Trans Pinho</h3>
-          <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="btn bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-lg"><i class="fa-solid fa-print mr-1"></i> Imprimir A4</button>
-            <button id="close-modal-btn" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-        </div>
-
-        <div class="p-6 border border-slate-300 rounded-lg space-y-4 text-xs font-sans">
-          <div class="text-center border-b border-slate-300 pb-4">
-            <h1 class="text-base font-black text-slate-900">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h1>
-            <p class="text-[10px] text-slate-500">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS • (051) 3047-0212</p>
-          </div>
-          <h2 class="text-sm font-bold uppercase text-center">DOSSIÊ DIGITAL DE SINISTRO E MULTAS</h2>
-          <p>Condutor: <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong></p>
-          <p>Veículo: <strong>VW Constellation (Placa JCO8C10 / Prefixo 24127)</strong></p>
-          <p>Gravataí/RS, 2026.</p>
-        </div>
-      </div>
-    `;
-  }
-
   function renderSearchModalHtml() {
     return `
       <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full p-4 space-y-3" onclick="event.stopPropagation()">
@@ -951,13 +818,12 @@
     document.getElementById('dash-new-term')?.addEventListener('click', () => { state.showTermGeneratorModal = true; renderModals(); });
     document.getElementById('terms-open-gen')?.addEventListener('click', () => { state.showTermGeneratorModal = true; renderModals(); });
     document.getElementById('detail-gen-term')?.addEventListener('click', () => { state.showTermGeneratorModal = true; renderModals(); });
-    document.getElementById('reports-export-btn')?.addEventListener('click', () => { state.showExportModal = true; renderModals(); });
 
     document.onkeydown = function (e) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault(); state.showSearchModal = true; renderModals();
       } else if (e.key === 'Escape') {
-        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExportModal = false; renderModals();
+        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; renderModals();
       }
     };
   }
@@ -967,12 +833,12 @@
     if (!modalRoot) return;
 
     modalRoot.onclick = function () {
-      state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExportModal = false; renderModals();
+      state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; renderModals();
     };
 
     document.querySelectorAll('#close-modal-btn, #close-modal-btn-2').forEach(b => {
       b.onclick = function () {
-        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; state.showExportModal = false; renderModals();
+        state.showSearchModal = false; state.showNewClaimModal = false; state.showTermGeneratorModal = false; renderModals();
       };
     });
 
@@ -1011,7 +877,7 @@
 
         const newObj = created || { id: `trm-${Date.now()}`, title, type: title, date: new Date().toISOString().split('T')[0], responsible: state.currentUser.name, involvedPerson: driverName, status: 'Assinado', content: customContent };
         state.terms.unshift(newObj);
-        showToast('Termo Trans Pinho gerado e salvo com sucesso!', 'info');
+        showToast('Termo Trans Pinho gerado e salvo!', 'info');
         state.showTermGeneratorModal = false;
         renderModals();
         state.currentView = 'terms';

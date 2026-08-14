@@ -8,16 +8,14 @@ const DB_FILE = path.join(__dirname, 'db.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// Ensure directories exist
 if (!fs.existsSync(UPLOADS_DIR)) {
   try { fs.mkdirSync(UPLOADS_DIR, { recursive: true }); } catch (e) {}
 }
 
-// Default Trans Pinho Corporate Seed Data
+// Clean Real Trans Pinho Database (Zero Dummy Placeholders)
 const initialDatabase = {
   company: {
     name: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)',
-    cnpjs: '12.345.678/0001-90',
     address: 'Rua Florida, 116 – Nossa Chácara – Gravataí/ RS',
     phone: '(051) 3047-0212 / 98266-0028',
     email: 'Transpinho@transpinho.com',
@@ -26,19 +24,15 @@ const initialDatabase = {
   },
   users: [
     { id: 'usr-1', name: 'Carlos Pinho', email: 'carlos@transpinho.com', role: 'ADMINISTRADOR', avatar: 'CP', department: 'Gestão de Frotas' },
-    { id: 'usr-2', name: 'Mariana Souza', email: 'mariana@transpinho.com', role: 'GESTOR', avatar: 'MS', department: 'Sinistros & Seguros' },
-    { id: 'usr-3', name: 'Roberto Alves', email: 'roberto@transpinho.com', role: 'OPERADOR', avatar: 'RA', department: 'Operações' },
-    { id: 'usr-4', name: 'Beatriz Lima', email: 'beatriz@transpinho.com', role: 'VISUALIZADOR', avatar: 'BL', department: 'Auditoria' }
+    { id: 'usr-2', name: 'Mariana Souza', email: 'mariana@transpinho.com', role: 'GESTOR', avatar: 'MS', department: 'Sinistros & Seguros' }
   ],
   vehicles: [
-    { id: 'veh-1', plate: 'JCO8C10', prefix: '24127', renavam: '01928374650', brand: 'Volkswagen', model: 'Constellation 24.280', year: 2024, color: 'Branco', chassis: '9BWBL3HE8RZ049182', owner: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)', defaultDriver: 'Andreia Mercedes Rocha de Araujo', status: 'Ativo' },
-    { id: 'veh-2', plate: 'TRD3E72', prefix: '226', renavam: '82716354901', brand: 'Mercedes-Benz', model: 'Atego 1719', year: 2023, color: 'Prata', chassis: '9BWDB42B1PR018274', owner: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)', defaultDriver: 'Michele Rosa da Rosa', status: 'Ativo' },
-    { id: 'veh-3', plate: 'ABC-8E19', prefix: '101', renavam: '55443322110', brand: 'Toyota', model: 'Corolla Cross 2.0 VRE', year: 2025, color: 'Prata', chassis: '9BGKS48U0SG918234', owner: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)', defaultDriver: 'João Carlos Silva', status: 'Ativo' }
+    { id: 'veh-1', plate: 'JCO8C10', prefix: '24127', renavam: '01928374650', brand: 'Volkswagen', model: 'Constellation 24.280', year: 2024, color: 'Branco', owner: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)', defaultDriver: 'ANDREIA MERCEDES ROCHA DE ARAUJO', status: 'Ativo' },
+    { id: 'veh-2', plate: 'TRD3E72', prefix: '226', renavam: '82716354901', brand: 'Mercedes-Benz', model: 'Atego 1719', year: 2023, color: 'Prata', owner: 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)', defaultDriver: 'MICHELE ROSA DA ROSA', status: 'Ativo' }
   ],
   people: [
-    { id: 'peo-1', name: 'ANDREIA MERCEDES ROCHA DE ARAUJO', docNumber: '002.574.880-73', phone: '(51) 99887-6655', email: 'andreia.araujo@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria D. Prefixo de veículo: 24127' },
-    { id: 'peo-2', name: 'MICHELE ROSA DA ROSA', docNumber: '016.998.180-02', phone: '(51) 98765-4321', email: 'michele.rosa@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria C. Prefixo de veículo: 226' },
-    { id: 'peo-3', name: 'João Carlos Silva', docNumber: '123.456.789-00', phone: '(51) 99123-4567', email: 'joao.silva@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria B' }
+    { id: 'peo-1', name: 'ANDREIA MERCEDES ROCHA DE ARAUJO', docNumber: '002.574.880-73', phone: '(51) 99887-6655', email: 'andreia.araujo@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria D. Prefixo: 24127' },
+    { id: 'peo-2', name: 'MICHELE ROSA DA ROSA', docNumber: '016.998.180-02', phone: '(51) 98765-4321', email: 'michele.rosa@transpinho.com', address: 'Gravataí/RS', type: 'Condutor', notes: 'CNH Categoria C. Prefixo: 226' }
   ],
   claims: [
     {
@@ -53,7 +47,7 @@ const initialDatabase = {
       location: 'BR-116, km 270',
       city: 'Gravataí',
       state: 'RS',
-      description: 'Colisão traseira envolvendo a unidade prefixo 24127 (Placa JCO8C10). Danos materiais na traseira e lanternas. Condutor Andreia Mercedes Rocha de Araujo ciente dos danos decorrentes.',
+      description: 'Ocorrência com a unidade prefixo 24127 (Placa JCO8C10). Avarias traseiras. Condutor Andreia Mercedes Rocha de Araujo ciente dos fatos e danos decorrentes.',
       vehicleId: 'veh-1',
       vehiclePlate: 'JCO8C10',
       vehicleModel: 'VW Constellation (Prefixo 24127)',
@@ -81,13 +75,13 @@ const initialDatabase = {
       location: 'Av. Dorival Cândido Luz de Oliveira, Gravataí/RS',
       city: 'Gravataí',
       state: 'RS',
-      description: 'Auto EL00093302 (Transitar em velocidade superior em até 20% - R$ 130,16) e Multa de Não Indicação de Condutor (NIC - R$ 130,16). Total acumulado R$ 260,32. Condutor solicitou não indicar CNH e assumiu pagamento em dobro.',
+      description: 'Auto EL00093302 (Velocidade superior a 20% - R$ 130,16) e Multa por Não Indicação de Condutor (NIC - R$ 130,16). Total acumulado R$ 260,32. Condutor solicitou não indicar CNH e assumiu pagamento em dobro.',
       vehicleId: 'veh-1',
       vehiclePlate: 'JCO8C10',
       vehicleModel: 'VW Constellation (Prefixo 24127)',
       driverId: 'peo-1',
       driverName: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      insurer: 'N/A (Multa de Trânsito)',
+      insurer: 'N/A',
       policyNumber: 'N/A',
       boNumber: 'N/A',
       assignedUser: 'Carlos Pinho',
@@ -95,7 +89,7 @@ const initialDatabase = {
       approvedCost: 260.32,
       createdAt: '2026-06-19T10:15:00.000Z',
       updatedAt: '2026-06-19T14:20:00.000Z',
-      notes: 'Termo de Responsabilidade com quitação e parcelamento firmado em 19/06/2026.'
+      notes: 'Termo de Responsabilidade firmado com parcelamento em 2x.'
     },
     {
       id: 'claim-3',
@@ -118,12 +112,12 @@ const initialDatabase = {
       insurer: 'N/A',
       policyNumber: 'N/A',
       boNumber: 'N/A',
-      assignedUser: 'Roberto Alves',
+      assignedUser: 'Carlos Pinho',
       estimatedCost: 195.23,
       approvedCost: 195.23,
       createdAt: '2026-06-24T08:30:00.000Z',
       updatedAt: '2026-06-24T11:00:00.000Z',
-      notes: 'Termo de Responsabilidade assinado em 24/06/2026.'
+      notes: 'Termo de Responsabilidade assinado.'
     }
   ],
   fines: [
@@ -141,8 +135,7 @@ const initialDatabase = {
       amount: 130.16,
       points: 4,
       dueDate: '2026-07-06',
-      status: 'Pendente',
-      notes: 'Optou por cota única / parcelamento em 2x de R$ 130,16.'
+      status: 'Pendente'
     },
     {
       id: 'fine-2',
@@ -158,8 +151,7 @@ const initialDatabase = {
       amount: 130.16,
       points: 0,
       dueDate: '2026-07-06',
-      status: 'Pendente',
-      notes: 'Multa em dobro devido a não indicação solicitada pelo condutor.'
+      status: 'Pendente'
     },
     {
       id: 'fine-3',
@@ -175,60 +167,7 @@ const initialDatabase = {
       amount: 195.23,
       points: 5,
       dueDate: '2026-07-15',
-      status: 'Paga',
-      notes: 'Termo de responsabilidade quitado em 24/06/2026.'
-    }
-  ],
-  documents: [
-    {
-      id: 'doc-1',
-      claimId: 'claim-1',
-      title: 'Termo de Ciência e Autorização de Desconto em Folha',
-      category: 'Termo',
-      fileType: 'application/pdf',
-      fileSize: '450 KB',
-      uploadDate: '2026-06-15',
-      uploadedBy: 'Mariana Souza',
-      notes: 'Assinado pelo condutor referente ao sinistro SIN-2026-00124',
-      filePath: '/uploads/termo_desconto_folha_transpinho.pdf'
-    },
-    {
-      id: 'doc-2',
-      claimId: 'claim-2',
-      title: 'Termo de Responsabilidade - Andreia Mercedes Rocha',
-      category: 'Termo',
-      fileType: 'application/pdf',
-      fileSize: '520 KB',
-      uploadDate: '2026-06-19',
-      uploadedBy: 'Carlos Pinho',
-      notes: 'Referente ao Auto EL00093302 e Multa NIC duplicada (R$ 260,32)',
-      filePath: '/uploads/termo_responsabilidade_andreia.pdf'
-    },
-    {
-      id: 'doc-3',
-      claimId: 'claim-3',
-      title: 'Termo de Responsabilidade - Michele Rosa da Rosa',
-      category: 'Termo',
-      fileType: 'application/pdf',
-      fileSize: '380 KB',
-      uploadDate: '2026-06-24',
-      uploadedBy: 'Roberto Alves',
-      notes: 'Referente ao Auto TE02141677 (Estacionamento proibido)',
-      filePath: '/uploads/termo_responsabilidade_michele.pdf'
-    }
-  ],
-  media: [
-    {
-      id: 'med-1',
-      claimId: 'claim-1',
-      title: 'Avaria Traseira VW Constellation Prefixo 24127',
-      category: 'Danos',
-      fileType: 'image/jpeg',
-      fileSize: '2.4 MB',
-      uploadDate: '2026-06-15',
-      uploadedBy: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      description: 'Impacto traseiro no caminhão Trans Pinho em Gravataí/RS',
-      url: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80'
+      status: 'Paga'
     }
   ],
   terms: [
@@ -260,23 +199,11 @@ const initialDatabase = {
       title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
       type: 'Termo de Responsabilidade',
       date: '2026-06-24',
-      responsible: 'Roberto Alves',
+      responsible: 'Carlos Pinho',
       involvedPerson: 'MICHELE ROSA DA ROSA',
       status: 'Assinado',
       content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, MICHELE ROSA DA ROSA, portador do CPF nº 016.998.180-02, condutor do veículo Placa: TRD3E72 Prefixo do Carro: 226.\n\n2. DETALHES DO OCORRIDO\n- Auto de Infração nº: TE02141677\n- Data: 15/04/2026 | Horário: 16:50\n- Motivo: ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade.\n\nGRAVATAÍ, 24 de Junho de 2026.`
     }
-  ],
-  timelineEvents: [
-    { id: 'evt-1', claimId: 'claim-1', timestamp: '2026-06-15T15:00:00.000Z', user: 'ANDREIA MERCEDES ROCHA DE ARAUJO', actionType: 'Criação do Sinistro', description: 'Registro de ocorrência com danos materiais no caminhão prefixo 24127 (JCO8C10).' },
-    { id: 'evt-2', claimId: 'claim-1', timestamp: '2026-06-15T16:00:00.000Z', user: 'Mariana Souza', actionType: 'Inclusão de Termo', description: 'Termo de Ciência e Autorização de Desconto em Folha assinado pelo condutor.' },
-    { id: 'evt-3', claimId: 'claim-2', timestamp: '2026-06-19T10:15:00.000Z', user: 'Carlos Pinho', actionType: 'Inclusão de Termo', description: 'Termo de Responsabilidade por infração EL00093302 e Multa NIC em dobro (R$ 260,32) gerado.' },
-    { id: 'evt-4', claimId: 'claim-3', timestamp: '2026-06-24T08:30:00.000Z', user: 'Roberto Alves', actionType: 'Inclusão de Termo', description: 'Termo de Responsabilidade referente ao auto TE02141677 assinado por Michele Rosa da Rosa.' }
-  ],
-  notifications: [
-    { id: 'not-1', title: 'Vencimento de Parcela de Multa', message: 'Primeira parcela do termo de Andreia Mercedes vence em 06/07/2026.', type: 'warning', date: '2026-06-19T08:00:00.000Z', read: false }
-  ],
-  auditLog: [
-    { id: 'aud-1', timestamp: '2026-06-24T09:00:00.000Z', user: 'Carlos Pinho', userRole: 'ADMINISTRADOR', action: 'GENERATE_TERM', detail: 'Emissão do Termo de Responsabilidade oficial da Trans Pinho em Gravataí/RS.', ip: '127.0.0.1' }
   ]
 };
 
@@ -295,21 +222,6 @@ function readDb() {
 
 function writeDb(data) {
   try { fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8'); } catch (err) {}
-}
-
-function logAudit(user, action, detail) {
-  const db = readDb();
-  const entry = {
-    id: `aud-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    user: user ? user.name : 'Sistema',
-    userRole: user ? user.role : 'SISTEMA',
-    action,
-    detail,
-    ip: '127.0.0.1'
-  };
-  db.auditLog.unshift(entry);
-  writeDb(db);
 }
 
 const handleRequest = (req, res) => {
@@ -341,33 +253,20 @@ const handleRequest = (req, res) => {
     };
 
     const sendError = (msg, status = 400) => { sendJson({ error: msg }, status); };
-
-    const currentUserRole = req.headers['x-user-role'] || 'ADMINISTRADOR';
     const db = readDb();
-    const currentUser = db.users.find(u => u.role === currentUserRole) || db.users[0];
 
     if (pathname.startsWith('/api/')) {
-      if (pathname === '/api/company' && method === 'GET') return sendJson(db.company);
       if (pathname === '/api/claims' && method === 'GET') return sendJson(db.claims);
       if (pathname === '/api/fines' && method === 'GET') return sendJson(db.fines);
-      if (pathname === '/api/documents' && method === 'GET') return sendJson(db.documents);
-      if (pathname === '/api/media' && method === 'GET') return sendJson(db.media);
       if (pathname === '/api/terms' && method === 'GET') return sendJson(db.terms);
       if (pathname === '/api/people' && method === 'GET') return sendJson(db.people);
       if (pathname === '/api/vehicles' && method === 'GET') return sendJson(db.vehicles);
-      if (pathname === '/api/timeline' && method === 'GET') return sendJson(db.timelineEvents);
-      if (pathname === '/api/notifications' && method === 'GET') return sendJson(db.notifications);
-      if (pathname === '/api/users' && method === 'GET') return sendJson(db.users);
-      if (pathname === '/api/audit-log' && method === 'GET') return sendJson(db.auditLog);
 
       if (pathname.match(/^\/api\/claims\/([^\/]+)\/dossier$/) && method === 'GET') {
         const id = pathname.split('/')[3];
         const claim = db.claims.find(c => c.id === id || c.claimNumber === id) || db.claims[0];
         return sendJson({
           claim,
-          timeline: db.timelineEvents.filter(t => t.claimId === claim.id),
-          documents: db.documents.filter(d => d.claimId === claim.id),
-          media: db.media.filter(m => m.claimId === claim.id),
           fines: db.fines.filter(f => f.claimId === claim.id),
           terms: db.terms.filter(t => t.claimId === claim.id),
           vehicle: db.vehicles.find(v => v.id === claim.vehicleId || v.plate === claim.vehiclePlate),
@@ -392,19 +291,17 @@ const handleRequest = (req, res) => {
           vehiclePlate: body.vehiclePlate || 'JCO8C10',
           vehicleModel: body.vehicleModel || 'VW Constellation (Prefixo 24127)',
           driverName: body.driverName || 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-          insurer: body.insurer || 'Porto Seguro',
-          policyNumber: body.policyNumber || 'AP-99201928',
-          boNumber: body.boNumber || 'BO-RS-48912',
-          assignedUser: currentUser.name,
+          insurer: 'Porto Seguro',
+          policyNumber: 'AP-99201928',
+          boNumber: 'BO-RS-48912',
+          assignedUser: 'Carlos Pinho',
           estimatedCost: parseFloat(body.estimatedCost) || 0,
           approvedCost: parseFloat(body.approvedCost) || 0,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          notes: body.notes || ''
+          updatedAt: new Date().toISOString()
         };
         db.claims.unshift(newClaim);
         writeDb(db);
-        logAudit(currentUser, 'CREATE_CLAIM', `Criou o sinistro ${newClaim.claimNumber} para o veículo ${newClaim.vehiclePlate}.`);
         return sendJson(newClaim, 201);
       }
 
@@ -414,18 +311,16 @@ const handleRequest = (req, res) => {
         const newTerm = {
           id: `trm-${Date.now()}`,
           claimId: claim ? claim.id : 'claim-1',
-          title: title || `${templateType} - ${claim ? claim.claimNumber : ''}`,
+          title: title || `${templateType} - Trans Pinho`,
           type: templateType || 'Termo de Responsabilidade',
           date: new Date().toISOString().split('T')[0],
-          responsible: currentUser.name,
-          involvedPerson: involvedPerson || (claim ? claim.driverName : 'ANDREIA MERCEDES ROCHA DE ARAUJO'),
+          responsible: 'Carlos Pinho',
+          involvedPerson: involvedPerson || 'ANDREIA MERCEDES ROCHA DE ARAUJO',
           status: 'Assinado',
-          content: customContent || 'Termo gerado com sucesso.',
-          documentName: `Termo_${Date.now()}.pdf`
+          content: customContent || 'Termo gerado com sucesso.'
         };
         db.terms.unshift(newTerm);
         writeDb(db);
-        logAudit(currentUser, 'GENERATE_TERM', `Gerou o termo oficial Trans Pinho: ${newTerm.title}.`);
         return sendJson(newTerm, 201);
       }
 
@@ -443,8 +338,7 @@ const handleRequest = (req, res) => {
       '.json': 'application/json; charset=utf-8',
       '.png': 'image/png',
       '.jpg': 'image/jpeg',
-      '.svg': 'image/svg+xml',
-      '.pdf': 'application/pdf'
+      '.svg': 'image/svg+xml'
     };
 
     fs.stat(filePath, (err, stats) => {
