@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NexClaim Enterprise - Complete Production Application Engine
+   NexClaim Enterprise - Trans Pinho Focused Engine (Pixel-Perfect PDF Terms)
    ========================================================================== */
 
 (function () {
@@ -111,7 +111,7 @@
       isActive: true,
       conditionRules: { occurrenceType: 'velocidade_nic' },
       availableVariables: ['{{nome_condutor}}', '{{cpf_condutor}}', '{{placa}}', '{{prefixo}}', '{{data_sinistro}}', '{{valor_total}}'],
-      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, {{nome_condutor}}, portador do CPF de nº {{cpf_condutor}}, na qualidade de condutor do veículo Placa: {{placa}}, Prefixo: {{prefixo}}.\n\n2. DETALHAMENTO DAS INFRAÇÕES E VALORES\n- Infração 01: Auto EL00093302 | Data: {{data_sinistro}} | Motivo: TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20% | Valor: R$ 130,16\n- Infração 02: Auto Gerado Duplicada | Motivo: MULTA POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR | Valor: R$ 130,16\n\nO condutor reconhece a infração. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, declara estar ciente e de acordo com o pagamento em dobro no valor total de {{valor_total}}.\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\n☑ Parcelado em 2 parcelas mensais de R$ 130,16.\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\nAssumo integral responsabilidade pelo pagamento. Ao concluir o pagamento total, outorgo à empresa João Batista de Souza Pinho EPP (Trans Pinho) a mais ampla quitação.\n\nGRAVATAÍ, {{data_sinistro}}.`
+      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, {{nome_condutor}}, portador do CPF de nº {{cpf_condutor}}, na qualidade de condutor dos veículos abaixo identificado:\n• Placa: {{placa}}    Prefixo do Carro: {{prefixo}}\n\n2. DETALHAMENTO DAS INFRAÇÕES E VALORES\n• Infração 01:\n  o Auto de Infração nº: EL00093302\n  o Data: {{data_sinistro}} | Horário: 10:44\n  o Motivo/Enquadramento: TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%\n  o Valor: R$ 130,16\n• Infração 02:\n  o Auto de Infração nº: Gerado Duplicada\n  o Data: | Horário:\n  o Motivo/Enquadramento: MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA\n  o Valor: R$ 130,16\n\nO condutor reconhece a infração nº EL00093302. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando {{valor_total}}, assumindo integral responsabilidade pela nova infração gerada.\n\nVALOR TOTAL ACUMULADO: {{valor_total}}\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\nO condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:\n☐ Cota Única: Vencimento em 06/07/2026\n☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.\nPrimeira parcela em: 06/07/2026\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\nAssumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa João Batista de Souza Pinho EPP (Trans Pinho) a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.\n\nGRAVATAÍ, {{data_sinistro}}.\n\n\n___________________________________________\n{{nome_condutor}}`
     },
     {
       id: 'tmpl-2',
@@ -120,7 +120,7 @@
       isActive: true,
       conditionRules: { occurrenceType: 'estacionamento_proibido' },
       availableVariables: ['{{nome_condutor}}', '{{cpf_condutor}}', '{{placa}}', '{{prefixo}}', '{{data_sinistro}}'],
-      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, {{nome_condutor}}, portador do CPF nº {{cpf_condutor}}, condutor do veículo Placa: {{placa}}, Prefixo: {{prefixo}}.\n\n2. DETALHES DO OCORRIDO\n- Auto de Infração nº: TE02141677 | Data: {{data_sinistro}}\n- Motivo: ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade.\n\nGRAVATAÍ, {{data_sinistro}}.`
+      content: `TERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, {{nome_condutor}} portador(a) do CPF nº {{cpf_condutor}}, na qualidade de condutor(a) do veículo abaixo identificado:\n• Placa: {{placa}}\n• Prefixo do Carro: {{prefixo}}\n\n2. DETALHES DO OCORRIDO\n• Auto de Infração nº: TE02141677\n• Data do ocorrido: 15/04/2026\n• Horário: 16:50\n• Motivo (Enquadramento): ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.\n\nGRAVATAÍ, {{data_sinistro}}.\n\n\n___________________________________________\nAssinatura do Condutor\n{{nome_condutor}}\n\nJOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com`
     },
     {
       id: 'tmpl-3',
@@ -129,7 +129,7 @@
       isActive: true,
       conditionRules: { occurrenceType: 'colisao' },
       availableVariables: ['{{nome_condutor}}', '{{cpf_condutor}}', '{{placa}}', '{{valor_total}}', '{{data_sinistro}}'],
-      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO\n\nEu, {{nome_condutor}}, inscrito no CPF sob nº {{cpf_condutor}}, condutor do veículo Placa: {{placa}}, envolvido na ocorrência de trânsito, declaro que:\n\nI – Da ciência e reconhecimento da ocorrência: Declaro estar plenamente ciente dos fatos e danos materiais decorrentes.\nII – Do reconhecimento de responsabilidade: Reconheço minha responsabilidade pelos danos, assumindo o ressarcimento dos prejuízos no valor total de {{valor_total}}.\nIII – Da autorização de desconto em folha: Autorizo expressamente o desconto do valor em minha folha de pagamento em parcelas mensais.\n\nGravataí, {{data_sinistro}}.`
+      content: `TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO\n\nEu, {{nome_condutor}}, inscrito no CPF sob nº {{cpf_condutor}}, declaro, para os devidos fins de direito, na qualidade de condutor do veículo VW Constellation, placa {{placa}}, envolvido na ocorrência de trânsito nº SIN-2026-00124, que:\n\nI – Da ciência e reconhecimento da ocorrência\nDeclaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.\n\nII – Do reconhecimento de responsabilidade\nReconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de {{valor_total}}.\n\nIII – Da autorização de desconto em folha\nAutorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:\n\nValor total: {{valor_total}}\nParcelamento: 05 (cinco) parcelas mensais e sucessivas de R$ 700,00\n\nDeclaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.\n\nGravataí, {{data_sinistro}}\n\n___________________________________________\n{{nome_condutor}}`
     }
   ];
 
@@ -142,74 +142,195 @@
       responsible: 'Carlos Pinho',
       involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
       status: 'Assinado',
-      htmlContent: `
-        <div class="trans-pinho-doc text-slate-900">
-          <div class="trans-pinho-header text-center border-b-2 border-black pb-4 mb-4">
-            <h2 class="font-black text-sm uppercase">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
-            <p class="text-[11px] text-slate-600">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
-            <p class="text-[11px] text-slate-600">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
-          </div>
+      exactHtml: `
+        <div class="header">
+          <h1>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h1>
+          <p>Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+          <p>(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+        </div>
+        <div class="header-line"></div>
 
-          <h3 class="trans-pinho-title font-bold text-center uppercase my-4">TERMO DE RESPONSABILIDADE</h3>
+        <div class="title">TERMO DE RESPONSABILIDADE</div>
 
-          <div class="trans-pinho-section font-bold uppercase mt-4 mb-2">1. IDENTIFICAÇÃO DO CONDUTOR</div>
-          <p class="text-xs mb-3">
-            Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, portador do CPF de nº <strong>002.574.880-73</strong>, na qualidade de condutor dos veículos abaixo identificado:
-          </p>
-          <ul class="list-disc pl-6 text-xs mb-4 font-semibold">
-            <li>Placa: <strong>JCO8C10</strong> &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: <strong>24127</strong></li>
-          </ul>
+        <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+        <p>
+          Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, portador do CPF de nº <strong>002.574.880-73</strong>, na qualidade de condutor dos veículos abaixo identificado:
+        </p>
+        <ul style="list-style-type: disc; margin-left: 25px;">
+          <li><strong>Placa: JCO8C10 &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: 24127</strong></li>
+        </ul>
 
-          <div class="trans-pinho-section font-bold uppercase mt-4 mb-2">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
-          <ul class="space-y-2 text-xs mb-3">
-            <li class="font-bold">• Infração 01:</li>
-            <ul class="pl-6 space-y-1 text-[11px]">
-              <li>o Auto de Infração nº: <strong>EL00093302</strong></li>
-              <li>o Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
-              <li>o Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
-              <li>o Valor: <strong>R$ 130,16</strong></li>
+        <div class="divider"></div>
+
+        <div class="section-title">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
+        <ul style="list-style-type: disc; margin-left: 20px;">
+          <li><strong>Infração 01:</strong>
+            <ul class="sub-list">
+              <li>Auto de Infração nº: <strong>EL00093302</strong></li>
+              <li>Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
+              <li>Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
+              <li>Valor: <strong>R$ 130,16</strong></li>
             </ul>
-
-            <li class="font-bold">• Infração 02:</li>
-            <ul class="pl-6 space-y-1 text-[11px]">
-              <li>o Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
-              <li>o Data: | Horário:</li>
-              <li>o Motivo/Enquadramento: <strong>MULTA. POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR, IMPOSTA A PESSOA JURITICA</strong></li>
-              <li>o Valor: <strong>R$ 130,16</strong></li>
+          </li>
+          <li style="margin-top: 4px;"><strong>Infração 02:</strong>
+            <ul class="sub-list">
+              <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
+              <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
+              <li>Motivo/Enquadramento: <strong>MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA</strong></li>
+              <li>Valor: <strong>R$ 130,16</strong></li>
             </ul>
-          </ul>
+          </li>
+        </ul>
 
-          <p class="text-xs text-justify leading-relaxed mb-3">
-            O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
-          </p>
+        <p style="margin-top: 6px;">
+          O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>R$ 260,32 (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
+        </p>
 
-          <p class="font-bold text-xs mb-4">VALOR TOTAL ACUMULADO: R$ 260,32</p>
+        <p style="font-weight: bold; margin: 6px 0;">
+          VALOR TOTAL ACUMULADO: R$ 260,32
+        </p>
 
-          <div class="trans-pinho-section font-bold uppercase mt-4 mb-2">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
-          <p class="text-xs mb-2">O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:</p>
-          <div class="space-y-1 text-xs mb-4 pl-2 font-semibold">
-            <p>☐ Cota Única: Vencimento em 06/07/2026</p>
-            <p>☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais. (Primeira parcela em: 06/07/2026)</p>
-          </div>
+        <div class="divider"></div>
 
-          <div class="trans-pinho-section font-bold uppercase mt-4 mb-2">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
-          <p class="text-xs text-justify leading-relaxed mb-6">
-            Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
-          </p>
+        <div class="section-title">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
+        <p>
+          O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
+        </p>
+        <p style="margin-left: 15px; margin-bottom: 2px;">☐ Cota Única: Vencimento em 06/07/2026</p>
+        <p style="margin-left: 15px; margin-bottom: 2px;">☑ Parcelado: Em 2 parcelas de R$ 130,16 Mensais.</p>
+        <p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: 06/07/2026</p>
 
-          <p class="text-xs mb-10">GRAVATAÍ, 19 de Junho de 2026.</p>
+        <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+        <p>
+          Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
+        </p>
 
-          <div class="text-center pt-8 border-t border-slate-400 w-72 mx-auto">
-            <p class="font-bold text-xs">ANDREIA MERCEDES ROCHA DE ARAUJO</p>
-            <p class="text-[10px] text-slate-500">Condutor Responsável</p>
-          </div>
+        <p style="margin-top: 10px; margin-bottom: 18px;">
+          GRAVATAÍ, 19 de Junho de 2026.
+        </p>
+
+        <div class="signature-section">
+          <div class="signature-line"></div>
+          <div class="signature-name">ANDREIA MERCEDES ROCHA DE ARAUJO</div>
+        </div>
+
+        <div class="footer">
+          <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
+          Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
+          (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
+        </div>
+      `
+    },
+    {
+      id: 'trm-2',
+      title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
+      type: 'Termo de Responsabilidade',
+      date: '2026-06-24',
+      responsible: 'Carlos Pinho',
+      involvedPerson: 'MICHELE ROSA DA ROSA',
+      status: 'Assinado',
+      exactHtml: `
+        <div class="title" style="margin-top: 20px; margin-bottom: 20px;">TERMO DE RESPONSABILIDADE</div>
+
+        <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+        <p>
+          Eu, <strong>MICHELE ROSA DA ROSA</strong> portador(a) do CPF nº <strong>016.998.180-02</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
+        </p>
+        <ul style="list-style-type: disc; margin-left: 25px;">
+          <li><strong>Placa: TRD3E72</strong></li>
+          <li><strong>Prefixo do Carro: 226</strong></li>
+        </ul>
+
+        <div class="section-title" style="margin-top: 14px;">2. DETALHES DO OCORRIDO</div>
+        <ul style="list-style-type: disc; margin-left: 25px;">
+          <li>Auto de Infração nº: <strong>TE02141677</strong></li>
+          <li>Data do ocorrido: <strong>15/04/2026</strong></li>
+          <li>Horário: <strong>16:50</strong></li>
+          <li>Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
+        </ul>
+
+        <div class="section-title" style="margin-top: 14px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
+        <p>
+          Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
+        </p>
+
+        <p style="margin-top: 20px; margin-bottom: 35px;">
+          GRAVATAÍ, 24 de Junho de 2026.
+        </p>
+
+        <div class="signature-section">
+          <div class="signature-line"></div>
+          <div class="signature-sub">Assinatura do Condutor</div>
+          <div class="signature-name" style="margin-top: 4px;">MICHELE ROSA DA ROSA</div>
+        </div>
+
+        <div class="footer" style="margin-top: 50px;">
+          <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
+          Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
+          (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
+        </div>
+      `
+    },
+    {
+      id: 'trm-3',
+      title: 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO',
+      type: 'Termo de ciência e autorização de desconto',
+      date: '2026-06-15',
+      responsible: 'Mariana Souza',
+      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
+      status: 'Assinado',
+      exactHtml: `
+        <div style="text-align: right; margin-bottom: 20px;">
+          <div style="font-family: 'Brush Script MT', cursive, Georgia, serif; font-size: 26pt; font-weight: bold; color: #1e3a8a;">Trans Pinho</div>
+          <div style="font-size: 14pt; color: #64748b; margin-top: -6px;">☍</div>
+        </div>
+
+        <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 20px;">
+          TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO
+        </div>
+
+        <p>
+          Eu, <strong>ANDREIA MERCEDES ROCHA DE ARAUJO</strong>, inscrito no CPF sob nº <strong>002.574.880-73</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>VW Constellation</strong>, placa <strong>JCO8C10</strong>, envolvido na ocorrência de trânsito nº <strong>SIN-2026-00124</strong>, que:
+        </p>
+
+        <div class="section-title">I – Da ciência e reconhecimento da ocorrência</div>
+        <p>
+          Declaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.
+        </p>
+
+        <div class="section-title">II – Do reconhecimento de responsabilidade</div>
+        <p>
+          Reconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de <strong>R$ 3.500,00 (Três mil e quinhentos reais)</strong>.
+        </p>
+
+        <div class="section-title">III – Da autorização de desconto em folha</div>
+        <p>
+          Autorizo, de forma expressa, livre, consciente e inequívoca, nos termos da legislação aplicável e do acordo firmado entre as partes, o desconto do valor acima mencionado em minha folha de pagamento/contracheque, mediante o seguinte parcelamento:
+        </p>
+
+        <p style="margin-left: 20px; font-weight: bold;">
+          Valor total: R$ 3.500,00<br>
+          Parcelamento: 05 (cinco) parcelas mensais e sucessivas de R$ 700,00
+        </p>
+
+        <p style="margin-top: 15px;">
+          Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
+        </p>
+
+        <p style="margin-top: 25px; margin-bottom: 35px;">
+          Gravataí, 15 de Junho de 2026
+        </p>
+
+        <div class="signature-section">
+          <div class="signature-line"></div>
+          <div class="signature-name">ANDREIA MERCEDES ROCHA DE ARAUJO</div>
         </div>
       `
     }
   ];
 
   const state = {
-    currentView: 'dashboard',
+    currentView: 'terms',
     selectedClaimId: 'claim-1',
     currentUser: { id: 'usr-1', name: 'Carlos Pinho', email: 'carlos@transpinho.com', role: 'ADMINISTRADOR', avatar: 'CP' },
     company: defaultCompany,
@@ -227,6 +348,128 @@
     showExcelImportModal: false,
     selectedTemplateForEdit: null,
     toast: null
+  };
+
+  // Dedicated Print Function (Zero SPA CSS Collision, 100% Faithful A4 PDF)
+  window.printDocumentDirectly = function(termId) {
+    const term = state.terms.find(t => t.id === termId) || state.terms[0];
+    if (!term) return;
+
+    const printWindow = window.open('', '_blank', 'width=850,height=950');
+    if (!printWindow) {
+      alert('Por favor, permita popups no seu navegador para imprimir o documento A4.');
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>${term.title}</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 18mm 20mm 15mm 20mm;
+          }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          body {
+            font-family: 'Times New Roman', Times, Georgia, serif;
+            font-size: 11pt;
+            line-height: 1.35;
+            color: #000000;
+            background: #ffffff;
+            padding: 10px;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 8px;
+          }
+          .header h1 {
+            font-size: 11.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .header p {
+            font-size: 9pt;
+            color: #222222;
+          }
+          .header-line {
+            border-top: 1.5px solid #000000;
+            margin: 6px 0 12px 0;
+          }
+          .title {
+            text-align: center;
+            font-size: 12pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 10px 0 12px 0;
+          }
+          .section-title {
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 8px;
+            margin-bottom: 4px;
+          }
+          p {
+            text-align: justify;
+            margin-bottom: 6px;
+            line-height: 1.35;
+          }
+          ul {
+            margin-left: 20px;
+            margin-bottom: 6px;
+          }
+          li {
+            margin-bottom: 2px;
+          }
+          .sub-list {
+            margin-left: 20px;
+            list-style-type: circle;
+          }
+          .divider {
+            border-top: 0.8px solid #999999;
+            margin: 8px 0;
+          }
+          .signature-section {
+            margin-top: 24px;
+            text-align: center;
+          }
+          .signature-line {
+            width: 320px;
+            border-top: 1px solid #000000;
+            margin: 0 auto 6px auto;
+          }
+          .signature-name {
+            font-size: 10.5pt;
+            font-weight: bold;
+          }
+          .signature-sub {
+            font-size: 9.5pt;
+            font-style: italic;
+          }
+          .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 8.5pt;
+            color: #333333;
+            line-height: 1.3;
+          }
+        </style>
+      </head>
+      <body onload="window.focus(); window.print();">
+        ${term.exactHtml}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   function formatCurrency(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0); }
@@ -270,10 +513,10 @@
 
   function renderSidebar() {
     const menuItems = [
+      { id: 'terms', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: state.terms.length },
       { id: 'dashboard', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
       { id: 'claims', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: state.claims.length },
       { id: 'fines', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: state.fines.length },
-      { id: 'terms', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: state.terms.length },
       { id: 'templates', label: 'Modelos de Documentos', icon: 'fa-sliders', isNew: true },
       { id: 'people', label: 'Condutores', icon: 'fa-users' },
       { id: 'vehicles', label: 'Frota & Prefixos', icon: 'fa-truck-front' }
@@ -355,16 +598,55 @@
 
   function renderMainView() {
     switch (state.currentView) {
+      case 'terms': return renderTermsView();
       case 'dashboard': return renderDashboardView();
       case 'claims': return renderClaimsListView();
       case 'claim-detail': return renderClaimDetailView();
       case 'fines': return renderFinesView();
-      case 'terms': return renderTermsView();
       case 'templates': return renderTemplateEditorView();
       case 'people': return renderPeopleView();
       case 'vehicles': return renderVehiclesView();
-      default: return renderDashboardView();
+      default: return renderTermsView();
     }
+  }
+
+  function renderTermsView() {
+    return `
+      <div class="space-y-6">
+        <div class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
+          <div>
+            <span class="badge bg-amber-500 text-slate-950 text-[10px] px-2.5 py-0.5 rounded font-black uppercase mb-1 inline-block">100% IDÊNTICO AOS DOCUMENTOS OFICIAIS</span>
+            <h2 class="text-xl font-bold tracking-tight">Emissão & Impressão de Termos Oficial Trans Pinho</h2>
+            <p class="text-xs text-slate-300 mt-1">Layout exato em Times New Roman 11pt, linhas divisórias, caixas de seleção e cabeçalho oficial.</p>
+          </div>
+          <button id="terms-open-gen" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Emitir Novo Termo
+          </button>
+        </div>
+
+        <div class="space-y-8">
+          ${state.terms.map(t => `
+            <div class="bg-white p-6 rounded-xl border border-slate-300 shadow-md space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div>
+                  <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded border border-amber-300">${t.type}</span>
+                  <h3 class="font-bold text-slate-900 text-base mt-1">${t.title}</h3>
+                  <p class="text-xs text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Emissão: ${formatDate(t.date)}</p>
+                </div>
+                <button onclick="window.printDocumentDirectly('${t.id}')" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm flex items-center gap-2">
+                  <i class="fa-solid fa-print text-sm"></i> IMPRIMIR PDF OFICIAL A4
+                </button>
+              </div>
+
+              <!-- Pixel-Perfect Term Preview Container -->
+              <div class="bg-white p-8 max-w-[210mm] mx-auto border border-slate-200 shadow-sm rounded-lg" style="font-family: 'Times New Roman', Times, Georgia, serif; color: #000000; line-height: 1.35; font-size: 11pt;">
+                ${t.exactHtml}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
   }
 
   function renderDashboardView() {
@@ -372,9 +654,7 @@
       <div class="space-y-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
           <div>
-            <div class="flex items-center gap-2">
-              <span class="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">JOÃO BATISTA DE SOUZA PINHO EPP</span>
-            </div>
+            <span class="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">JOÃO BATISTA DE SOUZA PINHO EPP</span>
             <h2 class="text-xl font-bold text-slate-900 tracking-tight mt-1">Gestão Trans Pinho - Gravataí/RS</h2>
             <p class="text-xs text-slate-500 mt-0.5">Emissão de Termos Oficiais, Leitura de Excel (.xlsx) e Controle de Multas NIC.</p>
           </div>
@@ -419,25 +699,6 @@
               <span class="text-2xl font-black text-slate-900">${state.vehicles.length}</span>
               <span class="text-[11px] font-semibold text-purple-600">Com Prefixo</span>
             </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-file-pen text-amber-500 mr-2"></i> Termos de Responsabilidade Emitidos</h3>
-            <button data-view="terms" class="nav-btn text-xs font-semibold text-blue-600 hover:underline">Ver Todos os Termos →</button>
-          </div>
-          <div class="divide-y divide-slate-100 text-xs">
-            ${state.terms.map(t => `
-              <div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
-                <div>
-                  <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2 py-0.5 rounded border border-amber-300">${t.type}</span>
-                  <h4 class="font-bold text-slate-900 text-sm mt-1">${t.title}</h4>
-                  <p class="text-[11px] text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Emissão: ${formatDate(t.date)}</p>
-                </div>
-                <button data-view="terms" class="nav-btn btn bg-slate-900 text-white hover:bg-slate-800 text-xs px-3.5 py-1.5 rounded-lg font-bold">Visualizar Layout PDF</button>
-              </div>
-            `).join('')}
           </div>
         </div>
       </div>
@@ -588,42 +849,6 @@
     `;
   }
 
-  function renderTermsView() {
-    return `
-      <div class="space-y-6">
-        <div class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
-          <div>
-            <span class="badge bg-amber-500 text-slate-950 text-[10px] px-2 py-0.5 rounded font-black uppercase mb-1 inline-block">Formatos Idênticos aos PDFs Oficiais</span>
-            <h2 class="text-xl font-bold tracking-tight">Emissão & Impressão de Termos Oficial Trans Pinho</h2>
-            <p class="text-xs text-slate-300 mt-1">Gerador com layout idêntico aos documentos digitalizados (Ciência com Desconto em Folha, Multa NIC e Infração Direta).</p>
-          </div>
-          <button id="terms-open-gen" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Emitir Novo Termo
-          </button>
-        </div>
-
-        <div class="space-y-6">
-          ${state.terms.map(t => `
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-md space-y-4">
-              <div class="flex justify-between items-center border-b border-slate-200 pb-3 btn-no-print">
-                <div>
-                  <span class="badge bg-amber-100 text-amber-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded border border-amber-300">${t.type}</span>
-                  <h3 class="font-bold text-slate-900 text-base mt-1">${t.title}</h3>
-                  <p class="text-xs text-slate-500">Condutor: <strong>${t.involvedPerson}</strong> • Emissão: ${formatDate(t.date)}</p>
-                </div>
-                <button onclick="window.print()" class="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-lg">
-                  <i class="fa-solid fa-print mr-1.5"></i> Imprimir / Gerar PDF A4
-                </button>
-              </div>
-
-              ${t.htmlContent}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
   function renderTemplateEditorView() {
     const selectedTmpl = state.selectedTemplateForEdit || state.templates[0];
 
@@ -635,9 +860,6 @@
             <h2 class="text-xl font-bold tracking-tight">Editor de Modelos de Documentos</h2>
             <p class="text-xs text-slate-300 mt-1">Cadastre modelos de termos com variáveis dinâmicas e regras automáticas de recomendação.</p>
           </div>
-          <button id="create-template-btn" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-plus"></i> Criar Novo Modelo
-          </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -864,7 +1086,7 @@
       <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center border-b border-slate-200 pb-3">
           <div>
-            <span class="badge bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded font-black uppercase">Modelos Trans Pinho (Layout Idêntico aos PDFs)</span>
+            <span class="badge bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded font-black uppercase">Modelos Oficiais Trans Pinho (PDF Exato)</span>
             <h3 class="font-bold text-slate-900 text-base">Gerador Inteligente de Termos</h3>
           </div>
           <button id="close-modal-btn" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
@@ -1053,6 +1275,6 @@
     }
   }
 
-  // Initial Boot Render
+  // Boot
   renderApp();
 })();
