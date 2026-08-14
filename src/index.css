@@ -44,6 +44,10 @@
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
   body * {
     visibility: hidden !important;
   }
@@ -56,10 +60,26 @@
     top: 0 !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 1.5rem !important;
+    padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
     background: #ffffff !important;
     color: #000000 !important;
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+  }
+  .trans-pinho-header {
+    border-bottom: 1.5px solid #000000 !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .trans-pinho-title {
+    font-size: 14px !important;
+    margin: 0.75rem 0 !important;
+  }
+  .trans-pinho-section {
+    font-size: 12px !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.25rem !important;
   }
 }
