@@ -44,24 +44,22 @@
 }
 
 @media print {
-  body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  body * {
+    visibility: hidden !important;
   }
-  aside, header, #search-trigger, .nav-btn, .btn-no-print, .bg-slate-900, h2, p.text-slate-300, .space-y-6 > div > div:first-child {
-    display: none !important;
-  }
-  main {
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
+  .trans-pinho-doc, .trans-pinho-doc * {
+    visibility: visible !important;
   }
   .trans-pinho-doc {
-    border: none !important;
-    padding: 0 !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
     margin: 0 !important;
+    padding: 1.5rem !important;
+    border: none !important;
     box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
   }
 }
