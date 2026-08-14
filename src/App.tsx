@@ -3,6 +3,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { TermGeneratorModal } from './components/TermGeneratorModal';
 import { TemplateEditorView } from './views/TemplateEditorView';
+import { firebaseService } from './services/firebase';
 import {
   Claim,
   Fine,
