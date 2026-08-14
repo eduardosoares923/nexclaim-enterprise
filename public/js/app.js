@@ -171,7 +171,16 @@
     }
   ];
 
+  // Standardized Term Generator Function: Every single term follows the exact official layout & footer
   function buildTermHtml(term) {
+    const standardFooter = `
+      <div class="doc-footer">
+        <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
+        Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
+        (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
+      </div>
+    `;
+
     // 1. TERMO DE QUITAÇÃO (Gelson Weber de Farias - Sinistro / Chapeação)
     if (term.templateType === 'termo_quitacao' || term.type === 'Termo de Quitação') {
       return `
@@ -180,9 +189,7 @@
             <img src="/images/logo.png" alt="Trans Pinho" style="height: 55px; display: inline-block;" />
           </div>
 
-          <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 18px;">
-            TERMO DE QUITAÇÃO
-          </div>
+          <div class="title">TERMO DE QUITAÇÃO</div>
 
           <p>
             Eu, <strong>${term.involvedPerson}</strong>, inscrito(a) no CPF nº <strong>${term.cpf || '629.109.220-49'}</strong>, proprietário(a)/condutor(a) do micro-ônibus placa <strong>${term.plate || 'HKO8087'}</strong>, declaro, para todos os fins de direito, estar de pleno acordo com os reparos realizados em meu veículo, decorrentes do sinistro ocorrido em ${term.sinisterDate || '18/06/2026'}, registrado sob a ocorrência nº <strong>${term.claimNumber || '2026 0624 5995 797'}</strong>, os quais foram executados na chapeação da empresa <strong>JOÃO BATISTA DE SOUZA PINHO EPP – TRANS PINHO</strong>, bem como com o custeio, por esta empresa, da confecção e aplicação dos adesivos necessários para o restabelecimento das características originais do veículo.
@@ -204,22 +211,17 @@
             Por estarem justas e acordadas, as partes firmam o presente instrumento para que produza todos os seus efeitos legais.
           </p>
 
-          <p style="margin-top: 20px; text-align: center;">
+          <p style="margin-top: 18px; text-align: center;">
             Gravataí/RS, ${term.documentDate || '31 de julho de 2026'}.
           </p>
 
-          <div class="signature-section" style="margin-top: 25px;">
+          <div class="signature-section" style="margin-top: 22px;">
             <div class="signature-line"></div>
             <div class="signature-name">${term.involvedPerson}</div>
             <div class="signature-sub">CPF: ${term.cpf || '629.109.220-49'}</div>
           </div>
         </div>
-
-        <div class="doc-footer">
-          <strong>JOÃO BATISTA DE SOUZA PINHO EPP - TRANS PINHO</strong><br>
-          Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
-          (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
-        </div>
+        ${standardFooter}
       `;
     }
 
@@ -235,9 +237,7 @@
             <img src="/images/logo.png" alt="Trans Pinho" style="height: 55px; display: inline-block;" />
           </div>
 
-          <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 18px;">
-            TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO
-          </div>
+          <div class="title">TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO</div>
 
           <p>
             Eu, <strong>${term.involvedPerson}</strong>, inscrito no CPF sob nº <strong>${term.cpf || '031.997.250-07'}</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>${term.vehicleModel || 'MARCOPOLO/VOLARE W9C ON'}</strong>, placa <strong>${term.plate || 'IZF4E82'}</strong>, envolvido na ocorrência de trânsito nº <strong>${term.claimNumber || '2026 0713 3731 277'}</strong>, envolvendo o veículo <strong>${term.thirdPartyVehicle || 'RENAULT/MASTER TVAN'}</strong>, placa <strong>${term.thirdPartyPlate || 'TQQ6H24'}</strong>, que:
@@ -264,20 +264,21 @@
             Data do primeiro pagamento: ${term.firstDueDate || '07/08/2026'}
           </p>
 
-          <p style="margin-top: 12px;">
+          <p style="margin-top: 10px;">
             Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
           </p>
 
-          <p style="margin-top: 20px; margin-bottom: 30px;">
-            Gravataí, ${term.documentDate || '14 de Agosto de 2026'}
+          <p style="margin-top: 16px; margin-bottom: 20px;">
+            Gravataí, ${term.documentDate || '14 de Agosto de 2026'}.
           </p>
 
           <div class="signature-section">
             <div class="signature-line"></div>
             <div class="signature-name">${term.involvedPerson}</div>
-            <div class="signature-sub">${term.cpf || '031.997.250-07'}</div>
+            <div class="signature-sub">CPF: ${term.cpf || '031.997.250-07'}</div>
           </div>
         </div>
+        ${standardFooter}
       `;
     }
 
@@ -294,9 +295,7 @@
             <img src="/images/logo.png" alt="Trans Pinho" style="height: 55px; display: inline-block;" />
           </div>
 
-          <div class="title" style="text-align: center; font-size: 12pt; font-weight: bold; margin-bottom: 18px;">
-            TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO
-          </div>
+          <div class="title">TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO</div>
 
           <p>
             Eu, <strong>${term.involvedPerson}</strong>, inscrito no CPF sob nº <strong>${term.cpf || '002.574.880-73'}</strong>, declaro, para os devidos fins de direito, na qualidade de condutor do veículo <strong>VW Constellation</strong>, placa <strong>${term.plate || 'JCO8C10'}</strong>, envolvido na ocorrência de trânsito nº <strong>SIN-2026-00124</strong>, que:
@@ -322,19 +321,21 @@
             Parcelamento: ${parcelText}
           </p>
 
-          <p style="margin-top: 12px;">
+          <p style="margin-top: 10px;">
             Declaro que assino o presente instrumento por minha livre e espontânea vontade, sem qualquer vício de consentimento, estando ciente de todos os seus termos, efeitos e consequências jurídicas.
           </p>
 
-          <p style="margin-top: 20px; margin-bottom: 30px;">
-            Gravataí, ${term.documentDate || '15 de Junho de 2026'}
+          <p style="margin-top: 16px; margin-bottom: 20px;">
+            Gravataí, ${term.documentDate || '15 de Junho de 2026'}.
           </p>
 
           <div class="signature-section">
             <div class="signature-line"></div>
             <div class="signature-name">${term.involvedPerson}</div>
+            <div class="signature-sub">CPF: ${term.cpf || '002.574.880-73'}</div>
           </div>
         </div>
+        ${standardFooter}
       `;
     }
 
@@ -342,7 +343,7 @@
     if (term.templateType === 'infracao_direta') {
       return `
         <div class="doc-body">
-          <div class="title" style="margin-top: 18px; margin-bottom: 18px;">TERMO DE RESPONSABILIDADE</div>
+          <div class="title">TERMO DE RESPONSABILIDADE</div>
 
           <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
           <p>
@@ -366,7 +367,7 @@
             Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
           </p>
 
-          <p style="margin-top: 18px; margin-bottom: 30px;">
+          <p style="margin-top: 16px; margin-bottom: 24px;">
             GRAVATAÍ, ${term.documentDate || '24 de Junho de 2026'}.
           </p>
 
@@ -374,14 +375,10 @@
             <div class="signature-line"></div>
             <div class="signature-sub">Assinatura do Condutor</div>
             <div class="signature-name" style="margin-top: 4px;">${term.involvedPerson}</div>
+            <div class="signature-sub">CPF: ${term.cpf || '016.998.180-02'}</div>
           </div>
         </div>
-
-        <div class="doc-footer">
-          <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
-          Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
-          (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
-        </div>
+        ${standardFooter}
       `;
     }
 
@@ -394,7 +391,7 @@
 
     return `
       <div class="doc-body">
-        <div class="title" style="margin-top: 14px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
+        <div class="title">TERMO DE RESPONSABILIDADE</div>
 
         <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
         <p>
@@ -456,14 +453,10 @@
         <div class="signature-section">
           <div class="signature-line"></div>
           <div class="signature-name">${term.involvedPerson}</div>
+          <div class="signature-sub">CPF: ${term.cpf || '002.574.880-73'}</div>
         </div>
       </div>
-
-      <div class="doc-footer">
-        <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
-        Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
-        (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
-      </div>
+      ${standardFooter}
     `;
   }
 
@@ -578,18 +571,24 @@
   const initialBudget = {
     osNumber: 'OS-2026-1193',
     date: '14/08/2026',
-    clientName: 'Trans Pinho',
+    status: 'Em Análise',
+    warrantyDays: 90,
+    validityDays: 15,
+    clientName: 'Trans Pinho (João Batista de Souza Pinho EPP)',
     clientCnpj: '94.476.207/0001-80',
     clientPhone: '(51) 98266-0028',
     clientEmail: 'operacional@transpinho.com',
-    vehicleModel: 'Renault Master Van 2026',
+    vehicleModel: 'Renault Master Van TVAN',
     vehiclePlate: 'TQQ6H24',
     vehicleColor: 'Branca',
     vehicleKm: '45.000 km',
-    report: 'Conforme relato do motorista, a van realizava manobra para sair do estacionamento da empresa Prometeon quando o micro-ônibus prefixo 1961 iniciou deslocamento simultaneamente. Em razão da manobra concomitante, ocorreu colisão entre os veículos, ocasionando danos materiais.',
+    responsibleTechnician: 'Fabiano da Silva Vieira',
+    report: 'Conforme relato do motorista, a van realizava manobra para sair do estacionamento da empresa Prometeon quando o micro-ônibus prefixo 1961 iniciou deslocamento simultaneamente. Em razão da manobra concomitante, ocorreu colisão entre os veículos, ocasionando avarias no para-choque traseiro, sinaleira esquerda e painel lateral.',
     items: [
-      { id: 1, type: 'MO', description: 'Substituição da sinaleira traseira', qty: 1, value: 150.00 },
-      { id: 2, type: 'Peça', description: 'Sinaleira traseira esquerda', qty: 1, value: 400.00 }
+      { id: 1, type: 'MO', description: 'Chapeação e alinhamento do painel traseiro e lateral', qty: 1, value: 350.00 },
+      { id: 2, type: 'MO', description: 'Pintura automotiva em estufa com primer e verniz PU', qty: 1, value: 450.00 },
+      { id: 3, type: 'Peça', description: 'Sinaleira traseira esquerda Renault Master', qty: 1, value: 400.00 },
+      { id: 4, type: 'MO', description: 'Substituição e fixação da sinaleira traseira', qty: 1, value: 150.00 }
     ],
     materials: [
       { id: 1, description: 'Manta de Fibra de Vidro 1,40 x 0,33 Maxirubber', qty: 5, value: 19.00 },
@@ -606,7 +605,7 @@
       { id: 12, description: 'Endurecedor Lazzudur PU 834ml', qty: 1, value: 85.00 }
     ],
     pix: '(51) 99432-4224',
-    bank: 'Itaú Unibanco',
+    bank: 'Itaú Unibanco (Ag: 0142 | CC: 44920-1)',
     payee: 'Fabiano da Silva Vieira',
     showSignatures: true
   };
@@ -775,22 +774,23 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
           @page { size: A4 portrait; margin: 10mm 12mm 10mm 12mm; }
-          body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; font-size: 10pt; color: #1e293b; background: #ffffff; }
+          body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; font-size: 9.5pt; color: #1e293b; background: #ffffff; }
         </style>
       </head>
-      <body onload="window.focus(); window.print();" class="p-4">
-        <header class="flex justify-between items-start border-b border-slate-300 pb-3 mb-3">
+      <body onload="window.focus(); window.print();" class="p-3">
+        <header class="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-3">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-xl">VC</div>
+            <div class="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-sm">VC</div>
             <div>
               <h1 class="text-xl font-extrabold tracking-tight text-slate-900">VIEIRA CENTER</h1>
-              <p class="text-[9px] font-bold uppercase tracking-wider text-sky-600">Funilaria, Chapeação e Estética Automotiva</p>
+              <p class="text-[9px] font-bold uppercase tracking-wider text-sky-600">Funilaria, Chapeação, Pintura em Estufa e Estética Automotiva</p>
+              <p class="text-[9px] text-slate-500">Parceiro Oficial: JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</p>
             </div>
           </div>
           <div class="text-right">
-            <h2 class="text-xs font-bold tracking-widest uppercase text-slate-400">Detalhes de Serviço</h2>
-            <p class="text-xs font-black text-slate-900">OS Nº: ${b.osNumber}</p>
-            <p class="text-xs text-slate-600">Data: ${b.date}</p>
+            <span class="inline-block bg-slate-900 text-white font-mono font-bold text-xs px-2.5 py-1 rounded mb-1">OS Nº: ${b.osNumber}</span>
+            <p class="text-xs text-slate-700 font-semibold">Data: ${b.date}</p>
+            <p class="text-[9px] text-slate-400">Validade: ${b.validityDays || 15} dias</p>
           </div>
         </header>
 
@@ -804,26 +804,26 @@
           <div class="bg-sky-50/50 p-2.5 rounded border border-sky-200">
             <h3 class="text-[9px] font-bold uppercase tracking-wider text-sky-700 mb-1">🚗 Dados do Veículo</h3>
             <p class="font-bold text-slate-900">${b.vehicleModel}</p>
-            <p class="text-slate-700">Placa: <strong class="font-mono">${b.vehiclePlate}</strong> | Cor: ${b.vehicleColor} | Km: ${b.vehicleKm}</p>
+            <p class="text-slate-700">Placa: <strong class="font-mono bg-white px-1.5 py-0.5 rounded border border-sky-200">${b.vehiclePlate}</strong> | Cor: ${b.vehicleColor} | Km: ${b.vehicleKm}</p>
           </div>
         </div>
 
         ${b.report ? `
           <div class="mb-3 text-xs">
-            <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Relatório Técnico da Ocorrência</h3>
-            <div class="bg-white border border-slate-200 p-2.5 rounded border-l-4 border-l-sky-500 text-justify text-slate-700">
+            <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Relatório Técnico do Sinistro & Diagnóstico</h3>
+            <div class="bg-white border border-slate-200 p-2.5 rounded border-l-4 border-l-sky-500 text-justify text-slate-700 leading-snug">
               ${b.report}
             </div>
           </div>
         ` : ''}
 
         <div class="mb-3">
-          <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Serviços e Peças</h3>
+          <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">1. Discriminação de Serviços e Peças</h3>
           <table class="w-full text-left text-xs border border-slate-200 rounded">
-            <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+            <thead class="bg-slate-100 text-slate-600 text-[9px] uppercase">
               <tr>
                 <th class="p-1.5 text-center w-12">Tipo</th>
-                <th class="p-1.5">Descrição</th>
+                <th class="p-1.5">Descrição dos Serviços / Peças</th>
                 <th class="p-1.5 text-center w-12">Qtd</th>
                 <th class="p-1.5 text-right w-24">V. Unit</th>
                 <th class="p-1.5 text-right w-24">V. Total</th>
@@ -845,11 +845,11 @@
 
         ${b.materials && b.materials.length > 0 ? `
           <div class="mb-3">
-            <h3 class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Matérias e Insumos</h3>
+            <h3 class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 mb-1">2. Matérias e Insumos de Funilaria</h3>
             <table class="w-full text-left text-xs border border-emerald-200 rounded">
-              <thead class="bg-emerald-50 text-emerald-800 text-[10px] uppercase">
+              <thead class="bg-emerald-50 text-emerald-800 text-[9px] uppercase">
                 <tr>
-                  <th class="p-1.5">Iten</th>
+                  <th class="p-1.5">Item / Insumo Técnico</th>
                   <th class="p-1.5 text-center w-16">Und</th>
                   <th class="p-1.5 text-right w-24">Valor</th>
                 </tr>
@@ -868,33 +868,34 @@
         ` : ''}
 
         <div class="grid grid-cols-2 gap-3 mb-3 text-xs">
-          <div class="bg-slate-50 p-2.5 rounded border border-slate-200">
-            <h3 class="text-[10px] font-bold text-slate-900 mb-1">💳 Dados Bancários para Pagamento</h3>
+          <div class="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-1">
+            <h3 class="text-[10px] font-bold text-slate-900">💳 Dados Bancários para Pagamento</h3>
             <p><span class="text-slate-500">Chave Pix:</span> <strong class="text-slate-900">${b.pix}</strong></p>
             <p><span class="text-slate-500">Banco:</span> ${b.bank}</p>
             <p><span class="text-slate-500">Favorecido:</span> ${b.payee}</p>
+            <p class="text-[9px] text-slate-400 pt-1">Garantia legal de 90 dias para peças e serviços conforme Art. 26 do CDC.</p>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1 bg-slate-50 p-2 rounded border border-slate-200">
             <div class="flex justify-between text-slate-600 px-2"><span>Mão de Obra:</span><span class="font-bold">${formatCurrency(totalMO)}</span></div>
-            <div class="flex justify-between text-slate-600 px-2"><span>Peças:</span><span class="font-bold">${formatCurrency(totalParts)}</span></div>
-            <div class="flex justify-between text-emerald-700 px-2"><span>Matérias:</span><span class="font-bold">${formatCurrency(totalMaterials)}</span></div>
-            <div class="flex justify-between items-center bg-slate-900 text-white p-2 rounded font-black text-sm">
+            <div class="flex justify-between text-slate-600 px-2"><span>Peças de Reposição:</span><span class="font-bold">${formatCurrency(totalParts)}</span></div>
+            <div class="flex justify-between text-emerald-700 px-2"><span>Matérias / Insumos:</span><span class="font-bold">${formatCurrency(totalMaterials)}</span></div>
+            <div class="flex justify-between items-center bg-slate-900 text-white p-2 rounded font-black text-sm mt-1">
               <span>VALOR TOTAL:</span><span>${formatCurrency(total)}</span>
             </div>
           </div>
         </div>
 
         ${b.showSignatures !== false ? `
-          <div class="grid grid-cols-2 gap-6 pt-4 border-t border-slate-300 mt-4 text-center text-xs">
+          <div class="grid grid-cols-2 gap-6 pt-3 border-t border-slate-300 mt-3 text-center text-xs">
             <div>
               <div class="border-b border-slate-400 h-6 mb-1"></div>
-              <p class="font-bold text-slate-900">Fabiano Vieira</p>
+              <p class="font-bold text-slate-900">${b.responsibleTechnician || 'Fabiano Vieira'}</p>
               <p class="text-[9px] uppercase text-slate-500">Responsável Técnico / Vieira Center</p>
             </div>
             <div>
               <div class="border-b border-slate-400 h-6 mb-1"></div>
               <p class="font-bold text-slate-900">${b.clientName || 'Assinatura do Cliente'}</p>
-              <p class="text-[9px] uppercase text-slate-500">Cliente / Motorista Trans Pinho</p>
+              <p class="text-[9px] uppercase text-slate-500">Cliente / Gestor de Frota Trans Pinho</p>
             </div>
           </div>
         ` : ''}
@@ -1051,7 +1052,7 @@
           <div>
             <span class="badge bg-amber-500 text-slate-950 text-[10px] px-2.5 py-0.5 rounded font-black uppercase mb-1 inline-block">100% IDÊNTICO AOS DOCUMENTOS OFICIAIS</span>
             <h2 class="text-xl font-bold tracking-tight">Emissão & Impressão de Termos Oficial Trans Pinho</h2>
-            <p class="text-xs text-slate-300 mt-1">Selecione entre Cota Única ou Parcelado, altere as datas livremente e imprima o documento oficial A4.</p>
+            <p class="text-xs text-slate-300 mt-1">Todos os 5 modelos oficiais possuem estrutura e rodapé padronizados, com personalização livre de datas e parcelas.</p>
           </div>
           <button id="terms-open-gen" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm shrink-0">
             <i class="fa-solid fa-wand-magic-sparkles"></i> Emitir Novo Termo
@@ -1118,7 +1119,7 @@
                   </div>
                 </div>
 
-                <!-- Pixel-Perfect Term Preview Container -->
+                <!-- Pixel-Perfect Term Preview Container with exact A4 proportion -->
                 <div class="bg-white p-8 max-w-[210mm] min-h-[270mm] mx-auto border border-slate-200 shadow-sm rounded-lg flex flex-col justify-between" style="font-family: 'Times New Roman', Times, Georgia, serif; color: #000000; line-height: 1.32; font-size: 10.5pt;">
                   ${buildTermHtml(t)}
                 </div>
@@ -1131,7 +1132,7 @@
   }
 
   // ==========================================
-  // VIEW: ORÇAMENTOS & OS (VIEIRA CENTER & TRANS PINHO)
+  // VIEW: ORÇAMENTOS & OS (VIEIRA CENTER & TRANS PINHO - ULTRA REFINED)
   // ==========================================
   function renderBudgetsView() {
     const b = state.budget;
@@ -1146,6 +1147,7 @@
           ${materialsList.map(m => `<option value="${m}"></option>`).join('')}
         </datalist>
 
+        <!-- Top Header & Action Controls -->
         <div class="bg-slate-900 text-white p-5 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <div class="flex items-center gap-2 mb-1">
@@ -1155,7 +1157,10 @@
             <h2 class="text-xl font-bold tracking-tight">Gerador de Orçamentos & Ordens de Serviço (OS)</h2>
             <p class="text-xs text-slate-300 mt-0.5">Emissão de orçamentos técnicos com tabela de peças, mão de obra e insumos de funilaria.</p>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
+            <button id="budget-pull-claim-btn" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-bolt"></i> Puxar de Sinistro
+            </button>
             <button id="budget-download-pdf" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm">
               <i class="fa-solid fa-file-pdf"></i> Baixar PDF
             </button>
@@ -1165,7 +1170,7 @@
           </div>
         </div>
 
-        <!-- Split View: Editor (Left) & Live Preview (Right) -->
+        <!-- Split View: Advanced Form Editor (Left) & Live Preview (Right) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           <!-- LEFT PANEL: OS FORM EDITOR -->
@@ -1175,15 +1180,20 @@
                 <button id="budget-tab-editor" class="text-xs px-3 py-1.5 rounded-lg font-bold ${state.budgetTab === 'editor' ? 'bg-sky-500 text-white shadow-xs' : 'bg-slate-100 text-slate-600'}">✏️ Editor OS</button>
                 <button id="budget-tab-history" class="text-xs px-3 py-1.5 rounded-lg font-bold ${state.budgetTab === 'history' ? 'bg-sky-500 text-white shadow-xs' : 'bg-slate-100 text-slate-600'}">🗂️ Histórico (${state.budgetHistory.length})</button>
               </div>
-              <button id="budget-new-btn" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-md">
-                + Nova OS
-              </button>
+              <div class="flex gap-1.5">
+                <button id="budget-save-history-btn" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-md flex items-center gap-1">
+                  <i class="fa-solid fa-floppy-disk"></i> Salvar
+                </button>
+                <button id="budget-new-btn" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-md">
+                  + Nova OS
+                </button>
+              </div>
             </div>
 
             ${state.budgetTab === 'history' ? `
               <div class="space-y-3">
                 ${state.budgetHistory.length === 0 ? `
-                  <p class="text-xs text-slate-400 text-center py-8">Nenhum orçamento salvo no histórico ainda.</p>
+                  <p class="text-xs text-slate-400 text-center py-8">Nenhum orçamento salvo no histórico ainda. Preencha e clique em "Salvar".</p>
                 ` : state.budgetHistory.map(h => `
                   <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
                     <div>
@@ -1203,7 +1213,7 @@
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="form-label text-[11px] font-bold">Nº OS *</label>
-                    <input type="text" id="b-os-number" value="${b.osNumber}" class="form-input text-xs font-bold" />
+                    <input type="text" id="b-os-number" value="${b.osNumber}" class="form-input text-xs font-bold font-mono" />
                   </div>
                   <div>
                     <label class="form-label text-[11px] font-bold">Data *</label>
@@ -1235,7 +1245,10 @@
 
                 <!-- Relatório da Ocorrência -->
                 <div>
-                  <h4 class="text-[10px] font-black uppercase text-slate-400 border-b border-slate-200 pb-1 mb-1">Relatório Técnico do Sinistro</h4>
+                  <div class="flex justify-between items-center border-b border-slate-200 pb-1 mb-1">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400">Relatório Técnico do Sinistro</h4>
+                    <span class="text-[9px] text-sky-600 font-bold">Diagnóstico Funilaria</span>
+                  </div>
                   <textarea id="b-report" rows="3" class="form-textarea text-xs">${b.report}</textarea>
                 </div>
 
@@ -1254,7 +1267,7 @@
                         </select>
                         <input type="text" data-idx="${idx}" value="${it.description}" class="item-desc-input form-input text-[10px] py-1 px-1.5 flex-1" placeholder="Descrição..." />
                         <input type="number" data-idx="${idx}" value="${it.qty}" min="1" class="item-qty-input form-input text-[10px] py-1 px-1 w-10 text-center" />
-                        <input type="number" data-idx="${idx}" value="${it.value}" step="0.01" class="item-val-input form-input text-[10px] py-1 px-1 w-16 text-right" />
+                        <input type="number" data-idx="${idx}" value="${it.value}" step="0.01" class="item-val-input form-input text-[10px] py-1 px-1 w-16 text-right font-bold" />
                         <button data-idx="${idx}" class="del-item-btn text-rose-500 hover:text-rose-700 text-xs px-1">🗑️</button>
                       </div>
                     `).join('')}
@@ -1279,7 +1292,7 @@
                       <div class="flex gap-1.5 items-center bg-emerald-50/40 p-1.5 rounded border border-emerald-100">
                         <input type="text" list="materials-datalist" data-idx="${idx}" value="${m.description}" class="mat-desc-input form-input text-[10px] py-1 px-1.5 flex-1" placeholder="Item (ex: Lixa, Tinta)" />
                         <input type="number" data-idx="${idx}" value="${m.qty}" min="1" class="mat-qty-input form-input text-[10px] py-1 px-1 w-10 text-center" />
-                        <input type="number" data-idx="${idx}" value="${m.value}" step="0.01" class="mat-val-input form-input text-[10px] py-1 px-1 w-16 text-right" />
+                        <input type="number" data-idx="${idx}" value="${m.value}" step="0.01" class="mat-val-input form-input text-[10px] py-1 px-1 w-16 text-right font-bold text-emerald-700" />
                         <button data-idx="${idx}" class="del-mat-btn text-rose-500 hover:text-rose-700 text-xs px-1">🗑️</button>
                       </div>
                     `).join('')}
@@ -1302,18 +1315,19 @@
           <!-- RIGHT PANEL: LIVE A4 PREVIEW CONTAINER -->
           <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-md p-6 overflow-hidden">
             <div id="pdf-content" class="bg-white max-w-[210mm] mx-auto p-4 md:p-6 text-slate-800" style="font-family: ui-sans-serif, system-ui, sans-serif; font-size: 10pt;">
-              <header class="flex justify-between items-start border-b border-slate-300 pb-3 mb-3">
+              <header class="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-3">
                 <div class="flex items-center gap-3">
                   <div class="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-sm">VC</div>
                   <div>
                     <h1 class="text-xl font-extrabold tracking-tight text-slate-900">VIEIRA CENTER</h1>
-                    <p class="text-[9px] font-bold uppercase tracking-wider text-sky-600">Funilaria, Chapeação e Estética Automotiva</p>
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-sky-600">Funilaria, Chapeação, Pintura em Estufa e Estética Automotiva</p>
+                    <p class="text-[9px] text-slate-500">Parceiro Oficial: JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</p>
                   </div>
                 </div>
                 <div class="text-right">
-                  <h2 class="text-xs font-bold tracking-widest uppercase text-slate-400">Detalhes de Serviço</h2>
-                  <p class="text-xs font-black text-slate-900">OS Nº: ${b.osNumber}</p>
-                  <p class="text-xs text-slate-600">Data: ${b.date}</p>
+                  <span class="inline-block bg-slate-900 text-white font-mono font-bold text-xs px-2.5 py-1 rounded mb-1">OS Nº: ${b.osNumber}</span>
+                  <p class="text-xs text-slate-700 font-semibold">Data: ${b.date}</p>
+                  <p class="text-[9px] text-slate-400">Validade: ${b.validityDays || 15} dias</p>
                 </div>
               </header>
 
@@ -1327,14 +1341,14 @@
                 <div class="bg-sky-50/50 p-2.5 rounded border border-sky-200">
                   <h3 class="text-[9px] font-bold uppercase tracking-wider text-sky-700 mb-1">🚗 Dados do Veículo</h3>
                   <p class="font-bold text-slate-900">${b.vehicleModel}</p>
-                  <p class="text-slate-700">Placa: <strong class="font-mono">${b.vehiclePlate}</strong> | Cor: ${b.vehicleColor} | Km: ${b.vehicleKm}</p>
+                  <p class="text-slate-700">Placa: <strong class="font-mono bg-white px-1.5 py-0.5 rounded border border-sky-200">${b.vehiclePlate}</strong> | Cor: ${b.vehicleColor} | Km: ${b.vehicleKm}</p>
                 </div>
               </div>
 
               ${b.report ? `
                 <div class="mb-3 text-xs">
-                  <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Relatório Técnico da Ocorrência</h3>
-                  <div class="bg-white border border-slate-200 p-2.5 rounded border-l-4 border-l-sky-500 text-justify text-slate-700">
+                  <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Relatório Técnico do Sinistro & Diagnóstico</h3>
+                  <div class="bg-white border border-slate-200 p-2.5 rounded border-l-4 border-l-sky-500 text-justify text-slate-700 leading-snug">
                     ${b.report}
                   </div>
                 </div>
@@ -1342,12 +1356,12 @@
 
               <!-- TABELA 1: SERVIÇOS & PEÇAS -->
               <div class="mb-3">
-                <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Serviços e Peças</h3>
+                <h3 class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">1. Discriminação de Serviços e Peças</h3>
                 <table class="w-full text-left text-xs border border-slate-200 rounded">
-                  <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+                  <thead class="bg-slate-100 text-slate-600 text-[9px] uppercase">
                     <tr>
                       <th class="p-1.5 text-center w-12">Tipo</th>
-                      <th class="p-1.5">Descrição</th>
+                      <th class="p-1.5">Descrição dos Serviços / Peças</th>
                       <th class="p-1.5 text-center w-12">Qtd</th>
                       <th class="p-1.5 text-right w-24">V. Unit</th>
                       <th class="p-1.5 text-right w-24">V. Total</th>
@@ -1370,11 +1384,11 @@
               <!-- TABELA 2: MATÉRIAS -->
               ${b.materials && b.materials.length > 0 ? `
                 <div class="mb-3">
-                  <h3 class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Matérias e Insumos</h3>
+                  <h3 class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 mb-1">2. Matérias e Insumos de Funilaria</h3>
                   <table class="w-full text-left text-xs border border-emerald-200 rounded">
-                    <thead class="bg-emerald-50 text-emerald-800 text-[10px] uppercase">
+                    <thead class="bg-emerald-50 text-emerald-800 text-[9px] uppercase">
                       <tr>
-                        <th class="p-1.5">Iten</th>
+                        <th class="p-1.5">Item / Insumo Técnico</th>
                         <th class="p-1.5 text-center w-16">Und</th>
                         <th class="p-1.5 text-right w-24">Valor</th>
                       </tr>
@@ -1394,17 +1408,18 @@
 
               <!-- Resumo Financeiro & Pagamento -->
               <div class="grid grid-cols-2 gap-3 mb-3 text-xs">
-                <div class="bg-slate-50 p-2.5 rounded border border-slate-200">
-                  <h3 class="text-[10px] font-bold text-slate-900 mb-1">💳 Dados Bancários para Pagamento</h3>
+                <div class="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-1">
+                  <h3 class="text-[10px] font-bold text-slate-900">💳 Dados Bancários para Pagamento</h3>
                   <p><span class="text-slate-500">Chave Pix:</span> <strong class="text-slate-900">${b.pix}</strong></p>
                   <p><span class="text-slate-500">Banco:</span> ${b.bank}</p>
                   <p><span class="text-slate-500">Favorecido:</span> ${b.payee}</p>
+                  <p class="text-[9px] text-slate-400 pt-1">Garantia legal de 90 dias para peças e serviços conforme Art. 26 do CDC.</p>
                 </div>
-                <div class="space-y-1">
+                <div class="space-y-1 bg-slate-50 p-2 rounded border border-slate-200">
                   <div class="flex justify-between text-slate-600 px-2"><span>Mão de Obra:</span><span class="font-bold">${formatCurrency(totalMO)}</span></div>
-                  <div class="flex justify-between text-slate-600 px-2"><span>Peças:</span><span class="font-bold">${formatCurrency(totalParts)}</span></div>
-                  <div class="flex justify-between text-emerald-700 px-2"><span>Matérias:</span><span class="font-bold">${formatCurrency(totalMaterials)}</span></div>
-                  <div class="flex justify-between items-center bg-slate-900 text-white p-2 rounded font-black text-sm">
+                  <div class="flex justify-between text-slate-600 px-2"><span>Peças de Reposição:</span><span class="font-bold">${formatCurrency(totalParts)}</span></div>
+                  <div class="flex justify-between text-emerald-700 px-2"><span>Matérias / Insumos:</span><span class="font-bold">${formatCurrency(totalMaterials)}</span></div>
+                  <div class="flex justify-between items-center bg-slate-900 text-white p-2 rounded font-black text-sm mt-1">
                     <span>VALOR TOTAL:</span><span>${formatCurrency(total)}</span>
                   </div>
                 </div>
@@ -1412,16 +1427,16 @@
 
               <!-- Assinaturas -->
               ${b.showSignatures !== false ? `
-                <div class="grid grid-cols-2 gap-6 pt-4 border-t border-slate-300 mt-4 text-center text-xs">
+                <div class="grid grid-cols-2 gap-6 pt-3 border-t border-slate-300 mt-3 text-center text-xs">
                   <div>
                     <div class="border-b border-slate-400 h-6 mb-1"></div>
-                    <p class="font-bold text-slate-900">Fabiano Vieira</p>
+                    <p class="font-bold text-slate-900">${b.responsibleTechnician || 'Fabiano Vieira'}</p>
                     <p class="text-[9px] uppercase text-slate-500">Responsável Técnico / Vieira Center</p>
                   </div>
                   <div>
                     <div class="border-b border-slate-400 h-6 mb-1"></div>
                     <p class="font-bold text-slate-900">${b.clientName || 'Assinatura do Cliente'}</p>
-                    <p class="text-[9px] uppercase text-slate-500">Cliente / Motorista Trans Pinho</p>
+                    <p class="text-[9px] uppercase text-slate-500">Cliente / Gestor de Frota Trans Pinho</p>
                   </div>
                 </div>
               ` : ''}
@@ -2038,12 +2053,43 @@
       document.getElementById('budget-tab-editor')?.addEventListener('click', () => { state.budgetTab = 'editor'; renderApp(); });
       document.getElementById('budget-tab-history')?.addEventListener('click', () => { state.budgetTab = 'history'; renderApp(); });
 
+      // Save to History
+      document.getElementById('budget-save-history-btn')?.addEventListener('click', () => {
+        const osNum = state.budget.osNumber;
+        const existsIdx = state.budgetHistory.findIndex(h => h.osNumber === osNum);
+        const record = JSON.parse(JSON.stringify(state.budget));
+        if (existsIdx >= 0) {
+          state.budgetHistory[existsIdx] = record;
+        } else {
+          state.budgetHistory.unshift(record);
+        }
+        showToast(`Orçamento ${osNum} salvo no histórico com sucesso!`, 'info');
+        renderApp();
+      });
+
+      // Pull from existing Claim
+      document.getElementById('budget-pull-claim-btn')?.addEventListener('click', () => {
+        const cl = state.claims[0];
+        if (cl) {
+          state.budget.clientName = 'Trans Pinho (João Batista de Souza Pinho EPP)';
+          state.budget.clientCnpj = '94.476.207/0001-80';
+          state.budget.vehiclePlate = cl.vehiclePlate;
+          state.budget.vehicleModel = cl.vehicleModel;
+          state.budget.report = `Ocorrência ${cl.claimNumber}: ${cl.description}`;
+          showToast(`Dados puxados do sinistro ${cl.claimNumber}!`, 'info');
+          renderApp();
+        }
+      });
+
       document.getElementById('budget-new-btn')?.addEventListener('click', () => {
         if (!confirm('Iniciar novo orçamento em branco?')) return;
         state.budget = {
           osNumber: `OS-2026-${Date.now().toString().slice(-4)}`,
           date: new Date().toLocaleDateString('pt-BR'),
-          clientName: 'Trans Pinho',
+          status: 'Em Análise',
+          warrantyDays: 90,
+          validityDays: 15,
+          clientName: 'Trans Pinho (João Batista de Souza Pinho EPP)',
           clientCnpj: '94.476.207/0001-80',
           clientPhone: '(51) 98266-0028',
           clientEmail: 'operacional@transpinho.com',
@@ -2051,16 +2097,40 @@
           vehiclePlate: '',
           vehicleColor: '',
           vehicleKm: '',
+          responsibleTechnician: 'Fabiano da Silva Vieira',
           report: '',
           items: [{ id: Date.now(), type: 'MO', description: '', qty: 1, value: 0 }],
           materials: [],
           pix: '(51) 99432-4224',
-          bank: 'Itaú Unibanco',
+          bank: 'Itaú Unibanco (Ag: 0142 | CC: 44920-1)',
           payee: 'Fabiano da Silva Vieira',
           showSignatures: true
         };
         state.budgetTab = 'editor';
         renderApp();
+      });
+
+      // Load / Delete from History
+      document.querySelectorAll('.load-os-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const osNum = e.currentTarget.getAttribute('data-os');
+          const found = state.budgetHistory.find(h => h.osNumber === osNum);
+          if (found) {
+            state.budget = JSON.parse(JSON.stringify(found));
+            state.budgetTab = 'editor';
+            showToast(`Orçamento ${osNum} carregado!`, 'info');
+            renderApp();
+          }
+        });
+      });
+
+      document.querySelectorAll('.delete-os-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const osNum = e.currentTarget.getAttribute('data-os');
+          state.budgetHistory = state.budgetHistory.filter(h => h.osNumber !== osNum);
+          showToast(`Orçamento ${osNum} excluído do histórico.`, 'info');
+          renderApp();
+        });
       });
 
       // Budget Basic Inputs
@@ -2075,7 +2145,6 @@
           const prop = map[id];
           if (prop) {
             state.budget[prop] = e.target.value;
-            // Partial preview update
             const pdfEl = document.getElementById('pdf-content');
             if (pdfEl) renderApp();
           }
@@ -2150,7 +2219,6 @@
               fullText += content.items.map(it => it.str).join(' ') + '\n';
             }
 
-            // Simple line parser for material items
             const lines = fullText.split('\n');
             const parsed = [];
             lines.forEach((l, idx) => {
