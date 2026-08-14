@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
+
+/* Trans Pinho Document PDF Layout Styling */
+.trans-pinho-doc {
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  color: #000000;
+  line-height: 1.6;
+  background: #ffffff;
+  padding: 2.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+}
+
+.trans-pinho-header {
+  text-align: center;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.trans-pinho-title {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.5rem 0;
+}
+
+.trans-pinho-section {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  aside, header, #search-trigger, .nav-btn, .btn-no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .trans-pinho-doc {
+    border: none !important;
+    padding: 0 !important;
+  }
+}

@@ -3,66 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NexClaim Enterprise - Gestão de Sinistros & Dossiês Digitais</title>
+  <title>NexClaim Enterprise - Gestão de Sinistros & Automação de Termos</title>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- FontAwesome 6 Free Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-            },
-            sidebar: '#0f172a'
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-
   <!-- SheetJS Excel Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- Main Custom CSS -->
-  <link rel="stylesheet" href="/css/main.css">
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased font-sans">
-
-  <!-- Application Shell Root Container -->
-  <div id="app" class="flex h-screen overflow-hidden">
-    <!-- Rendered dynamically by app.js -->
-  </div>
-
-  <!-- Global Modal Container -->
-  <div id="modal-root" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <!-- Modals rendered here -->
-  </div>
-
-  <!-- Toast Notification Container -->
-  <div id="toast-root" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none">
-    <!-- Toasts rendered here -->
-  </div>
-
-  <!-- Application Script -->
-  <script src="/js/app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
