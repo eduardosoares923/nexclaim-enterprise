@@ -190,41 +190,43 @@
 
     if (term.templateType === 'infracao_direta') {
       return `
-        <div class="title" style="margin-top: 18px; margin-bottom: 18px;">TERMO DE RESPONSABILIDADE</div>
+        <div class="doc-body">
+          <div class="title" style="margin-top: 18px; margin-bottom: 18px;">TERMO DE RESPONSABILIDADE</div>
 
-        <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
-        <p>
-          Eu, <strong>${term.involvedPerson}</strong> portador(a) do CPF nº <strong>${term.cpf || '016.998.180-02'}</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
-        </p>
-        <ul style="list-style-type: disc; margin-left: 22px;">
-          <li><strong>Placa: ${term.plate || 'TRD3E72'}</strong></li>
-          <li><strong>Prefixo do Carro: ${term.prefix || '226'}</strong></li>
-        </ul>
+          <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+          <p>
+            Eu, <strong>${term.involvedPerson}</strong> portador(a) do CPF nº <strong>${term.cpf || '016.998.180-02'}</strong>, na qualidade de condutor(a) do veículo abaixo identificado:
+          </p>
+          <ul style="list-style-type: disc; margin-left: 22px;">
+            <li><strong>Placa: ${term.plate || 'TRD3E72'}</strong></li>
+            <li><strong>Prefixo do Carro: ${term.prefix || '226'}</strong></li>
+          </ul>
 
-        <div class="section-title" style="margin-top: 12px;">2. DETALHES DO OCORRIDO</div>
-        <ul style="list-style-type: disc; margin-left: 22px;">
-          <li>Auto de Infração nº: <strong>TE02141677</strong></li>
-          <li>Data do ocorrido: <strong>15/04/2026</strong></li>
-          <li>Horário: <strong>16:50</strong></li>
-          <li>Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
-        </ul>
+          <div class="section-title" style="margin-top: 12px;">2. DETALHES DO OCORRIDO</div>
+          <ul style="list-style-type: disc; margin-left: 22px;">
+            <li>Auto de Infração nº: <strong>TE02141677</strong></li>
+            <li>Data do ocorrido: <strong>15/04/2026</strong></li>
+            <li>Horário: <strong>16:50</strong></li>
+            <li>Motivo (Enquadramento): <strong>ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.</strong></li>
+          </ul>
 
-        <div class="section-title" style="margin-top: 12px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
-        <p>
-          Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
-        </p>
+          <div class="section-title" style="margin-top: 12px;">3. DECLARAÇÃO DE RESPONSABILIDADE</div>
+          <p>
+            Declaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas com o veículo acima descritos, bem como por todas as consequências decorrentes destes atos. Confirmo ter total ciência da natureza e gravidade das referidas infrações, isentando a empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> de qualquer responsabilidade sobre as mesmas, uma vez que decorreram da minha conduta direta na condução do veículo.
+          </p>
 
-        <p style="margin-top: 18px; margin-bottom: 30px;">
-          GRAVATAÍ, ${term.documentDate || '24 de Junho de 2026'}.
-        </p>
+          <p style="margin-top: 18px; margin-bottom: 30px;">
+            GRAVATAÍ, ${term.documentDate || '24 de Junho de 2026'}.
+          </p>
 
-        <div class="signature-section">
-          <div class="signature-line"></div>
-          <div class="signature-sub">Assinatura do Condutor</div>
-          <div class="signature-name" style="margin-top: 4px;">${term.involvedPerson}</div>
+          <div class="signature-section">
+            <div class="signature-line"></div>
+            <div class="signature-sub">Assinatura do Condutor</div>
+            <div class="signature-name" style="margin-top: 4px;">${term.involvedPerson}</div>
+          </div>
         </div>
 
-        <div class="footer" style="margin-top: 40px;">
+        <div class="doc-footer">
           <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
           Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
           (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
@@ -240,71 +242,73 @@
     const valParc = term.installmentAmount || (term.totalAmount / numParc);
 
     return `
-      <div class="title" style="margin-top: 14px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
+      <div class="doc-body">
+        <div class="title" style="margin-top: 14px; margin-bottom: 16px;">TERMO DE RESPONSABILIDADE</div>
 
-      <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
-      <p>
-        Eu, <strong>${term.involvedPerson}</strong>, portador do CPF de nº <strong>${term.cpf || '002.574.880-73'}</strong>, na qualidade de condutor dos veículos abaixo identificado:
-      </p>
-      <ul style="list-style-type: disc; margin-left: 22px;">
-        <li><strong>Placa: ${term.plate || 'JCO8C10'} &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: ${term.prefix || '24127'}</strong></li>
-      </ul>
+        <div class="section-title">1. IDENTIFICAÇÃO DO CONDUTOR</div>
+        <p>
+          Eu, <strong>${term.involvedPerson}</strong>, portador do CPF de nº <strong>${term.cpf || '002.574.880-73'}</strong>, na qualidade de condutor dos veículos abaixo identificado:
+        </p>
+        <ul style="list-style-type: disc; margin-left: 22px;">
+          <li><strong>Placa: ${term.plate || 'JCO8C10'} &nbsp;&nbsp;&nbsp;&nbsp; Prefixo do Carro: ${term.prefix || '24127'}</strong></li>
+        </ul>
 
-      <div class="divider"></div>
+        <div class="divider"></div>
 
-      <div class="section-title">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
-      <ul style="list-style-type: disc; margin-left: 22px;">
-        <li><strong>Infração 01:</strong>
-          <ul class="sub-list">
-            <li>Auto de Infração nº: <strong>EL00093302</strong></li>
-            <li>Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
-            <li>Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
-            <li>Valor: <strong>R$ 130,16</strong></li>
-          </ul>
-        </li>
-        <li style="margin-top: 4px;"><strong>Infração 02:</strong>
-          <ul class="sub-list">
-            <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
-            <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
-            <li>Motivo/Enquadramento: <strong>MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA</strong></li>
-            <li>Valor: <strong>R$ 130,16</strong></li>
-          </ul>
-        </li>
-      </ul>
+        <div class="section-title">2. DETALHAMENTO DAS INFRAÇÕES E VALORES</div>
+        <ul style="list-style-type: disc; margin-left: 22px;">
+          <li><strong>Infração 01:</strong>
+            <ul class="sub-list">
+              <li>Auto de Infração nº: <strong>EL00093302</strong></li>
+              <li>Data: <strong>27/04/2026</strong> | Horário: <strong>10:44</strong></li>
+              <li>Motivo/Enquadramento: <strong>TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%</strong></li>
+              <li>Valor: <strong>R$ 130,16</strong></li>
+            </ul>
+          </li>
+          <li style="margin-top: 4px;"><strong>Infração 02:</strong>
+            <ul class="sub-list">
+              <li>Auto de Infração nº: <strong>Gerado Duplicada</strong></li>
+              <li>Data: &nbsp;&nbsp;&nbsp;&nbsp;| Horário: </li>
+              <li>Motivo/Enquadramento: <strong>MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA</strong></li>
+              <li>Valor: <strong>R$ 130,16</strong></li>
+            </ul>
+          </li>
+        </ul>
 
-      <p style="margin-top: 6px;">
-        O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>${formatCurrency(term.totalAmount || 260.32)} (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
-      </p>
+        <p style="margin-top: 6px;">
+          O condutor reconhece a infração nº <strong>EL00093302</strong>. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, por não desejar o registro de pontos em sua carteira de habilitação, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando <strong>${formatCurrency(term.totalAmount || 260.32)} (duzentos e sessenta reais e trinta e dois centavos)</strong>, assumindo integral responsabilidade pela nova infração gerada.
+        </p>
 
-      <p style="font-weight: bold; margin: 6px 0;">
-        VALOR TOTAL ACUMULADO: ${formatCurrency(term.totalAmount || 260.32)}
-      </p>
+        <p style="font-weight: bold; margin: 6px 0;">
+          VALOR TOTAL ACUMULADO: ${formatCurrency(term.totalAmount || 260.32)}
+        </p>
 
-      <div class="divider"></div>
+        <div class="divider"></div>
 
-      <div class="section-title">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
-      <p>
-        O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
-      </p>
-      <p style="margin-left: 15px; margin-bottom: 2px;">${cotaUnicaChecked} Cota Única: Vencimento em ${term.singleDueDate || '06/07/2026'}</p>
-      <p style="margin-left: 15px; margin-bottom: 2px;">${parceladoChecked} Parcelado: Em ${numParc} parcelas de ${formatCurrency(valParc)} Mensais.</p>
-      ${isParcelado ? `<p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: ${term.firstDueDate || '06/07/2026'}</p>` : ''}
+        <div class="section-title">3. DA FORMA DE PAGAMENTO E PARCELAMENTO</div>
+        <p>
+          O condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:
+        </p>
+        <p style="margin-left: 15px; margin-bottom: 2px;">${cotaUnicaChecked} Cota Única: Vencimento em ${term.singleDueDate || '06/07/2026'}</p>
+        <p style="margin-left: 15px; margin-bottom: 2px;">${parceladoChecked} Parcelado: Em ${numParc} parcelas de ${formatCurrency(valParc)} Mensais.</p>
+        ${isParcelado ? `<p style="margin-left: 15px; font-weight: bold;">Primeira parcela em: ${term.firstDueDate || '06/07/2026'}</p>` : ''}
 
-      <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
-      <p>
-        Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
-      </p>
+        <div class="section-title" style="margin-top: 8px;">4. DA RESPONSABILIDADE E QUITAÇÃO</div>
+        <p>
+          Assumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa <strong>João Batista de Souza Pinho EPP (Trans Pinho)</strong> a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.
+        </p>
 
-      <p style="margin-top: 10px; margin-bottom: 20px;">
-        GRAVATAÍ, ${term.documentDate || '19 de Junho de 2026'}.
-      </p>
+        <p style="margin-top: 10px; margin-bottom: 20px;">
+          GRAVATAÍ, ${term.documentDate || '19 de Junho de 2026'}.
+        </p>
 
-      <div class="signature-section">
-        <div class="signature-line"></div>
-        <div class="signature-name">${term.involvedPerson}</div>
+        <div class="signature-section">
+          <div class="signature-line"></div>
+          <div class="signature-name">${term.involvedPerson}</div>
+        </div>
       </div>
 
-      <div class="footer">
+      <div class="doc-footer">
         <strong>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</strong><br>
         Rua Florida, 116 – Nossa Chácara – Gravataí/ RS<br>
         (051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com
@@ -423,6 +427,9 @@
             margin: 0;
             padding: 0;
           }
+          html, body {
+            height: 100%;
+          }
           body {
             font-family: 'Times New Roman', Times, Georgia, serif;
             font-size: 10.5pt;
@@ -430,6 +437,13 @@
             color: #000000;
             background: #ffffff;
             padding: 4px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+          .doc-body {
+            flex: 1 0 auto;
           }
           .title {
             text-align: center;
@@ -483,8 +497,10 @@
             font-size: 9.5pt;
             font-style: italic;
           }
-          .footer {
-            margin-top: 22px;
+          .doc-footer, .footer {
+            margin-top: auto;
+            padding-top: 35px;
+            padding-bottom: 2px;
             text-align: center;
             font-size: 8.5pt;
             color: #333333;
@@ -715,7 +731,7 @@
                 </div>
 
                 <!-- Pixel-Perfect Term Preview Container -->
-                <div class="bg-white p-8 max-w-[210mm] mx-auto border border-slate-200 shadow-sm rounded-lg" style="font-family: 'Times New Roman', Times, Georgia, serif; color: #000000; line-height: 1.32; font-size: 10.5pt;">
+                <div class="bg-white p-8 max-w-[210mm] min-h-[270mm] mx-auto border border-slate-200 shadow-sm rounded-lg flex flex-col justify-between" style="font-family: 'Times New Roman', Times, Georgia, serif; color: #000000; line-height: 1.32; font-size: 10.5pt;">
                   ${buildTermHtml(t)}
                 </div>
               </div>
