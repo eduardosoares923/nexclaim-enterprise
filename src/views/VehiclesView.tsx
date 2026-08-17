@@ -44,6 +44,7 @@ export const VehiclesView: React.FC<VehiclesViewProps> = ({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[DIAG] handleCreate iniciado', { plate, model });
 
     const newVehicle: Vehicle = {
       id: `veh-${Date.now()}`,
@@ -58,6 +59,7 @@ export const VehiclesView: React.FC<VehiclesViewProps> = ({
       status,
     };
 
+    console.log('[DIAG] chamando onSaveVehicle com:', newVehicle);
     onSaveVehicle(newVehicle);
     setShowModal(false);
     setPlate('');

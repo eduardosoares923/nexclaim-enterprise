@@ -326,7 +326,9 @@ export const App: React.FC = () => {
                   vehicles={vehicles}
                   people={people}
                   onSaveVehicle={(newV) => {
+                    console.log('[DIAG] onSaveVehicle recebido no App.tsx:', newV);
                     const { id, ...data } = newV;
+                    console.log('[DIAG] chamando createVehicleMutation.mutate com:', data);
                     createVehicleMutation.mutate(data);
                   }}
                   onDeleteVehicle={(id) => deleteVehicleMutation.mutate(id)}

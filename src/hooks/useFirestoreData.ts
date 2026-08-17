@@ -138,10 +138,23 @@ export function useVehicles() {
 export function useCreateVehicle() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (vehicleData: Omit<Vehicle, 'id'>) => firebaseService.saveVehicle(vehicleData),
+    mutationFn: (vehicleData: Omit<Vehicle, 'id'>) => {
+      console.log('[DIAG] mutationFn useCreateVehicle chamada com:', vehicleData);
+      return firebaseService
+        .saveVehicle(vehicleData)
+        .then((result) => {
+          console.log('[DIAG] saveVehicle retornou:', result);
+          return result;
+        })
+        .catch((err) => {
+          console.error('[DIAG] saveVehicle rejeitou:', err);
+          throw err;
+        });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
     },
+    onError: (err) => console.error('[DIAG] useCreateVehicle onError:', err),
   });
 }
 
