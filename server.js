@@ -363,8 +363,10 @@ const handleRequest = (req, res) => {
 
 const server = http.createServer(handleRequest);
 
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+if (process.argv[1] === __filename) {
+  server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
+}
 
 export default handleRequest;
