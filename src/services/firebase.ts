@@ -11,7 +11,16 @@ import {
   onAuthStateChanged,
   User,
 } from 'firebase/auth';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+  setDoc,
+} from 'firebase/firestore';
+import { deleteDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
 
@@ -57,6 +66,22 @@ export const firebaseService = {
     }
   },
 
+  async updateClaim(id: string, data: Partial<Claim>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'claims', id), data);
+    } catch (e) {
+      console.error('Firestore updateClaim error:', e);
+    }
+  },
+
+  async deleteClaim(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'claims', id));
+    } catch (e) {
+      console.error('Firestore deleteClaim error:', e);
+    }
+  },
+
   // Sync Fines
   async fetchFines(): Promise<Fine[]> {
     try {
@@ -80,6 +105,22 @@ export const firebaseService = {
     }
   },
 
+  async updateFine(id: string, data: Partial<Fine>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'fines', id), data);
+    } catch (e) {
+      console.error('Firestore updateFine error:', e);
+    }
+  },
+
+  async deleteFine(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'fines', id));
+    } catch (e) {
+      console.error('Firestore deleteFine error:', e);
+    }
+  },
+
   // Sync Terms
   async fetchTerms(): Promise<Term[]> {
     try {
@@ -100,6 +141,100 @@ export const firebaseService = {
     } catch (e) {
       console.error('Firestore saveTerm error:', e);
       return `trm-${Date.now()}`;
+    }
+  },
+
+  async updateTerm(id: string, data: Partial<Term>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'terms', id), data);
+    } catch (e) {
+      console.error('Firestore updateTerm error:', e);
+    }
+  },
+
+  async deleteTerm(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'terms', id));
+    } catch (e) {
+      console.error('Firestore deleteTerm error:', e);
+    }
+  },
+
+  // Sync Vehicles
+  async fetchVehicles(): Promise<Vehicle[]> {
+    try {
+      const snap = await getDocs(collection(db, 'vehicles'));
+      if (!snap.empty) {
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Vehicle));
+      }
+    } catch (e) {
+      console.warn('Firestore fetchVehicles fallback:', e);
+    }
+    return [];
+  },
+
+  async saveVehicle(vehicleData: Omit<Vehicle, 'id'>): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'vehicles'), vehicleData);
+      return docRef.id;
+    } catch (e) {
+      console.error('Firestore saveVehicle error:', e);
+      return `veh-${Date.now()}`;
+    }
+  },
+
+  async updateVehicle(id: string, data: Partial<Vehicle>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'vehicles', id), data);
+    } catch (e) {
+      console.error('Firestore updateVehicle error:', e);
+    }
+  },
+
+  async deleteVehicle(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'vehicles', id));
+    } catch (e) {
+      console.error('Firestore deleteVehicle error:', e);
+    }
+  },
+
+  // Sync People
+  async fetchPeople(): Promise<Person[]> {
+    try {
+      const snap = await getDocs(collection(db, 'people'));
+      if (!snap.empty) {
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Person));
+      }
+    } catch (e) {
+      console.warn('Firestore fetchPeople fallback:', e);
+    }
+    return [];
+  },
+
+  async savePerson(personData: Omit<Person, 'id'>): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'people'), personData);
+      return docRef.id;
+    } catch (e) {
+      console.error('Firestore savePerson error:', e);
+      return `peo-${Date.now()}`;
+    }
+  },
+
+  async updatePerson(id: string, data: Partial<Person>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'people', id), data);
+    } catch (e) {
+      console.error('Firestore updatePerson error:', e);
+    }
+  },
+
+  async deletePerson(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'people', id));
+    } catch (e) {
+      console.error('Firestore deletePerson error:', e);
     }
   },
 
@@ -172,4 +307,3 @@ export function observarAutenticacao(
 ) {
   return onAuthStateChanged(auth, callback);
 }
-

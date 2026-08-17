@@ -7,6 +7,7 @@ interface FinesViewProps {
   people: Person[];
   onSaveFine: (fine: Fine) => void;
   onUpdateFineStatus: (id: string, newStatus: FineStatus) => void;
+  onDeleteFine?: (id: string) => void;
   onOpenTermForFine?: (fine: Fine) => void;
 }
 
@@ -16,6 +17,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
   people,
   onSaveFine,
   onUpdateFineStatus,
+  onDeleteFine,
   onOpenTermForFine,
 }) => {
   const [search, setSearch] = useState('');
@@ -237,6 +239,15 @@ export const FinesView: React.FC<FinesViewProps> = ({
                           title="Reabrir como Pendente"
                         >
                           Reabrir
+                        </button>
+                      )}
+                      {onDeleteFine && (
+                        <button
+                          onClick={() => onDeleteFine(fine.id)}
+                          className="btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] px-2 py-1 rounded font-bold transition border border-rose-200"
+                          title="Excluir Multa"
+                        >
+                          <i className="fa-solid fa-trash-can"></i>
                         </button>
                       )}
                     </td>

@@ -5,9 +5,15 @@ interface VehiclesViewProps {
   vehicles: Vehicle[];
   people: Person[];
   onSaveVehicle: (vehicle: Vehicle) => void;
+  onDeleteVehicle?: (id: string) => void;
 }
 
-export const VehiclesView: React.FC<VehiclesViewProps> = ({ vehicles, people, onSaveVehicle }) => {
+export const VehiclesView: React.FC<VehiclesViewProps> = ({
+  vehicles,
+  people,
+  onSaveVehicle,
+  onDeleteVehicle,
+}) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -134,15 +140,26 @@ export const VehiclesView: React.FC<VehiclesViewProps> = ({ vehicles, people, on
                     </span>
                   )}
                 </div>
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                    v.status === 'Ativo'
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                      : 'bg-amber-50 text-amber-800 border-amber-300'
-                  }`}
-                >
-                  {v.status}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                      v.status === 'Ativo'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                        : 'bg-amber-50 text-amber-800 border-amber-300'
+                    }`}
+                  >
+                    {v.status}
+                  </span>
+                  {onDeleteVehicle && (
+                    <button
+                      onClick={() => onDeleteVehicle(v.id)}
+                      className="text-slate-400 hover:text-rose-600 p-1 rounded transition"
+                      title="Excluir Veículo"
+                    >
+                      <i className="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div>

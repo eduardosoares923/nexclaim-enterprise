@@ -4,9 +4,14 @@ import { Person } from '../types';
 interface PeopleViewProps {
   people: Person[];
   onSavePerson: (person: Person) => void;
+  onDeletePerson?: (id: string) => void;
 }
 
-export const PeopleView: React.FC<PeopleViewProps> = ({ people, onSavePerson }) => {
+export const PeopleView: React.FC<PeopleViewProps> = ({
+  people,
+  onSavePerson,
+  onDeletePerson,
+}) => {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -126,8 +131,19 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onSavePerson }) 
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
                   {p.type}
                 </span>
-                <div className="w-8 h-8 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-xs">
-                  {p.name.charAt(0)}
+                <div className="flex items-center gap-1.5">
+                  <div className="w-8 h-8 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-xs">
+                    {p.name.charAt(0)}
+                  </div>
+                  {onDeletePerson && (
+                    <button
+                      onClick={() => onDeletePerson(p.id)}
+                      className="text-slate-400 hover:text-rose-600 p-1 rounded transition"
+                      title="Excluir Cadastro"
+                    >
+                      <i className="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  )}
                 </div>
               </div>
 

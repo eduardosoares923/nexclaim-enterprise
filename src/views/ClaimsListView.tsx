@@ -11,6 +11,7 @@ interface ClaimsListViewProps {
   templates: DocumentTemplate[];
   onSaveNewClaim: (claim: Claim) => void;
   onOpenTermGenerator: (claim: Claim) => void;
+  onDeleteClaim?: (id: string) => void;
 }
 
 export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
@@ -21,6 +22,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   templates,
   onSaveNewClaim,
   onOpenTermGenerator,
+  onDeleteClaim,
 }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -223,6 +225,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                       >
                         <i className="fa-solid fa-wand-magic-sparkles mr-1"></i> Termo
                       </button>
+                      {onDeleteClaim && (
+                        <button
+                          onClick={() => onDeleteClaim(claim.id)}
+                          className="btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] px-2 py-1 rounded font-bold transition border border-rose-200"
+                          title="Excluir Sinistro"
+                        >
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
