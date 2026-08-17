@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Claim, Person, Vehicle, DocumentTemplate, Term } from '../types';
 
 interface TermGeneratorModalProps {
-  claim: Claim;
+  claim?: Claim;
   people: Person[];
   vehicles: Vehicle[];
   templates: DocumentTemplate[];
@@ -18,25 +18,57 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   onClose,
   onGenerateTerm,
 }) => {
+  if (!claim) {
+    return (
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center space-y-4 animate-in fade-in zoom-in-95 duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
+            <i className="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 text-base">Nenhum sinistro disponível</h3>
+            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Nenhum sinistro disponível. Cadastre um sinistro em Sinistros & Ocorrências antes de emitir um termo vinculado a ele.
+            </p>
+          </div>
+          <div className="pt-2">
+            <button
+              onClick={onClose}
+              className="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templates[0]?.id || '');
   const [selectedDriverName, setSelectedDriverName] = useState<string>(
-    claim.driverName || 'ANDREIA MERCEDES ROCHA DE ARAUJO'
+    claim?.driverName || people[0]?.name || ''
   );
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
 
   const currentTemplate = templates.find((t) => t.id === selectedTemplateId) || templates[0];
   const currentDriver = people.find((p) => p.name === selectedDriverName) || people[0];
-  const currentVehicle = vehicles.find((v) => v.plate === claim.vehiclePlate) || vehicles[0];
+  const currentVehicle = vehicles.find((v) => v.plate === claim?.vehiclePlate) || vehicles[0];
 
   // Smart Suggestion Logic
   const getSuggestions = () => {
     const recs: string[] = [];
-    const occ = (claim.occurrenceType || '').toLowerCase();
+    const occ = (claim?.occurrenceType || '').toLowerCase();
     if (occ.includes('velocidade') || occ.includes('nic') || occ.includes('multa') || occ.includes('estacionar') || occ.includes('infração')) {
       recs.push('Termo de Responsabilidade (Valores Descontados e Assumindo os Pontos)');
       recs.push('Termo de Responsabilidade (Empresa Paga a Multa)');
     }
-    if (occ.includes('colisão') || occ.includes('terceiro') || occ.includes('avaria') || (claim.estimatedCost && claim.estimatedCost > 0)) {
+    if (occ.includes('colisão') || occ.includes('terceiro') || occ.includes('avaria') || ((claim?.estimatedCost || 0) > 0)) {
       recs.push('Termo de Ciência e Autorização de Desconto em Folha de Pagamento');
       recs.push('Termo de Quitação (Reparo Custeado pela Empresa)');
       recs.push('Termo de Quitação (Pagamento via Pix pelo Condutor)');
@@ -65,10 +97,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const generateFilledContent = () => {
     const rawContent = currentTemplate?.content || '';
     const driverCpf = currentDriver?.docNumber || '031.997.250-07';
-    const vehiclePlate = claim.vehiclePlate || currentVehicle?.plate || 'IZF4E82';
+    const vehiclePlate = claim?.vehiclePlate || currentVehicle?.plate || 'IZF4E82';
     const vehiclePrefix = currentVehicle?.prefix || '24127';
-    const vehicleModel = claim.vehicleModel || currentVehicle?.model || 'MARCOPOLO/VOLARE W9C ON';
-    const cost = claim.estimatedCost || 2200;
+    const vehicleModel = claim?.vehicleModel || currentVehicle?.model || 'MARCOPOLO/VOLARE W9C ON';
+    const cost = claim?.estimatedCost || 2200;
     const costFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost);
     const costExtenso = formatExtenso(cost);
     
@@ -85,10 +117,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       .replace(/\{\{placa\}\}/g, vehiclePlate)
       .replace(/\{\{prefixo\}\}/g, vehiclePrefix)
       .replace(/\{\{modelo_veiculo\}\}/g, vehicleModel)
-      .replace(/\{\{auto_infracao\}\}/g, claim.boNumber || 'EL00093302')
-      .replace(/\{\{data_infracao\}\}/g, claim.date || '28/05/2026')
-      .replace(/\{\{horario_infracao\}\}/g, claim.time || '10:44')
-      .replace(/\{\{motivo_infracao\}\}/g, claim.occurrenceType || 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATÉ 20%')
+      .replace(/\{\{auto_infracao\}\}/g, claim?.boNumber || 'EL00093302')
+      .replace(/\{\{data_infracao\}\}/g, claim?.date || '28/05/2026')
+      .replace(/\{\{horario_infracao\}\}/g, claim?.time || '10:44')
+      .replace(/\{\{motivo_infracao\}\}/g, claim?.occurrenceType || 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATÉ 20%')
       .replace(/\{\{valor_infracao\}\}/g, costFormatted)
       .replace(/\{\{valor_total\}\}/g, costFormatted)
       .replace(/\{\{valor_total_extenso\}\}/g, costExtenso)
@@ -98,18 +130,18 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       .replace(/\{\{data_primeira_parcela\}\}/g, '07/08/2026')
       .replace(/\{\{dia_assinatura\}\}/g, diaAssinatura)
       .replace(/\{\{mes_assinatura\}\}/g, mesAssinatura)
-      .replace(/\{\{numero_ocorrencia\}\}/g, claim.protocol || claim.claimNumber || '2026 0713 3731 277')
+      .replace(/\{\{numero_ocorrencia\}\}/g, claim?.protocol || claim?.claimNumber || '2026 0713 3731 277')
       .replace(/\{\{modelo_veiculo_terceiro\}\}/g, 'RENAULT/MASTER TVAN')
       .replace(/\{\{placa_terceiro\}\}/g, 'TQQ6H24')
-      .replace(/\{\{data_sinistro\}\}/g, claim.date || '18/06/2026')
-      .replace(/\{\{hora_sinistro\}\}/g, claim.time || '14:30')
-      .replace(/\{\{local_sinistro\}\}/g, claim.location || 'Gravataí/RS')
-      .replace(/\{\{cidade\}\}/g, claim.city || 'Gravataí')
-      .replace(/\{\{estado\}\}/g, claim.state || 'RS')
+      .replace(/\{\{data_sinistro\}\}/g, claim?.date || '18/06/2026')
+      .replace(/\{\{hora_sinistro\}\}/g, claim?.time || '14:30')
+      .replace(/\{\{local_sinistro\}\}/g, claim?.location || 'Gravataí/RS')
+      .replace(/\{\{cidade\}\}/g, claim?.city || 'Gravataí')
+      .replace(/\{\{estado\}\}/g, claim?.state || 'RS')
       .replace(/\{\{oficina\}\}/g, 'Chapeação Central Trans Pinho')
       .replace(/\{\{chave_pix\}\}/g, 'financeiro@transpinho.com')
-      .replace(/\{\{numero_sinistro\}\}/g, claim.claimNumber)
-      .replace(/\{\{protocolo\}\}/g, claim.protocol);
+      .replace(/\{\{numero_sinistro\}\}/g, claim?.claimNumber || 'SIN-2026-001')
+      .replace(/\{\{protocolo\}\}/g, claim?.protocol || 'PROT-2026-001');
 
     return filled;
   };
@@ -118,13 +150,9 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     e.preventDefault();
     const textContent = generateFilledContent();
 
-    const now = new Date();
-    const diaAssinatura = String(now.getDate()).padStart(2, '0');
-    const mesAssinatura = meses[now.getMonth()];
-
     const newTerm: Term = {
       id: `trm-${Date.now()}`,
-      claimId: claim.id,
+      claimId: claim?.id || '',
       templateId: currentTemplate?.id,
       title: currentTemplate?.name || 'Termo de Responsabilidade Oficial Trans Pinho',
       type: currentTemplate?.category || 'Responsabilidade',
@@ -161,7 +189,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
               Gerador Automático Baseado em Templates (Requisitos 13 - 20)
             </span>
             <h3 className="font-bold text-slate-900 text-base mt-0.5">
-              Emitir Termo Oficial - {claim.claimNumber}
+              Emitir Termo Oficial - {claim?.claimNumber || 'Novo Documento'}
             </h3>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg">

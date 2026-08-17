@@ -311,6 +311,10 @@ export const App: React.FC = () => {
                   people={people}
                   templates={templates}
                   onOpenTermGenerator={(claim) => {
+                    if (!claim && claims.length === 0) {
+                      alert('Cadastre pelo menos um sinistro antes de emitir um termo.');
+                      return;
+                    }
                     setSelectedClaim(claim || claims[0]);
                     setShowTermGenModal(true);
                   }}
@@ -376,7 +380,11 @@ export const App: React.FC = () => {
                   vehicles={vehicles}
                   templates={templates}
                   onOpenTermGenerator={(claim) => {
-                    if (claim) setSelectedClaim(claim);
+                    if (!claim && claims.length === 0) {
+                      alert('Cadastre pelo menos um sinistro antes de emitir um termo.');
+                      return;
+                    }
+                    setSelectedClaim(claim || claims[0]);
                     setShowTermGenModal(true);
                   }}
                   onDeleteTerm={(id) => deleteTermMutation.mutate(id)}
