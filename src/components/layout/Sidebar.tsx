@@ -37,9 +37,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <h1 className="font-black text-white text-sm tracking-tight leading-none truncate">
             Trans Pinho
           </h1>
-          <span className="text-[9px] uppercase font-bold text-amber-400 tracking-wider">
-            Gravataí / RS • React TS
-          </span>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="text-[9px] font-medium text-slate-400">Gravataí/RS</span>
+            <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
+              v2.5.0-ALPHA
+            </span>
+          </div>
         </div>
       </div>
 
