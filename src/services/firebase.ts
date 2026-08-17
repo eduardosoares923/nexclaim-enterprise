@@ -3,7 +3,14 @@
    ========================================================================== */
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User,
+} from 'firebase/auth';
 import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
@@ -32,7 +39,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'claims'));
       if (!snap.empty) {
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Claim));
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Claim));
       }
     } catch (e) {
       console.warn('Firestore fetchClaims fallback:', e);
@@ -55,7 +62,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'fines'));
       if (!snap.empty) {
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Fine));
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Fine));
       }
     } catch (e) {
       console.warn('Firestore fetchFines fallback:', e);
@@ -78,7 +85,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'terms'));
       if (!snap.empty) {
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Term));
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Term));
       }
     } catch (e) {
       console.warn('Firestore fetchTerms fallback:', e);
@@ -108,3 +115,61 @@ export const firebaseService = {
     }
   }
 };
+
+/**
+ * Autenticação via Email e Senha
+ */
+export async function loginComEmailSenha(
+  email: string,
+  senha: string
+): Promise<{ ok: boolean; erro?: string }> {
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+    return { ok: true };
+  } catch (error: any) {
+    console.error('Erro de login no Firebase Auth:', error);
+    let mensagemAmigavel = 'Erro ao realizar login. Verifique suas credenciais.';
+
+    switch (error?.code) {
+      case 'auth/invalid-credential':
+        mensagemAmigavel = 'E-mail ou senha incorretos.';
+        break;
+      case 'auth/wrong-password':
+        mensagemAmigavel = 'Senha incorreta. Verifique e tente novamente.';
+        break;
+      case 'auth/user-not-found':
+        mensagemAmigavel = 'Usuário não encontrado com este e-mail.';
+        break;
+      case 'auth/too-many-requests':
+        mensagemAmigavel = 'Muitas tentativas sem sucesso. Tente novamente mais tarde.';
+        break;
+      case 'auth/invalid-email':
+        mensagemAmigavel = 'Formato de e-mail inválido.';
+        break;
+      default:
+        if (error?.message) {
+          mensagemAmigavel = error.message;
+        }
+        break;
+    }
+
+    return { ok: false, erro: mensagemAmigavel };
+  }
+}
+
+/**
+ * Logout do Firebase Auth
+ */
+export async function logout(): Promise<void> {
+  await signOut(auth);
+}
+
+/**
+ * Observar mudanças no estado de autenticação
+ */
+export function observarAutenticacao(
+  callback: (user: User | null) => void
+) {
+  return onAuthStateChanged(auth, callback);
+}
+

@@ -7,6 +7,7 @@ interface HeaderProps {
   onOpenSearch: () => void;
   onOpenNewClaim: () => void;
   onOpenExcelImport: () => void;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenNewClaim,
   onOpenExcelImport,
+  onLogout,
 }) => {
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-20 shadow-xs">
@@ -61,6 +63,16 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <i className="fa-solid fa-plus text-xs text-amber-400"></i> Novo Sinistro
         </button>
+
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            title="Sair do sistema"
+            className="btn bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
+          >
+            <i className="fa-solid fa-right-from-bracket text-xs"></i> Sair
+          </button>
+        )}
       </div>
     </header>
   );

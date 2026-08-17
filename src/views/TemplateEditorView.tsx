@@ -220,7 +220,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
               </div>
 
               <div>
-                <label className="form-label text-xs">Conteúdo do Modelo (com variáveis {{'{{variavel}}'}}) *</label>
+                <label className="form-label text-xs">Conteúdo do Modelo (com variáveis {'{{variavel}}'}) *</label>
                 <textarea
                   rows={10}
                   value={editForm.content}
@@ -247,7 +247,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4 text-xs">
               <div className="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div>
-                  <span class="badge bg-slate-100 text-slate-800 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                  <span className="badge bg-slate-100 text-slate-800 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
                     {selectedTemplate.category}
                   </span>
                   <h3 className="font-bold text-slate-900 text-base mt-1">{selectedTemplate.name}</h3>

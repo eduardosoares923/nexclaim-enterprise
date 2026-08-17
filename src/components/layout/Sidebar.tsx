@@ -95,8 +95,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {currentUser.avatar}
           </div>
           <div className="flex-1 min-w-0">
-            <p class="text-xs font-bold text-white truncate">{currentUser.name}</p>
-            <p class="text-[10px] text-amber-400 font-semibold truncate">{currentUser.role}</p>
+            <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
+            <p className="text-[10px] text-amber-400 font-semibold truncate">{currentUser.role}</p>
           </div>
         </div>
       </div>

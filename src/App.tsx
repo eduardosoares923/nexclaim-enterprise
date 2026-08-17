@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { User } from 'firebase/auth';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
+import { Login } from './components/Login';
 import { TermGeneratorModal } from './components/TermGeneratorModal';
 import { TemplateEditorView } from './views/TemplateEditorView';
-import { firebaseService } from './services/firebase';
+import { firebaseService, auth, observarAutenticacao, logout } from './services/firebase';
 import {
   Claim,
   Fine,
@@ -19,6 +21,18 @@ export const App: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<RoleType>('ADMINISTRADOR');
 
   // Core App State
+  const [usuarioLogado, setUsuarioLogado] = useState<User | null>(null);
+  const [verificandoLogin, setVerificandoLogin] = useState<boolean>(true);
+
+  // Observar estado de autenticação do Firebase Auth
+  useEffect(() => {
+    const unsubscribe = observarAutenticacao((user) => {
+      setUsuarioLogado(user);
+      setVerificandoLogin(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [claims, setClaims] = useState<Claim[]>([
     {
       id: 'claim-1',
@@ -284,11 +298,32 @@ export const App: React.FC = () => {
     );
   };
 
+  if (verificandoLogin) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-950 text-white font-bold">
+        <div className="flex flex-col items-center gap-3">
+          <i className="fa-solid fa-circle-notch fa-spin text-2xl text-amber-400"></i>
+          <span className="text-xs tracking-wider text-slate-300 font-semibold uppercase">
+            Carregando NexClaim Enterprise...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!usuarioLogado) {
+    return <Login onLoginSuccess={() => {}} />;
+  }
+
+  const userEmail = usuarioLogado.email || 'carlos@transpinho.com';
+  const userName = userEmail.split('@')[0];
+  const userAvatar = (userEmail.charAt(0) || 'U').toUpperCase();
+
   const currentUser = {
-    name: 'Carlos Pinho',
-    email: 'carlos@transpinho.com',
+    name: userName,
+    email: userEmail,
     role: currentRole,
-    avatar: 'CP',
+    avatar: userAvatar,
   };
 
   return (
@@ -309,6 +344,7 @@ export const App: React.FC = () => {
           onOpenSearch={() => setShowSearchModal(true)}
           onOpenNewClaim={() => setCurrentView('claims')}
           onOpenExcelImport={() => setCurrentView('fines')}
+          onLogout={logout}
         />
 
         <main className="flex-1 overflow-y-auto p-6 relative">
