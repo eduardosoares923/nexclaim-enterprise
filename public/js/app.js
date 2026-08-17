@@ -1025,6 +1025,9 @@
           <button id="open-new-claim" class="btn bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-xs">
             <i class="fa-solid fa-plus text-xs text-amber-400"></i> Novo Sinistro
           </button>
+          <button id="btn-header-logout" class="btn bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors" title="Sair do sistema">
+            <i class="fa-solid fa-right-from-bracket text-xs"></i> Sair
+          </button>
         </div>
       </header>
     `;
@@ -2261,6 +2264,12 @@
     document.getElementById('terms-open-gen')?.addEventListener('click', () => { state.showTermGeneratorModal = true; renderModals(); });
     document.getElementById('detail-gen-term')?.addEventListener('click', () => { state.showTermGeneratorModal = true; renderModals(); });
 
+    document.getElementById('btn-header-logout')?.addEventListener('click', () => {
+      if (typeof window.nexclaimLogout === 'function') {
+        window.nexclaimLogout();
+      }
+    });
+
     document.onkeydown = function (e) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault(); state.showSearchModal = true; renderModals();
@@ -2269,6 +2278,16 @@
       }
     };
   }
+
+  // Permitir atualizar dados do usuário autenticado pelo auth-guard
+  window.nexclaimSetUser = function(user) {
+    if (user && user.email) {
+      state.currentUser.email = user.email;
+      state.currentUser.name = user.email.split('@')[0];
+      state.currentUser.avatar = (user.email.charAt(0) || 'U').toUpperCase();
+      renderApp();
+    }
+  };
 
   function attachModalEvents() {
     const modalRoot = document.getElementById('modal-root');

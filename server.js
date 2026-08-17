@@ -1,7 +1,10 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import url, { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'db.json');
@@ -359,10 +362,9 @@ const handleRequest = (req, res) => {
 };
 
 const server = http.createServer(handleRequest);
-module.exports = handleRequest;
 
-if (require.main === module) {
-  server.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-  });
-}
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
+
+export default handleRequest;
