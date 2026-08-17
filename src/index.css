@@ -67,6 +67,8 @@
     color: #000000 !important;
     font-size: 11.5px !important;
     line-height: 1.4 !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
   .trans-pinho-header {
     border-bottom: 1.5px solid #000000 !important;

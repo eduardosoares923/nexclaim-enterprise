@@ -112,6 +112,8 @@ export const App: React.FC = () => {
         '{{motivo_infracao}}',
         '{{valor_infracao}}',
         '{{valor_total}}',
+        '{{opcao_cota_unica}}',
+        '{{opcao_parcelado}}',
         '{{data_vencimento}}',
         '{{numero_parcelas}}',
         '{{valor_parcela}}',
@@ -119,7 +121,7 @@ export const App: React.FC = () => {
         '{{dia_assinatura}}',
         '{{mes_assinatura}}',
       ],
-      content: `TERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\n\nEu, {{nome_condutor}}, portador do CPF de nº {{cpf_condutor}} na qualidade de condutor dos veículos abaixo identificado:\n\n- Placa: {{placa}}\n- Prefixo do Carro: {{prefixo}}\n\n2. DETALHAMENTO DA INFRAÇÃO E VALOR\n\n- Infração 01:\n  - Auto de Infração nº: {{auto_infracao}}\n  - Data: {{data_infracao}} | Horário: {{horario_infracao}}\n  - Motivo/Enquadramento: {{motivo_infracao}}\n  - Valor: {{valor_infracao}}\n\nVALOR TOTAL: {{valor_total}}\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\n\nO condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:\n\n☐ Cota Única: Vencimento em {{data_vencimento}}\n☐ Parcelado: Em {{numero_parcelas}} parcelas de {{valor_parcela}} Mensais.\nPrimeira parcela em: {{data_primeira_parcela}}\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\n\nAssumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa JOÃO BATISTA DE SOUZA PINHO EPP – TRANS PINHO a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.\n\nGRAVATAÍ, {{dia_assinatura}} de {{mes_assinatura}} de 2026.\n\n\n_______________________________________________\nAssinatura do Condutor`,
+      content: `TERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\n\nEu, {{nome_condutor}}, portador do CPF de nº {{cpf_condutor}} na qualidade de condutor dos veículos abaixo identificado:\n\n- Placa: {{placa}}\n- Prefixo do Carro: {{prefixo}}\n\n2. DETALHAMENTO DA INFRAÇÃO E VALOR\n\n- Infração 01:\n  - Auto de Infração nº: {{auto_infracao}}\n  - Data: {{data_infracao}} | Horário: {{horario_infracao}}\n  - Motivo/Enquadramento: {{motivo_infracao}}\n  - Valor: {{valor_infracao}}\n\nVALOR TOTAL: {{valor_total}}\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\n\nO condutor declara-se ciente do débito total acima mencionado e opta pela seguinte modalidade de quitação:\n\n{{opcao_cota_unica}} Cota Única: Vencimento em {{data_vencimento}}\n{{opcao_parcelado}} Parcelado: Em {{numero_parcelas}} parcelas de {{valor_parcela}} Mensais.\nPrimeira parcela em: {{data_primeira_parcela}}\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\n\nAssumo integral responsabilidade civil e administrativa pelo pagamento dos valores aqui descritos. Ao concluir o pagamento total, outorgo à empresa JOÃO BATISTA DE SOUZA PINHO EPP – TRANS PINHO a mais ampla, geral e irrevogável quitação, para nada mais declarar em juízo ou fora dele, operando-se a sub-rogação de direitos em favor da referida Trans Pinho.\n\nGRAVATAÍ, {{dia_assinatura}} de {{mes_assinatura}} de 2026.\n\n\n_______________________________________________\nAssinatura do Condutor`,
     },
     {
       id: 'tmpl-empresa-paga-multa',

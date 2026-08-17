@@ -251,10 +251,10 @@ export const TermsView: React.FC<TermsViewProps> = ({
 
       {/* Document View / Print Modal */}
       {viewingTerm && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto print:static print:p-0 print:bg-white print:overflow-visible">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden print:overflow-visible print:border-none print:shadow-none print:my-0 animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="print:hidden p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
                   TP
@@ -283,23 +283,23 @@ export const TermsView: React.FC<TermsViewProps> = ({
             </div>
 
             {/* Document Sheet (Standard Trans Pinho Format) */}
-            <div className="p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
-              {/* Official Trans Pinho Header */}
-              <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
-                <h1 className="text-base sm:text-lg font-black uppercase tracking-tight text-slate-950">
-                  JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
-                </h1>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
-                </p>
-                <p className="text-xs text-slate-600">
-                  Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
-                </p>
-              </div>
-
+            <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
               {/* Content Body */}
               <div className="text-xs sm:text-sm whitespace-pre-wrap font-serif text-slate-900 leading-relaxed space-y-4">
                 {viewingTerm.content}
+              </div>
+
+              {/* Official Trans Pinho Footer (Mover de cima para rodapé) */}
+              <div className="text-center border-t-2 border-slate-900 pt-4 mt-8">
+                <h1 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-950">
+                  JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
+                </h1>
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                  Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
+                </p>
+                <p className="text-[11px] text-slate-600">
+                  Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
+                </p>
               </div>
             </div>
           </div>

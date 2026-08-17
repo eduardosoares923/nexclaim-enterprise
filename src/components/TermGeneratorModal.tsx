@@ -54,6 +54,9 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const [selectedDriverName, setSelectedDriverName] = useState<string>(
     claim?.driverName || people[0]?.name || ''
   );
+  const [formaPagamento, setFormaPagamento] = useState<'unica' | 'parcelado'>('parcelado');
+  const [dataVencimento, setDataVencimento] = useState<string>('');
+  const [dataPrimeiraParcela, setDataPrimeiraParcela] = useState<string>('');
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
 
   const currentTemplate = templates.find((t) => t.id === selectedTemplateId) || templates[0];
@@ -87,6 +90,8 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     if (Math.round(num) === 3500) return 'Três mil e quinhentos reais';
     return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num)} reais`;
   };
+
+  const formatarData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '');
 
   const meses = [
     'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -124,10 +129,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       .replace(/\{\{valor_infracao\}\}/g, costFormatted)
       .replace(/\{\{valor_total\}\}/g, costFormatted)
       .replace(/\{\{valor_total_extenso\}\}/g, costExtenso)
-      .replace(/\{\{data_vencimento\}\}/g, '07/08/2026')
+      .replace(/\{\{opcao_cota_unica\}\}/g, formaPagamento === 'unica' ? '☑' : '☐')
+      .replace(/\{\{opcao_parcelado\}\}/g, formaPagamento === 'parcelado' ? '☑' : '☐')
+      .replace(/\{\{data_vencimento\}\}/g, formatarData(dataVencimento) || '07/08/2026')
       .replace(/\{\{numero_parcelas\}\}/g, String(parcelas))
       .replace(/\{\{valor_parcela\}\}/g, valorParcelaFormatted)
-      .replace(/\{\{data_primeira_parcela\}\}/g, '07/08/2026')
+      .replace(/\{\{data_primeira_parcela\}\}/g, formatarData(dataPrimeiraParcela) || '07/08/2026')
       .replace(/\{\{dia_assinatura\}\}/g, diaAssinatura)
       .replace(/\{\{mes_assinatura\}\}/g, mesAssinatura)
       .replace(/\{\{numero_ocorrencia\}\}/g, claim?.protocol || claim?.claimNumber || '2026 0713 3731 277')
@@ -162,12 +169,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       status: 'Assinado',
       content: textContent,
       htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-8 bg-white border border-slate-300 rounded-lg max-w-2xl mx-auto shadow-sm">
-        <div class="trans-pinho-header text-center border-b-2 border-black pb-4 mb-6">
+        <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContent}</div>
+        <div class="trans-pinho-header text-center border-t-2 border-black pt-4 mt-6">
           <h2 class="font-black text-base uppercase tracking-tight">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
           <p class="text-xs">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
           <p class="text-xs">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
         </div>
-        <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContent}</div>
       </div>`,
     };
 
@@ -245,6 +252,61 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
               </select>
             </div>
           </div>
+
+          {/* Campos de Datas Editáveis */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="form-label text-xs">Data de Vencimento</label>
+              <input
+                type="date"
+                value={dataVencimento}
+                onChange={(e) => setDataVencimento(e.target.value)}
+                className="form-input text-xs"
+              />
+            </div>
+            <div>
+              <label className="form-label text-xs">Data da Primeira Parcela</label>
+              <input
+                type="date"
+                value={dataPrimeiraParcela}
+                onChange={(e) => setDataPrimeiraParcela(e.target.value)}
+                className="form-input text-xs"
+              />
+            </div>
+          </div>
+
+          {/* Seleção de Modalidade (Cota Única vs Parcelado) */}
+          {(currentTemplate?.id === 'tmpl-multa-descontada' || currentTemplate?.name.includes('Valores Descontados')) && (
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+              <label className="font-bold text-xs text-slate-800 block">
+                Forma de Pagamento / Modalidade de Quitação:
+              </label>
+              <div className="flex items-center gap-6 text-xs font-semibold text-slate-700">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="formaPagamento"
+                    value="unica"
+                    checked={formaPagamento === 'unica'}
+                    onChange={() => setFormaPagamento('unica')}
+                    className="text-amber-500 focus:ring-amber-400"
+                  />
+                  <span>Cota Única (☑ Cota Única)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="formaPagamento"
+                    value="parcelado"
+                    checked={formaPagamento === 'parcelado'}
+                    onChange={() => setFormaPagamento('parcelado')}
+                    className="text-amber-500 focus:ring-amber-400"
+                  />
+                  <span>Parcelado (☑ Parcelado)</span>
+                </label>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="form-label text-xs">
