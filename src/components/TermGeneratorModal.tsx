@@ -55,6 +55,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     claim?.driverName || people[0]?.name || ''
   );
   const [formaPagamento, setFormaPagamento] = useState<'unica' | 'parcelado'>('parcelado');
+  const [numeroParcelasEscolhido, setNumeroParcelasEscolhido] = useState<number>(2);
   const [dataVencimento, setDataVencimento] = useState<string>('');
   const [dataPrimeiraParcela, setDataPrimeiraParcela] = useState<string>('');
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
@@ -109,7 +110,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     const costFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost);
     const costExtenso = formatExtenso(cost);
     
-    const parcelas = 2;
+    const parcelas = numeroParcelasEscolhido;
     const valorParcelaFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost / parcelas);
 
     const now = new Date();
@@ -277,7 +278,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
 
           {/* Seleção de Modalidade (Cota Única vs Parcelado) */}
           {(currentTemplate?.id === 'tmpl-multa-descontada' || currentTemplate?.name.includes('Valores Descontados')) && (
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
               <label className="font-bold text-xs text-slate-800 block">
                 Forma de Pagamento / Modalidade de Quitação:
               </label>
@@ -305,6 +306,25 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                   <span>Parcelado (☑ Parcelado)</span>
                 </label>
               </div>
+
+              {formaPagamento === 'parcelado' && (
+                <div className="pt-2.5 border-t border-slate-200 flex items-center gap-3">
+                  <label className="form-label text-xs mb-0 whitespace-nowrap">
+                    Número de Parcelas:
+                  </label>
+                  <select
+                    value={numeroParcelasEscolhido}
+                    onChange={(e) => setNumeroParcelasEscolhido(Number(e.target.value))}
+                    className="form-select text-xs font-bold w-36"
+                  >
+                    {Array.from({ length: 11 }, (_, i) => i + 2).map((n) => (
+                      <option key={n} value={n}>
+                        {n}x parcelas
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           )}
 

@@ -285,8 +285,54 @@ export const TermsView: React.FC<TermsViewProps> = ({
             {/* Document Sheet (Standard Trans Pinho Format) */}
             <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
               {/* Content Body */}
-              <div className="text-xs sm:text-sm whitespace-pre-wrap font-serif text-slate-900 leading-relaxed space-y-4">
-                {viewingTerm.content}
+              <div className="text-xs sm:text-sm font-serif text-slate-900 leading-relaxed">
+                {(() => {
+                  const lines = (viewingTerm.content || '').split('\n');
+                  return lines.map((line, idx) => {
+                    const trimmed = line.trim();
+
+                    // Título principal (primeira linha, ex: "TERMO DE RESPONSABILIDADE")
+                    if (idx === 0 && trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
+                      return (
+                        <h2
+                          key={idx}
+                          className="text-center font-black text-sm sm:text-base uppercase tracking-wide mb-4 pb-2 border-b-2 border-slate-900"
+                        >
+                          {trimmed}
+                        </h2>
+                      );
+                    }
+
+                    // Cabeçalho de seção numerada, ex: "1. IDENTIFICAÇÃO DO CONDUTOR" ou "I – Da ciência"
+                    if (/^\d+\.\s+[A-ZÀ-Ú\s]+$/.test(trimmed) || /^[IVX]+\s*[-–]\s+/.test(trimmed)) {
+                      return (
+                        <h3
+                          key={idx}
+                          className="font-black text-xs sm:text-sm uppercase mt-5 mb-2 pb-1 border-b border-slate-400"
+                        >
+                          {trimmed}
+                        </h3>
+                      );
+                    }
+
+                    // Linha de assinatura (sublinhado)
+                    if (/^_{10,}$/.test(trimmed)) {
+                      return <div key={idx} className="border-t border-slate-900 mt-8 pt-1" />;
+                    }
+
+                    // Linha vazia
+                    if (trimmed === '') {
+                      return <div key={idx} className="h-3" />;
+                    }
+
+                    // Parágrafo normal
+                    return (
+                      <p key={idx} className="text-justify mb-2">
+                        {line}
+                      </p>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Official Trans Pinho Footer (Mover de cima para rodapé) */}
