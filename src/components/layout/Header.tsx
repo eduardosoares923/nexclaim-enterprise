@@ -36,9 +36,9 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          <span className="text-[10px] font-black text-amber-900 uppercase tracking-wide">v2.5.0-ALPHA</span>
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200">
+          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+          <span className="text-[10px] font-black text-blue-900 uppercase tracking-wide">v2.6.0-BETA</span>
         </div>
 
         <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">

@@ -39,8 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </h1>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="text-[9px] font-medium text-slate-400">Gravataí/RS</span>
-            <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
-              v2.5.0-ALPHA
+            <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase">
+              v2.6.0-BETA
             </span>
           </div>
         </div>
