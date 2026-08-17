@@ -6,6 +6,13 @@ import { Header } from './components/layout/Header';
 import { Login } from './components/Login';
 import { TermGeneratorModal } from './components/TermGeneratorModal';
 import { TemplateEditorView } from './views/TemplateEditorView';
+import { TermsView } from './views/TermsView';
+import { ClaimsListView } from './views/ClaimsListView';
+import { FinesView } from './views/FinesView';
+import { PeopleView } from './views/PeopleView';
+import { VehiclesView } from './views/VehiclesView';
+import { WorkOrdersView } from './views/WorkOrdersView';
+import { DashboardView } from './views/DashboardView';
 import { firebaseService, auth, observarAutenticacao, logout } from './services/firebase';
 import {
   Claim,
@@ -16,40 +23,6 @@ import {
   Vehicle,
   RoleType,
 } from './types';
-
-interface ModuloNaoMigradoProps {
-  titulo: string;
-  descricao?: string;
-  icone: string;
-}
-
-const ModuloNaoMigrado: React.FC<ModuloNaoMigradoProps> = ({ titulo, descricao, icone }) => {
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 p-8 text-center max-w-lg mx-auto mt-12 shadow-xs space-y-4">
-      <div className="w-14 h-14 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-amber-300">
-        <i className={`fa-solid ${icone}`}></i>
-      </div>
-      <div>
-        <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded border border-amber-300 uppercase">
-          Módulo ainda não migrado
-        </span>
-        <h2 className="text-lg font-bold text-slate-900 mt-2">{titulo}</h2>
-        <p className="text-xs text-slate-500 mt-1">
-          {descricao || 'Este módulo está sendo migrado para o novo motor React. Enquanto isso, acesse a versão completa na SPA de transição.'}
-        </p>
-      </div>
-      <div className="pt-2">
-        <a
-          href="/legado"
-          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm transition"
-        >
-          <span>Abrir Versão Atual ({titulo})</span>
-          <i className="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>
-      </div>
-    </div>
-  );
-};
 
 export const App: React.FC = () => {
   const navigate = useNavigate();
@@ -194,7 +167,7 @@ export const App: React.FC = () => {
     },
   ]);
 
-  const [people] = useState<Person[]>([
+  const [people, setPeople] = useState<Person[]>([
     {
       id: 'peo-1',
       name: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
@@ -237,7 +210,7 @@ export const App: React.FC = () => {
     },
   ]);
 
-  const [vehicles] = useState<Vehicle[]>([
+  const [vehicles, setVehicles] = useState<Vehicle[]>([
     {
       id: 'veh-1',
       plate: 'JCO8C10',
@@ -337,7 +310,41 @@ export const App: React.FC = () => {
     },
   ]);
 
-  const [terms, setTerms] = useState<Term[]>([]);
+  const [terms, setTerms] = useState<Term[]>([
+    {
+      id: 'trm-1',
+      claimId: 'claim-1',
+      title: 'TERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO',
+      type: 'Ciência',
+      date: '2026-06-15',
+      responsible: 'Mariana Souza',
+      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
+      status: 'Assinado',
+      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com\n\nTERMO DE CIÊNCIA E AUTORIZAÇÃO DE DESCONTO EM FOLHA DE PAGAMENTO\n\nEu, ANDREIA MERCEDES ROCHA DE ARAUJO, inscrito no CPF sob nº 002.574.880-73, declaro, para os devidos fins de direito, na qualidade de condutor do veículo VW Constellation, placa JCO8C10, envolvido na ocorrência de trânsito nº SIN-2026-00124, que:\n\nI – Da ciência e reconhecimento da ocorrência:\nDeclaro estar plenamente ciente dos fatos relacionados à ocorrência acima descrita, bem como dos danos materiais dela decorrentes.\n\nII – Do reconhecimento de responsabilidade:\nReconheço minha responsabilidade pelos danos ocasionados em decorrência do referido evento, assumindo integralmente a obrigação referente ao ressarcimento dos prejuízos apurados, no valor total de R$ 3.500,00 (Três mil e quinhentos reais).\n\nIII – Da autorização de desconto em folha:\nAutorizo, de forma expressa, livre, consciente e inequívoca, o desconto do valor acima mencionado em minha folha de pagamento/contracheque em 5 parcelas mensais de R$ 700,00.\n\nGravataí, 15 de Junho de 2026.`,
+    },
+    {
+      id: 'trm-2',
+      claimId: 'claim-2',
+      title: 'TERMO DE RESPONSABILIDADE - MULTAS & NÃO INDICAÇÃO',
+      type: 'Responsabilidade',
+      date: '2026-06-19',
+      responsible: 'Carlos Pinho',
+      involvedPerson: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
+      status: 'Assinado',
+      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, ANDREIA MERCEDES ROCHA DE ARAUJO, portador do CPF nº 002.574.880-73, condutor do veículo Placa: JCO8C10 Prefixo do Carro: 24127.\n\n2. DETALHAMENTO DAS INFRAÇÕES E VALORES\n- Infração 01: Auto EL00093302 | Data: 27/04/2026 10:44 | TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20% | Valor: R$ 130,16\n- Infração 02: Auto Gerado Duplicada | MULTA POR NÃO INDENTIFICACAO DO CONTUDOR INFRATOR, IMPOSTA A PESSOA JURIDICA | Valor: R$ 130,16\n\nO condutor reconhece a infração EL00093302. Considerando que o próprio condutor solicitou a não realização da indicação de condutor para transferência dos pontos da CNH, declara estar ciente e de acordo com o pagamento em dobro do valor original da multa, totalizando R$ 260,32.\n\nVALOR TOTAL ACUMULADO: R$ 260,32\n\n3. DA FORMA DE PAGAMENTO E PARCELAMENTO\nOpção: Parcelado em 2 parcelas de R$ 130,16 mensais. Primeira parcela em: 06/07/2026.\n\n4. DA RESPONSABILIDADE E QUITAÇÃO\nAssumo integral responsabilidade pelo pagamento. Ao concluir o pagamento total, outorgo à empresa João Batista de Souza Pinho EPP (Trans Pinho) a mais ampla quitação.\n\nGRAVATAÍ, 19 de Junho de 2026.`,
+    },
+    {
+      id: 'trm-3',
+      claimId: 'claim-3',
+      title: 'TERMO DE RESPONSABILIDADE - INFRAÇÃO DIRETA',
+      type: 'Responsabilidade',
+      date: '2026-06-24',
+      responsible: 'Carlos Pinho',
+      involvedPerson: 'MICHELE ROSA DA ROSA',
+      status: 'Assinado',
+      content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\n1. IDENTIFICAÇÃO DO CONDUTOR\nEu, MICHELE ROSA DA ROSA, portador do CPF nº 016.998.180-02, condutor do veículo Placa: TRD3E72 Prefixo do Carro: 226.\n\n2. DETALHES DO OCORRIDO\n- Auto de Infração nº: TE02141677\n- Data: 15/04/2026 | Horário: 16:50\n- Motivo: ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO.\n\n3. DECLARAÇÃO DE RESPONSABILIDADE\nDeclaro e assumo total e integral responsabilidade civil e administrativa pelas infrações de trânsito ocorridas, isentando a empresa João Batista de Souza Pinho EPP (Trans Pinho) de qualquer responsabilidade.\n\nGRAVATAÍ, 24 de Junho de 2026.`,
+    },
+  ]);
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(claims[0]);
 
   // Modals visibility
@@ -350,6 +357,13 @@ export const App: React.FC = () => {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && Array.isArray(data)) setClaims(data);
+      })
+      .catch(() => {});
+
+    fetch('/api/terms')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data)) setTerms(data);
       })
       .catch(() => {});
   }, []);
@@ -430,66 +444,18 @@ export const App: React.FC = () => {
             <Route
               path="/"
               element={
-                <div className="space-y-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-                    <div>
-                      <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">
-                        TRANS PINHO GRAVATAÍ/RS • REACT TYPESCRIPT VITE
-                      </span>
-                      <h2 className="text-xl font-bold text-slate-900 tracking-tight mt-1">
-                        Gestão Integrada de Sinistros & Automação de Termos
-                      </h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Sistema empresarial completo com gerador automático de documentos, editor de templates e importador Excel.
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setSelectedClaim(claims[0]);
-                          setShowTermGenModal(true);
-                        }}
-                        className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-lg shadow-sm"
-                      >
-                        <i className="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Emitir Termo Inteligente
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                      <span className="text-xs font-bold uppercase text-slate-400">Total Sinistros</span>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-slate-900">{claims.length}</span>
-                        <span className="text-[11px] font-semibold text-blue-600">Cadastrados</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                      <span className="text-xs font-bold uppercase text-slate-400">Multas & Infração</span>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-slate-900">{fines.length}</span>
-                        <span className="text-[11px] font-semibold text-rose-600">Com NIC e Parcelamento</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                      <span className="text-xs font-bold uppercase text-slate-400">Modelos de Templates</span>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-slate-900">{templates.length}</span>
-                        <span className="text-[11px] font-semibold text-amber-600">Com Variáveis</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                      <span className="text-xs font-bold uppercase text-slate-400">Veículos em Frota</span>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
-                        <span className="text-[11px] font-semibold text-purple-600">Com Prefixo</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <DashboardView
+                  claims={claims}
+                  fines={fines}
+                  terms={terms}
+                  vehicles={vehicles}
+                  people={people}
+                  templates={templates}
+                  onOpenTermGenerator={(claim) => {
+                    setSelectedClaim(claim || claims[0]);
+                    setShowTermGenModal(true);
+                  }}
+                />
               }
             />
             <Route
@@ -504,27 +470,80 @@ export const App: React.FC = () => {
             />
             <Route
               path="/sinistros"
-              element={<ModuloNaoMigrado titulo="Sinistros & Ocorrências" icone="fa-folder-closed" />}
+              element={
+                <ClaimsListView
+                  claims={claims}
+                  people={people}
+                  vehicles={vehicles}
+                  terms={terms}
+                  templates={templates}
+                  onSaveNewClaim={(newClaim) => setClaims((prev) => [newClaim, ...prev])}
+                  onOpenTermGenerator={(claim) => {
+                    setSelectedClaim(claim);
+                    setShowTermGenModal(true);
+                  }}
+                />
+              }
             />
             <Route
               path="/multas"
-              element={<ModuloNaoMigrado titulo="Multas de Trânsito" icone="fa-file-invoice-dollar" />}
+              element={
+                <FinesView
+                  fines={fines}
+                  vehicles={vehicles}
+                  people={people}
+                  onSaveFine={(newFine) => setFines((prev) => [newFine, ...prev])}
+                  onUpdateFineStatus={(id, newStatus) =>
+                    setFines((prev) => prev.map((f) => (f.id === id ? { ...f, status: newStatus } : f)))
+                  }
+                />
+              }
             />
             <Route
               path="/termos"
-              element={<ModuloNaoMigrado titulo="Emitir Termos Oficial" icone="fa-file-pen" />}
+              element={
+                <TermsView
+                  terms={terms}
+                  claims={claims}
+                  people={people}
+                  vehicles={vehicles}
+                  templates={templates}
+                  onOpenTermGenerator={(claim, templateName) => {
+                    if (claim) setSelectedClaim(claim);
+                    setShowTermGenModal(true);
+                  }}
+                  onDeleteTerm={(id) => setTerms((prev) => prev.filter((t) => t.id !== id))}
+                />
+              }
             />
             <Route
               path="/frota"
-              element={<ModuloNaoMigrado titulo="Frota & Prefixos" icone="fa-truck-front" />}
+              element={
+                <VehiclesView
+                  vehicles={vehicles}
+                  people={people}
+                  onSaveVehicle={(newV) => setVehicles((prev) => [newV, ...prev])}
+                />
+              }
             />
             <Route
               path="/condutores"
-              element={<ModuloNaoMigrado titulo="Condutores" icone="fa-users" />}
+              element={
+                <PeopleView
+                  people={people}
+                  onSavePerson={(newP) => setPeople((prev) => [newP, ...prev])}
+                />
+              }
             />
             <Route
               path="/os"
-              element={<ModuloNaoMigrado titulo="Orçamentos & OS Chapeação" icone="fa-wrench" />}
+              element={
+                <WorkOrdersView
+                  vehicles={vehicles}
+                  people={people}
+                  claims={claims}
+                />
+              }
             />
           </Routes>
         </main>
