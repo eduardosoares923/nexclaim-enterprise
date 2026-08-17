@@ -2,12 +2,13 @@
   "version": 2,
   "builds": [
     { "src": "server.js", "use": "@vercel/node" },
-    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } },
-    { "src": "public-legado/**/*", "use": "@vercel/static" }
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/server.js" },
-    { "src": "/legado/(.*)", "dest": "/public-legado/$1" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "src": "/legado", "dest": "/legado/index.html" },
+    { "src": "/legado/(.*)", "dest": "/legado/$1" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
