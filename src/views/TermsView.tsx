@@ -25,15 +25,13 @@ export const TermsView: React.FC<TermsViewProps> = ({
   const [selectedStatus, setSelectedStatus] = useState('');
   const [viewingTerm, setViewingTerm] = useState<Term | null>(null);
 
-  // Template Quick-Launch cards
+  // Template Quick-Launch cards (5 Modelos Oficiais Trans Pinho)
   const officialModels = [
-    { title: 'Termo de Responsabilidade (Multas & NIC)', icon: 'fa-shield-halved', category: 'Responsabilidade' },
-    { title: 'Termo de Ciência e Desconto em Folha', icon: 'fa-file-invoice-dollar', category: 'Ciência' },
-    { title: 'Termo de Entrega e Recebimento de Veículo', icon: 'fa-truck-ramp-box', category: 'Entrega' },
-    { title: 'Declaração do Condutor Infrator', icon: 'fa-user-pen', category: 'Declaração' },
-    { title: 'Declaração de Terceiro Envolvido', icon: 'fa-users-viewfinder', category: 'Declaração' },
-    { title: 'Termo de Acordo Extrajudicial', icon: 'fa-handshake', category: 'Acordo' },
-    { title: 'Termo de Autorização de Reparo em Oficina', icon: 'fa-wrench', category: 'Outros' },
+    { title: 'Termo de Responsabilidade (Valores Descontados e Assumindo os Pontos)', icon: 'fa-shield-halved', category: 'Responsabilidade' },
+    { title: 'Termo de Responsabilidade (Empresa Paga a Multa)', icon: 'fa-building-columns', category: 'Responsabilidade' },
+    { title: 'Termo de Ciência e Autorização de Desconto em Folha de Pagamento', icon: 'fa-file-invoice-dollar', category: 'Ciência' },
+    { title: 'Termo de Quitação (Reparo Custeado pela Empresa)', icon: 'fa-wrench', category: 'Declaração' },
+    { title: 'Termo de Quitação (Pagamento via Pix pelo Condutor)', icon: 'fa-money-bill-transfer', category: 'Declaração' },
   ];
 
   const filteredTerms = terms.filter((term) => {
@@ -299,28 +297,9 @@ export const TermsView: React.FC<TermsViewProps> = ({
                 </p>
               </div>
 
-              {/* Title */}
-              <div className="text-center my-6">
-                <h2 className="text-sm sm:text-base font-bold uppercase tracking-wider underline underline-offset-4 text-slate-950">
-                  {viewingTerm.title}
-                </h2>
-              </div>
-
               {/* Content Body */}
-              <div className="text-xs sm:text-sm whitespace-pre-wrap font-sans text-slate-800 leading-relaxed text-justify space-y-4">
+              <div className="text-xs sm:text-sm whitespace-pre-wrap font-serif text-slate-900 leading-relaxed space-y-4">
                 {viewingTerm.content}
-              </div>
-
-              {/* Date & Location */}
-              <div className="mt-8 text-xs font-semibold text-slate-700">
-                GRAVATAÍ/RS, {viewingTerm.date}.
-              </div>
-
-              {/* Signature Block */}
-              <div className="mt-14 pt-8 border-t border-slate-900 max-w-sm mx-auto text-center space-y-1">
-                <p className="font-bold text-xs uppercase text-slate-950">{viewingTerm.involvedPerson}</p>
-                <p className="text-[11px] text-slate-500">Condutor / Responsável Assinante</p>
-                <p className="text-[9px] text-slate-400">Documento Assinado Eletronicamente • Trans Pinho</p>
               </div>
             </div>
           </div>

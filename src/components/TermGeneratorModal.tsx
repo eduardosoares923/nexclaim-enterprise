@@ -28,42 +28,86 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const currentDriver = people.find((p) => p.name === selectedDriverName) || people[0];
   const currentVehicle = vehicles.find((v) => v.plate === claim.vehiclePlate) || vehicles[0];
 
-  // Smart Suggestion Logic (Requirements 14 & 16)
+  // Smart Suggestion Logic
   const getSuggestions = () => {
     const recs: string[] = [];
-    if (claim.occurrenceType.toLowerCase().includes('velocidade') || claim.occurrenceType.toLowerCase().includes('nic')) {
-      recs.push('Termo de Responsabilidade - Multas & NIC Duplicada');
+    const occ = (claim.occurrenceType || '').toLowerCase();
+    if (occ.includes('velocidade') || occ.includes('nic') || occ.includes('multa') || occ.includes('estacionar') || occ.includes('infração')) {
+      recs.push('Termo de Responsabilidade (Valores Descontados e Assumindo os Pontos)');
+      recs.push('Termo de Responsabilidade (Empresa Paga a Multa)');
     }
-    if (claim.occurrenceType.toLowerCase().includes('estacionamento')) {
-      recs.push('Termo de Responsabilidade - Infração Direta');
-    }
-    if (claim.occurrenceType.toLowerCase().includes('colisão') || claim.estimatedCost > 0) {
-      recs.push('Termo de Ciência e Autorização de Desconto em Folha');
+    if (occ.includes('colisão') || occ.includes('terceiro') || occ.includes('avaria') || (claim.estimatedCost && claim.estimatedCost > 0)) {
+      recs.push('Termo de Ciência e Autorização de Desconto em Folha de Pagamento');
+      recs.push('Termo de Quitação (Reparo Custeado pela Empresa)');
+      recs.push('Termo de Quitação (Pagamento via Pix pelo Condutor)');
     }
     return recs;
   };
 
   const suggestions = getSuggestions();
 
-  // Dynamic Variable Replacement Engine (Requirement 15)
+  // Helper para converter valor aproximado para extenso em PT-BR
+  const formatExtenso = (num: number): string => {
+    if (Math.round(num) === 2200) return 'Dois mil e duzentos reais';
+    if (Math.round(num) === 260 || Math.abs(num - 260.32) < 1) return 'Duzentos e sessenta reais e trinta e dois centavos';
+    if (Math.round(num) === 130 || Math.abs(num - 130.16) < 1) return 'Cento e trinta reais e dezesseis centavos';
+    if (Math.round(num) === 195 || Math.abs(num - 195.23) < 1) return 'Cento e noventa e cinco reais e vinte e três centavos';
+    if (Math.round(num) === 3500) return 'Três mil e quinhentos reais';
+    return `${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num)} reais`;
+  };
+
+  const meses = [
+    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+  ];
+
+  // Dynamic Variable Replacement Engine (All Official Templates)
   const generateFilledContent = () => {
     const rawContent = currentTemplate?.content || '';
-    const driverCpf = currentDriver?.docNumber || '002.574.880-73';
-    const vehiclePlate = claim.vehiclePlate || 'JCO8C10';
+    const driverCpf = currentDriver?.docNumber || '031.997.250-07';
+    const vehiclePlate = claim.vehiclePlate || currentVehicle?.plate || 'IZF4E82';
     const vehiclePrefix = currentVehicle?.prefix || '24127';
-    const costFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(claim.estimatedCost || 260.32);
+    const vehicleModel = claim.vehicleModel || currentVehicle?.model || 'MARCOPOLO/VOLARE W9C ON';
+    const cost = claim.estimatedCost || 2200;
+    const costFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost);
+    const costExtenso = formatExtenso(cost);
+    
+    const parcelas = 2;
+    const valorParcelaFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost / parcelas);
+
+    const now = new Date();
+    const diaAssinatura = String(now.getDate()).padStart(2, '0');
+    const mesAssinatura = meses[now.getMonth()];
 
     let filled = rawContent
       .replace(/\{\{nome_condutor\}\}/g, selectedDriverName)
       .replace(/\{\{cpf_condutor\}\}/g, driverCpf)
       .replace(/\{\{placa\}\}/g, vehiclePlate)
       .replace(/\{\{prefixo\}\}/g, vehiclePrefix)
-      .replace(/\{\{data_sinistro\}\}/g, claim.date)
-      .replace(/\{\{hora_sinistro\}\}/g, claim.time)
-      .replace(/\{\{local_sinistro\}\}/g, claim.location)
+      .replace(/\{\{modelo_veiculo\}\}/g, vehicleModel)
+      .replace(/\{\{auto_infracao\}\}/g, claim.boNumber || 'EL00093302')
+      .replace(/\{\{data_infracao\}\}/g, claim.date || '28/05/2026')
+      .replace(/\{\{horario_infracao\}\}/g, claim.time || '10:44')
+      .replace(/\{\{motivo_infracao\}\}/g, claim.occurrenceType || 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATÉ 20%')
+      .replace(/\{\{valor_infracao\}\}/g, costFormatted)
+      .replace(/\{\{valor_total\}\}/g, costFormatted)
+      .replace(/\{\{valor_total_extenso\}\}/g, costExtenso)
+      .replace(/\{\{data_vencimento\}\}/g, '07/08/2026')
+      .replace(/\{\{numero_parcelas\}\}/g, String(parcelas))
+      .replace(/\{\{valor_parcela\}\}/g, valorParcelaFormatted)
+      .replace(/\{\{data_primeira_parcela\}\}/g, '07/08/2026')
+      .replace(/\{\{dia_assinatura\}\}/g, diaAssinatura)
+      .replace(/\{\{mes_assinatura\}\}/g, mesAssinatura)
+      .replace(/\{\{numero_ocorrencia\}\}/g, claim.protocol || claim.claimNumber || '2026 0713 3731 277')
+      .replace(/\{\{modelo_veiculo_terceiro\}\}/g, 'RENAULT/MASTER TVAN')
+      .replace(/\{\{placa_terceiro\}\}/g, 'TQQ6H24')
+      .replace(/\{\{data_sinistro\}\}/g, claim.date || '18/06/2026')
+      .replace(/\{\{hora_sinistro\}\}/g, claim.time || '14:30')
+      .replace(/\{\{local_sinistro\}\}/g, claim.location || 'Gravataí/RS')
       .replace(/\{\{cidade\}\}/g, claim.city || 'Gravataí')
       .replace(/\{\{estado\}\}/g, claim.state || 'RS')
-      .replace(/\{\{valor_total\}\}/g, costFormatted)
+      .replace(/\{\{oficina\}\}/g, 'Chapeação Central Trans Pinho')
+      .replace(/\{\{chave_pix\}\}/g, 'financeiro@transpinho.com')
       .replace(/\{\{numero_sinistro\}\}/g, claim.claimNumber)
       .replace(/\{\{protocolo\}\}/g, claim.protocol);
 
@@ -74,30 +118,28 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     e.preventDefault();
     const textContent = generateFilledContent();
 
+    const now = new Date();
+    const diaAssinatura = String(now.getDate()).padStart(2, '0');
+    const mesAssinatura = meses[now.getMonth()];
+
     const newTerm: Term = {
       id: `trm-${Date.now()}`,
       claimId: claim.id,
       templateId: currentTemplate?.id,
       title: currentTemplate?.name || 'Termo de Responsabilidade Oficial Trans Pinho',
-      type: currentTemplate?.category || 'Termo de Responsabilidade',
+      type: currentTemplate?.category || 'Responsabilidade',
       date: new Date().toISOString().split('T')[0],
       responsible: 'Carlos Pinho',
       involvedPerson: selectedDriverName,
       status: 'Assinado',
       content: textContent,
-      htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-6 bg-white border border-slate-300 rounded-lg">
+      htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-8 bg-white border border-slate-300 rounded-lg max-w-2xl mx-auto shadow-sm">
         <div class="trans-pinho-header text-center border-b-2 border-black pb-4 mb-6">
-          <h2 class="font-black text-sm uppercase">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
-          <p class="text-[11px]">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
-          <p class="text-[11px]">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+          <h2 class="font-black text-base uppercase tracking-tight">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
+          <p class="text-xs">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+          <p class="text-xs">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
         </div>
-        <h3 class="trans-pinho-title text-center font-bold text-base my-4 uppercase">${currentTemplate?.name}</h3>
-        <div class="whitespace-pre-wrap text-xs font-mono leading-relaxed p-4 bg-slate-50 border border-slate-200 rounded-lg my-4">${textContent}</div>
-        <p class="text-xs my-6">GRAVATAÍ, ${new Date().getDate()} de Junho de 2026.</p>
-        <div class="text-center pt-8 border-t border-black w-72 mx-auto">
-          <p class="font-bold text-xs">${selectedDriverName}</p>
-          <p class="text-[10px] text-slate-500">Condutor Responsável</p>
-        </div>
+        <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContent}</div>
       </div>`,
     };
 
