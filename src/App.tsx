@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { User } from 'firebase/auth';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
@@ -16,8 +17,42 @@ import {
   RoleType,
 } from './types';
 
+interface ModuloNaoMigradoProps {
+  titulo: string;
+  descricao?: string;
+  icone: string;
+}
+
+const ModuloNaoMigrado: React.FC<ModuloNaoMigradoProps> = ({ titulo, descricao, icone }) => {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-8 text-center max-w-lg mx-auto mt-12 shadow-xs space-y-4">
+      <div className="w-14 h-14 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-amber-300">
+        <i className={`fa-solid ${icone}`}></i>
+      </div>
+      <div>
+        <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded border border-amber-300 uppercase">
+          Módulo ainda não migrado
+        </span>
+        <h2 className="text-lg font-bold text-slate-900 mt-2">{titulo}</h2>
+        <p className="text-xs text-slate-500 mt-1">
+          {descricao || 'Este módulo está sendo migrado para o novo motor React. Enquanto isso, acesse a versão completa na SPA de transição.'}
+        </p>
+      </div>
+      <div className="pt-2">
+        <a
+          href="/legado"
+          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm transition"
+        >
+          <span>Abrir Versão Atual ({titulo})</span>
+          <i className="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </div>
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<string>('dashboard');
+  const navigate = useNavigate();
   const [currentRole, setCurrentRole] = useState<RoleType>('ADMINISTRADOR');
 
   // Core App State
@@ -134,11 +169,11 @@ export const App: React.FC = () => {
     {
       id: 'fine-2',
       claimId: 'claim-2',
-      infractionCode: 'NIC-DUPLICADA',
-      infractionAuto: 'Gerado Duplicada',
+      infractionCode: 'NIC-DUP-24127',
+      infractionAuto: 'NIC-EL00093302',
       vehiclePlate: 'JCO8C10',
       driverName: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      description: 'MULTA. POR NÃO IDENTIFICACAO DO CONDUTOR INFRATOR, IMPOSTA A PESSOA JURIDICA',
+      description: 'MULTA POR NÃO INDICAÇÃO DO CONDUTOR INFRATOR (NIC EM DOBRO)',
       amount: 130.16,
       points: 0,
       dueDate: '2026-07-06',
@@ -154,63 +189,109 @@ export const App: React.FC = () => {
       description: 'ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZACAO',
       amount: 195.23,
       points: 5,
-      dueDate: '2026-07-15',
-      status: 'Paga',
+      dueDate: '2026-07-20',
+      status: 'Pendente',
     },
   ]);
 
-  const [people, setPeople] = useState<Person[]>([
+  const [people] = useState<Person[]>([
     {
       id: 'peo-1',
       name: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
       docNumber: '002.574.880-73',
-      phone: '(51) 99887-6655',
+      phone: '(051) 98266-0028',
       email: 'andreia.araujo@transpinho.com',
       address: 'Gravataí/RS',
       type: 'Condutor',
-      notes: 'CNH Categoria D. Prefixo: 24127',
+      notes: 'Motorista Profissional CNH D (Prefixo 24127)',
     },
     {
       id: 'peo-2',
       name: 'MICHELE ROSA DA ROSA',
       docNumber: '016.998.180-02',
-      phone: '(51) 98765-4321',
+      phone: '(051) 98266-0028',
       email: 'michele.rosa@transpinho.com',
       address: 'Gravataí/RS',
       type: 'Condutor',
-      notes: 'CNH Categoria C. Prefixo: 226',
+      notes: 'Motorista CNH C (Prefixo 226)',
+    },
+    {
+      id: 'peo-3',
+      name: 'GELSON WEBER DE FARIAS',
+      docNumber: '629.109.220-49',
+      phone: '(051) 98266-0028',
+      email: 'gelson.farias@transpinho.com',
+      address: 'Gravataí/RS',
+      type: 'Proprietário',
+      notes: 'Proprietário/Motorista Micro-ônibus Prefixo 1961',
+    },
+    {
+      id: 'peo-4',
+      name: 'MARCELO TEIXEIRA DA SILVA',
+      docNumber: '031.997.250-07',
+      phone: '(051) 98266-0028',
+      email: 'marcelo.teixeira@transpinho.com',
+      address: 'Gravataí/RS',
+      type: 'Condutor',
+      notes: 'Motorista Volare W9C ON (Placa IZF4E82)',
     },
   ]);
 
-  const [vehicles, setVehicles] = useState<Vehicle[]>([
+  const [vehicles] = useState<Vehicle[]>([
     {
       id: 'veh-1',
       plate: 'JCO8C10',
       prefix: '24127',
-      renavam: '01928374650',
+      renavam: '01293847561',
       brand: 'Volkswagen',
-      model: 'Constellation 24.280',
+      model: 'VW Constellation 24.280',
       year: 2024,
       color: 'Branco',
       status: 'Ativo',
+      defaultDriver: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
     },
     {
       id: 'veh-2',
       plate: 'TRD3E72',
       prefix: '226',
-      renavam: '82716354901',
+      renavam: '09817263541',
       brand: 'Mercedes-Benz',
-      model: 'Atego 1719',
+      model: 'Mercedes-Benz Atego 1719',
       year: 2023,
       color: 'Prata',
       status: 'Ativo',
+      defaultDriver: 'MICHELE ROSA DA ROSA',
+    },
+    {
+      id: 'veh-3',
+      plate: 'HKO8087',
+      prefix: '1961',
+      renavam: '08765432109',
+      brand: 'Marcopolo',
+      model: 'Micro-ônibus Trans Pinho',
+      year: 2022,
+      color: 'Branco',
+      status: 'Ativo',
+      defaultDriver: 'GELSON WEBER DE FARIAS',
+    },
+    {
+      id: 'veh-4',
+      plate: 'IZF4E82',
+      prefix: '1980',
+      renavam: '07654321098',
+      brand: 'Marcopolo',
+      model: 'MARCOPOLO/VOLARE W9C ON',
+      year: 2025,
+      color: 'Branco',
+      status: 'Ativo',
+      defaultDriver: 'MARCELO TEIXEIRA DA SILVA',
     },
   ]);
 
   const [templates, setTemplates] = useState<DocumentTemplate[]>([
     {
       id: 'tmpl-1',
-      name: 'Termo de Responsabilidade (Multas & NIC Duplicada)',
+      name: 'Termo de Responsabilidade (Multas & Não Indicação - NIC)',
       category: 'Responsabilidade',
       isActive: true,
       conditionRules: { occurrenceType: 'velocidade_nic' },
@@ -262,7 +343,6 @@ export const App: React.FC = () => {
   // Modals visibility
   const [showTermGenModal, setShowTermGenModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Fetch initial API data on mount
   useEffect(() => {
@@ -277,7 +357,7 @@ export const App: React.FC = () => {
   const handleGenerateTerm = (newTerm: Term) => {
     setTerms((prev) => [newTerm, ...prev]);
     setShowTermGenModal(false);
-    setCurrentView('terms');
+    navigate('/termos');
   };
 
   const handleSaveTemplate = (updatedTemplate: DocumentTemplate) => {
@@ -329,8 +409,6 @@ export const App: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 font-sans">
       <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
         claimsCount={claims.length}
         finesCount={fines.length}
         termsCount={terms.length}
@@ -342,82 +420,113 @@ export const App: React.FC = () => {
           currentRole={currentRole}
           onRoleChange={setCurrentRole}
           onOpenSearch={() => setShowSearchModal(true)}
-          onOpenNewClaim={() => setCurrentView('claims')}
-          onOpenExcelImport={() => setCurrentView('fines')}
+          onOpenNewClaim={() => navigate('/sinistros')}
+          onOpenExcelImport={() => navigate('/multas')}
           onLogout={logout}
         />
 
         <main className="flex-1 overflow-y-auto p-6 relative">
-          {currentView === 'dashboard' && (
-            <div className="space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">
-                    TRANS PINHO GRAVATAÍ/RS • REACT TYPESCRIPT VITE
-                  </span>
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight mt-1">
-                    Gestão Integrada de Sinistros & Automação de Termos
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Sistema empresarial completo com gerador automático de documentos, editor de templates e importador Excel.
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setSelectedClaim(claims[0]);
-                      setShowTermGenModal(true);
-                    }}
-                    className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-lg shadow-sm"
-                  >
-                    <i className="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Emitir Termo Inteligente
-                  </button>
-                </div>
-              </div>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+                    <div>
+                      <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300">
+                        TRANS PINHO GRAVATAÍ/RS • REACT TYPESCRIPT VITE
+                      </span>
+                      <h2 className="text-xl font-bold text-slate-900 tracking-tight mt-1">
+                        Gestão Integrada de Sinistros & Automação de Termos
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Sistema empresarial completo com gerador automático de documentos, editor de templates e importador Excel.
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedClaim(claims[0]);
+                          setShowTermGenModal(true);
+                        }}
+                        className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-lg shadow-sm"
+                      >
+                        <i className="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Emitir Termo Inteligente
+                      </button>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-xs font-bold uppercase text-slate-400">Total Sinistros</span>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-slate-900">{claims.length}</span>
-                    <span className="text-[11px] font-semibold text-blue-600">Cadastrados</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                      <span className="text-xs font-bold uppercase text-slate-400">Total Sinistros</span>
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-slate-900">{claims.length}</span>
+                        <span className="text-[11px] font-semibold text-blue-600">Cadastrados</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                      <span className="text-xs font-bold uppercase text-slate-400">Multas & Infração</span>
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-slate-900">{fines.length}</span>
+                        <span className="text-[11px] font-semibold text-rose-600">Com NIC e Parcelamento</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                      <span className="text-xs font-bold uppercase text-slate-400">Modelos de Templates</span>
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-slate-900">{templates.length}</span>
+                        <span className="text-[11px] font-semibold text-amber-600">Com Variáveis</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                      <span className="text-xs font-bold uppercase text-slate-400">Veículos em Frota</span>
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
+                        <span className="text-[11px] font-semibold text-purple-600">Com Prefixo</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-xs font-bold uppercase text-slate-400">Multas & Infração</span>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-slate-900">{fines.length}</span>
-                    <span className="text-[11px] font-semibold text-rose-600">Com NIC e Parcelamento</span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-xs font-bold uppercase text-slate-400">Modelos de Templates</span>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-slate-900">{templates.length}</span>
-                    <span className="text-[11px] font-semibold text-amber-600">Com Variáveis</span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-xs font-bold uppercase text-slate-400">Veículos em Frota</span>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
-                    <span className="text-[11px] font-semibold text-purple-600">Com Prefixo</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {currentView === 'templates' && (
-            <TemplateEditorView
-              templates={templates}
-              onSaveTemplate={handleSaveTemplate}
-              onToggleTemplateStatus={handleToggleTemplateStatus}
+              }
             />
-          )}
+            <Route
+              path="/templates"
+              element={
+                <TemplateEditorView
+                  templates={templates}
+                  onSaveTemplate={handleSaveTemplate}
+                  onToggleTemplateStatus={handleToggleTemplateStatus}
+                />
+              }
+            />
+            <Route
+              path="/sinistros"
+              element={<ModuloNaoMigrado titulo="Sinistros & Ocorrências" icone="fa-folder-closed" />}
+            />
+            <Route
+              path="/multas"
+              element={<ModuloNaoMigrado titulo="Multas de Trânsito" icone="fa-file-invoice-dollar" />}
+            />
+            <Route
+              path="/termos"
+              element={<ModuloNaoMigrado titulo="Emitir Termos Oficial" icone="fa-file-pen" />}
+            />
+            <Route
+              path="/frota"
+              element={<ModuloNaoMigrado titulo="Frota & Prefixos" icone="fa-truck-front" />}
+            />
+            <Route
+              path="/condutores"
+              element={<ModuloNaoMigrado titulo="Condutores" icone="fa-users" />}
+            />
+            <Route
+              path="/os"
+              element={<ModuloNaoMigrado titulo="Orçamentos & OS Chapeação" icone="fa-wrench" />}
+            />
+          </Routes>
         </main>
       </div>
 

@@ -1,8 +1,7 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
-  currentView: string;
-  onViewChange: (view: string) => void;
   claimsCount: number;
   finesCount: number;
   termsCount: number;
@@ -10,21 +9,22 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  currentView,
-  onViewChange,
   claimsCount,
   finesCount,
   termsCount,
   currentUser,
 }) => {
+  const location = useLocation();
+
   const menuItems = [
-    { id: 'dashboard', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
-    { id: 'claims', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
-    { id: 'fines', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
-    { id: 'terms', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: termsCount },
-    { id: 'templates', label: 'Modelos de Documentos', icon: 'fa-sliders', isNew: true },
-    { id: 'people', label: 'Condutores', icon: 'fa-users' },
-    { id: 'vehicles', label: 'Frota & Prefixos', icon: 'fa-truck-front' },
+    { path: '/', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
+    { path: '/termos', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: termsCount },
+    { path: '/os', label: 'Orçamentos & OS Chapeação', icon: 'fa-wrench', isNew: true },
+    { path: '/sinistros', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
+    { path: '/multas', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
+    { path: '/templates', label: 'Modelos de Documentos', icon: 'fa-sliders' },
+    { path: '/condutores', label: 'Condutores', icon: 'fa-users' },
+    { path: '/frota', label: 'Frota & Prefixos', icon: 'fa-truck-front' },
   ];
 
   return (
@@ -48,12 +48,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           Módulos Corporativos
         </div>
         {menuItems.map((item) => {
-          const isActive =
-            currentView === item.id || (item.id === 'claims' && currentView === 'claim-detail');
+          const isActive = location.pathname === item.path;
           return (
-            <button
-              key={item.id}
-              onClick={() => onViewChange(item.id)}
+            <Link
+              key={item.path}
+              to={item.path}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
                 isActive
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
@@ -71,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center gap-1.5">
                 {item.isNew && (
                   <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    ADMIN
+                    NOVO
                   </span>
                 )}
                 {item.badge !== undefined && (
@@ -84,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                 )}
               </div>
-            </button>
+            </Link>
           );
         })}
       </nav>

@@ -1,24 +1,13 @@
 {
   "version": 2,
-  "name": "nexclaim-enterprise",
   "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    }
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } },
+    { "src": "public-legado/**/*", "use": "@vercel/static" }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    }
+    { "src": "/api/(.*)", "dest": "/server.js" },
+    { "src": "/legado/(.*)", "dest": "/public-legado/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }

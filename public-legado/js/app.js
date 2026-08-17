@@ -960,7 +960,7 @@
       <aside class="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col flex-shrink-0 z-30 select-none">
         <div class="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
           <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-lg overflow-hidden">
-            <img src="/images/logo.png" alt="Trans Pinho Logo" class="w-full h-full object-contain" />
+            <img src="/legado/images/logo.png" alt="Trans Pinho Logo" class="w-full h-full object-contain" />
           </div>
           <div class="min-w-0 flex-1">
             <h1 class="font-black text-white text-sm tracking-tight leading-none truncate">Trans Pinho</h1>
