@@ -57,9 +57,11 @@
     background: transparent !important;
   }
   .trans-pinho-doc {
-    position: absolute !important;
+    position: fixed !important;
+    inset: 0 !important;
     left: 0 !important;
     top: 0 !important;
+    transform: none !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -71,6 +73,9 @@
     line-height: 1.4 !important;
     max-height: none !important;
     overflow: visible !important;
+  }
+  body, #root, .fixed {
+    transform: none !important;
   }
   .trans-pinho-header {
     border-bottom: 1.5px solid #000000 !important;
