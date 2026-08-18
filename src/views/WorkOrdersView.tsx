@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Vehicle, Person, Claim } from '../types';
-import { extractTextFromPdf, firebaseService } from '../services/firebase';
+import { extractTextFromPdf, extrairItensDoTexto, firebaseService } from '../services/firebase';
 import { SignaturePad } from '../components/SignaturePad';
 
 export const COMPANY_BRANDS: Record<string, {
@@ -105,6 +105,9 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   // PDF & Signature states
   const [budgetPdfUrl, setBudgetPdfUrl] = useState<string>('');
   const [extractedPdfText, setExtractedPdfText] = useState<string>('');
+  const [detectedPdfItems, setDetectedPdfItems] = useState<
+    Array<{ id: string; description: string; quantity: number; unitPrice: number; total: number; selected: boolean }>
+  >([]);
   const [isExtractingPdf, setIsExtractingPdf] = useState<boolean>(false);
   const [newSignature, setNewSignature] = useState<string | null>(null);
   const [newRequiresSignature, setNewRequiresSignature] = useState<boolean>(true);
@@ -129,6 +132,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
       setNewNotes(editingOrder.notes || '');
       setBudgetPdfUrl(editingOrder.budgetPdfUrl || '');
       setExtractedPdfText(editingOrder.extractedPdfText || '');
+      setDetectedPdfItems([]);
       setNewSignature(editingOrder.signatureDataUrl || null);
       setNewRequiresSignature(
         editingOrder.requiresSignature !== undefined ? editingOrder.requiresSignature : true
@@ -148,6 +152,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
       setNewNotes('');
       setBudgetPdfUrl('');
       setExtractedPdfText('');
+      setDetectedPdfItems([]);
       setNewSignature(null);
       setNewRequiresSignature(true);
     }
@@ -169,6 +174,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   const handleCloseModal = () => {
     setShowCreateModal(false);
     setEditingOrder(null);
+    setDetectedPdfItems([]);
   };
 
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,7 +187,24 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
       const text = await extractTextFromPdf(file);
       setExtractedPdfText(text);
 
-      // 2. Upload do arquivo original para o Cloud Storage
+      // 2. Extrair itens do formato de orçamento
+      const itensDetectados = extrairItensDoTexto(text);
+      if (itensDetectados.length > 0) {
+        setDetectedPdfItems(
+          itensDetectados.map((it, idx) => ({
+            id: `det-${Date.now()}-${idx}`,
+            description: it.description,
+            quantity: it.quantity,
+            unitPrice: it.unitPrice,
+            total: it.quantity * it.unitPrice,
+            selected: true,
+          }))
+        );
+      } else {
+        setDetectedPdfItems([]);
+      }
+
+      // 3. Upload do arquivo original para o Cloud Storage
       const url = await firebaseService.uploadFile(file, 'work-orders');
       if (url) {
         setBudgetPdfUrl(url);
@@ -192,6 +215,30 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
       setIsExtractingPdf(false);
       e.target.value = '';
     }
+  };
+
+  const handleAddSelectedPdfItems = () => {
+    const selected = detectedPdfItems.filter((it) => it.selected);
+    if (selected.length === 0) return;
+
+    const newItemsToAdd: WorkOrderItem[] = selected.map((it, idx) => ({
+      id: `item-${Date.now()}-${idx}`,
+      description: it.description,
+      type: 'Peça',
+      quantity: it.quantity,
+      unitPrice: it.unitPrice,
+      total: it.quantity * it.unitPrice,
+    }));
+
+    setNewItems((prev) => {
+      const isOnlyDefault =
+        prev.length === 1 &&
+        prev[0].description === 'Mão de Obra de Chapeação' &&
+        prev[0].unitPrice === 500;
+      return isOnlyDefault ? newItemsToAdd : [...prev, ...newItemsToAdd];
+    });
+
+    setDetectedPdfItems([]);
   };
 
   const formatCurrency = (val: number) =>
@@ -812,14 +859,87 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                       </button>
                     </div>
                     <p className="text-[10px] text-slate-600 bg-amber-100/50 p-1.5 rounded border border-amber-200">
-                      ⚠️ Texto extraído do PDF. Confira os valores e preencha os itens abaixo manualmente, a extração automática de tabelas não é sempre precisa.
+                      ⚠️ Texto extraído do PDF. Os itens estruturados abaixo foram detectados automaticamente da tabela.
                     </p>
                     <textarea
                       readOnly
                       value={extractedPdfText}
-                      rows={4}
+                      rows={3}
                       className="w-full p-2 text-[10px] font-mono bg-white border border-slate-300 rounded leading-tight text-slate-800 focus:outline-none"
                     />
+                  </div>
+                )}
+
+                {/* Painel de Itens Detectados no PDF */}
+                {detectedPdfItems.length > 0 && (
+                  <div className="p-3.5 bg-emerald-50/90 border border-emerald-300 rounded-lg space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                        <i className="fa-solid fa-list-check text-emerald-600"></i>
+                        Itens Detectados no Orçamento ({detectedPdfItems.filter((i) => i.selected).length}/{detectedPdfItems.length} selecionados)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDetectedPdfItems((prev) => {
+                            const allSelected = prev.every((i) => i.selected);
+                            return prev.map((i) => ({ ...i, selected: !allSelected }));
+                          })
+                        }
+                        className="text-[10px] text-emerald-800 hover:underline font-semibold"
+                      >
+                        {detectedPdfItems.every((i) => i.selected) ? 'Desmarcar Todos' : 'Marcar Todos'}
+                      </button>
+                    </div>
+
+                    <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 bg-white p-2.5 rounded-lg border border-emerald-200 divide-y divide-slate-100">
+                      {detectedPdfItems.map((item, idx) => (
+                        <label
+                          key={item.id}
+                          className="flex items-center justify-between gap-2 text-[11px] text-slate-800 pt-1.5 first:pt-0 cursor-pointer hover:bg-emerald-50/50 p-1 rounded"
+                        >
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <input
+                              type="checkbox"
+                              checked={item.selected}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setDetectedPdfItems((prev) =>
+                                  prev.map((it, i) => (i === idx ? { ...it, selected: checked } : it))
+                                );
+                              }}
+                              className="w-3.5 h-3.5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                            />
+                            <span className="font-semibold truncate">{item.description}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-right shrink-0">
+                            <span className="text-slate-500">{item.quantity} UN</span>
+                            <span className="font-bold text-slate-900">{formatCurrency(item.unitPrice)}</span>
+                            <span className="text-slate-500 text-[10px] font-semibold">{formatCurrency(item.total)}</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] text-emerald-900 font-bold">
+                        Total Selecionado:{' '}
+                        {formatCurrency(
+                          detectedPdfItems
+                            .filter((i) => i.selected)
+                            .reduce((acc, i) => acc + i.total, 0)
+                        )}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleAddSelectedPdfItems}
+                        disabled={!detectedPdfItems.some((i) => i.selected)}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition disabled:opacity-50"
+                      >
+                        <i className="fa-solid fa-file-import"></i>
+                        <span>Adicionar Itens Selecionados à Lista da OS</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

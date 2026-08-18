@@ -384,9 +384,46 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: any) => (item.str !== undefined ? item.str : ''))
-        .join(' ');
+
+      // Agrupa itens por linha baseado na posição vertical Y (com tolerância de 3px)
+      const linesMap = new Map<number, Array<{ x: number; str: string }>>();
+
+      for (const item of textContent.items as any[]) {
+        if (item.str === undefined || !item.str.trim()) continue;
+        const y = Math.round(item.transform[5]);
+        const x = item.transform[4];
+
+        let foundY = y;
+        for (const existingY of linesMap.keys()) {
+          if (Math.abs(existingY - y) <= 3) {
+            foundY = existingY;
+            break;
+          }
+        }
+
+        if (!linesMap.has(foundY)) {
+          linesMap.set(foundY, []);
+        }
+        linesMap.get(foundY)!.push({ x, str: item.str });
+      }
+
+      // Ordena as linhas de cima para baixo (Y decrescente no PDF)
+      const sortedYs = Array.from(linesMap.keys()).sort((a, b) => b - a);
+      const pageLines: string[] = [];
+
+      for (const y of sortedYs) {
+        // Ordena itens da linha da esquerda para a direita (X crescente)
+        const lineItems = linesMap.get(y)!.sort((a, b) => a.x - b.x);
+        const lineText = lineItems.map((it) => it.str).join(' ').trim();
+        if (lineText) {
+          pageLines.push(lineText);
+        }
+      }
+
+      const pageText = pageLines.length > 0
+        ? pageLines.join('\n')
+        : textContent.items.map((item: any) => (item.str !== undefined ? item.str : '')).join(' ');
+
       fullText += (pageNum > 1 ? '\n\n' : '') + `--- [Página ${pageNum} de ${pdf.numPages}] ---\n` + pageText;
     }
 
@@ -400,4 +437,39 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     console.error('Erro ao extrair texto do PDF com pdfjs-dist:', error);
     throw new Error(`Falha ao ler o arquivo PDF: ${error?.message || error}`);
   }
+}
+
+/**
+ * Extração de itens a partir do layout de orçamento de fornecedor
+ */
+export function extrairItensDoTexto(texto: string): Array<{ description: string; quantity: number; unitPrice: number }> {
+  const linhas = texto.split('\n');
+  const itens: Array<{ description: string; quantity: number; unitPrice: number }> = [];
+
+  const paraNumero = (s: string) => parseFloat(s.replace(/\./g, '').replace(',', '.'));
+
+  // Formato: <item#> <código> <descrição...> UN <quantidade>,00 <valor unit>,XX <desconto>,XX <total>,XX
+  const regexLinhaProduto = /^(\d{1,3})\s+(\d{1,6}(?:\s+\d{2,4})?|\d{1,6})\s+(.+?)\s+UN\s+(\d{1,3}(?:\.\d{3})*,\d{2})\s+(\d{1,3}(?:\.\d{3})*,\d{2})\s+(\d{1,3}(?:\.\d{3})*,\d{2})\s+(\d{1,3}(?:\.\d{3})*,\d{2})\s*$/;
+
+  linhas.forEach((linhaRaw) => {
+    const linha = linhaRaw.trim();
+    const match = linha.match(regexLinhaProduto);
+    if (!match) return;
+
+    const [, , , descricaoBruta, quantidadeStr, valorUnitStr] = match;
+
+    const descricao = descricaoBruta.replace(/\s*-\s*$/, '').trim();
+    const quantidade = paraNumero(quantidadeStr);
+    const valorUnitario = paraNumero(valorUnitStr);
+
+    if (!descricao || descricao.length < 3 || !quantidade || !valorUnitario) return;
+
+    itens.push({
+      description: descricao.slice(0, 120),
+      quantity: quantidade,
+      unitPrice: valorUnitario,
+    });
+  });
+
+  return itens;
 }
