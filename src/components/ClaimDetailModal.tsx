@@ -198,6 +198,89 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Seção: Dados do Terceiro Envolvido & Responsabilidade */}
+              {(claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.supervisorName || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
+                <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <i className="fa-solid fa-car-burst text-blue-600"></i> Dados do Terceiro Envolvido & Responsabilidade
+                    </span>
+                    {claim.atFault && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                        Culpado: {claim.atFault}
+                      </span>
+                    )}
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    {claim.thirdPartyVehicleDescription && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Veículo do Terceiro</span>
+                        <p className="font-bold text-slate-900">{claim.thirdPartyVehicleDescription}</p>
+                      </div>
+                    )}
+                    {claim.thirdPartyPlate && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Placa do Terceiro</span>
+                        <p className="font-mono font-bold text-slate-900">{claim.thirdPartyPlate}</p>
+                      </div>
+                    )}
+                    {claim.thirdPartyDocument && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">CPF / Doc do Terceiro</span>
+                        <p className="font-semibold text-slate-800">{claim.thirdPartyDocument}</p>
+                      </div>
+                    )}
+                    {claim.supervisorName && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Supervisor</span>
+                        <p className="font-semibold text-slate-800">{claim.supervisorName}</p>
+                      </div>
+                    )}
+                    {claim.paymentDirection && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Direção do Pagamento</span>
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          claim.paymentDirection === 'Pagar' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {claim.paymentDirection}
+                        </span>
+                      </div>
+                    )}
+                    {claim.thirdPartyRepairCost !== undefined && claim.thirdPartyRepairCost !== null && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Custo do Terceiro</span>
+                        <p className="font-bold text-slate-900">{formatCurrency(claim.thirdPartyRepairCost)}</p>
+                      </div>
+                    )}
+                    {claim.ownVehicleRepairCost !== undefined && claim.ownVehicleRepairCost !== null && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Custo do Nosso Veículo</span>
+                        <p className="font-bold text-slate-900">{formatCurrency(claim.ownVehicleRepairCost)}</p>
+                      </div>
+                    )}
+                    {claim.totalValue !== undefined && claim.totalValue !== null && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Valor Total</span>
+                        <p className="font-black text-blue-950">{formatCurrency(claim.totalValue)}</p>
+                      </div>
+                    )}
+                    {claim.chargeAmount !== undefined && claim.chargeAmount !== null && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Quanto Cobrar</span>
+                        <p className="font-bold text-slate-900">{formatCurrency(claim.chargeAmount)}</p>
+                      </div>
+                    )}
+                    {claim.firstDiscountMonth && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Mês 1º Desconto</span>
+                        <p className="font-semibold text-slate-800">{claim.firstDiscountMonth}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

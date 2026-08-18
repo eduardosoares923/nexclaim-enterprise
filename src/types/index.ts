@@ -80,18 +80,31 @@ export interface Claim {
   description: string;
   vehicleId?: string;
   vehiclePlate: string;
-  vehicleModel: string;
+  vehicleModel?: string;
   driverId?: string;
   driverName: string;
   insurer?: string;
   policyNumber?: string;
   boNumber?: string;
-  assignedUser: string;
+  assignedUser?: string;
   estimatedCost: number;
-  approvedCost: number;
-  createdAt: string;
-  updatedAt: string;
+  approvedCost?: number;
+  createdAt?: string;
+  updatedAt?: string;
   notes?: string;
+  vehiclePrefix?: string;
+  supervisorName?: string;
+  thirdPartyVehicleDescription?: string;
+  thirdPartyPlate?: string;
+  atFault?: string;
+  paymentDirection?: 'Pagar' | 'Cobrar' | '';
+  thirdPartyRepairCost?: number;
+  ownVehicleRepairCost?: number;
+  totalValue?: number;
+  chargeAmount?: number;
+  firstDiscountMonth?: string;
+  thirdPartyDocument?: string;
+  occurrenceTime?: string;
 }
 
 export interface Fine {

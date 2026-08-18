@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
+import { lerPlanilhaSinistros, LinhaImportada } from '../services/claimsImport';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -35,8 +36,61 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [showNewClaimModal, setShowNewClaimModal] = useState(false);
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
 
+  // Estados da Importação de Planilha
+  const [linhasParaImportar, setLinhasParaImportar] = useState<LinhaImportada[]>([]);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
+  const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const linhas = await lerPlanilhaSinistros(file);
+      if (!linhas || linhas.length === 0) {
+        alert('Não foi possível identificar as colunas da planilha. Verifique se ela tem uma coluna PLACA.');
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+      setLinhasParaImportar(linhas);
+      setShowImportModal(true);
+    } catch (err: any) {
+      console.error('Erro ao ler planilha:', err);
+      alert(`Erro ao processar planilha: ${err.message || err}`);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (linhasParaImportar.length === 0) return;
+    setIsImporting(true);
+    setImportProgress({ current: 0, total: linhasParaImportar.length });
+
+    for (let i = 0; i < linhasParaImportar.length; i++) {
+      const item = linhasParaImportar[i];
+      onSaveNewClaim(item.claim as Claim);
+      setImportProgress({ current: i + 1, total: linhasParaImportar.length });
+      if (linhasParaImportar.length > 50 && i % 10 === 0) {
+        await new Promise((r) => setTimeout(r, 10));
+      }
+    }
+
+    setIsImporting(false);
+    setImportProgress(null);
+    setShowImportModal(false);
+    setLinhasParaImportar([]);
+  };
+
+  const resumoPorAba = linhasParaImportar.reduce<Record<string, number>>((acc, l) => {
+    acc[l.aba] = (acc[l.aba] || 0) + 1;
+    return acc;
+  }, {});
 
   const filteredClaims = claims.filter((c) => {
     const matchesSearch =
@@ -70,7 +124,22 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95"
+            title="Importar sinistros de planilha Excel com múltiplas abas"
+          >
+            <i className="fa-solid fa-file-excel text-xs"></i>
+            <span>Importar Planilha (.xlsx)</span>
+          </button>
           <button
             onClick={() => setShowNewClaimModal(true)}
             className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95"
@@ -347,6 +416,166 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             setEditingClaim(null);
           }}
         />
+      )}
+
+      {/* Modal de Pré-visualização da Importação */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-sm">
+                  <i className="fa-solid fa-file-excel"></i>
+                </div>
+                <div>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-white">
+                    Pré-visualização da Importação de Sinistros
+                  </h3>
+                  <span className="text-[10px] text-emerald-400 font-bold">
+                    {linhasParaImportar.length} sinistro(s) encontrado(s) na planilha
+                  </span>
+                </div>
+              </div>
+              {!isImporting && (
+                <button
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setLinhasParaImportar([]);
+                  }}
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+                >
+                  <i className="fa-solid fa-xmark text-base"></i>
+                </button>
+              )}
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4 text-xs">
+              {/* Resumo por abas identificadas */}
+              <div>
+                <h4 className="font-bold text-slate-700 uppercase text-[11px] mb-2">
+                  Abas / Meses Identificados na Planilha:
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(resumoPorAba).map(([aba, count]) => (
+                    <div
+                      key={aba}
+                      className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-950 flex items-center gap-2"
+                    >
+                      <i className="fa-solid fa-table text-emerald-600"></i>
+                      <span className="font-bold">{aba}:</span>
+                      <span className="font-black bg-emerald-200/70 text-emerald-900 px-1.5 py-0.5 rounded text-[10px]">
+                        {count} sinistro{count > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Barra de Progresso quando estiver importando */}
+              {isImporting && importProgress && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-950">
+                    <span className="flex items-center gap-2">
+                      <i className="fa-solid fa-circle-notch fa-spin text-amber-600"></i>
+                      Importando sinistros para o sistema...
+                    </span>
+                    <span>
+                      {importProgress.current} de {importProgress.total} ({Math.round((importProgress.current / importProgress.total) * 100)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-amber-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-amber-600 h-2 rounded-full transition-all duration-150"
+                      style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Tabela de Amostra dos Primeiros 20 Registros */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-bold text-slate-700 uppercase text-[11px]">
+                    Amostra dos Primeiros Registros (exibindo até 20 de {linhasParaImportar.length}):
+                  </h4>
+                </div>
+                <div className="border border-slate-200 rounded-lg overflow-x-auto max-h-64">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase text-[10px] font-bold sticky top-0">
+                      <tr>
+                        <th className="p-2.5">Aba / Mês</th>
+                        <th className="p-2.5">Placa</th>
+                        <th className="p-2.5">Prefixo</th>
+                        <th className="p-2.5">Condutor</th>
+                        <th className="p-2.5">Data</th>
+                        <th className="p-2.5">Ocorrência</th>
+                        <th className="p-2.5">Terceiro / Placa</th>
+                        <th className="p-2.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {linhasParaImportar.slice(0, 20).map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50">
+                          <td className="p-2.5 font-bold text-emerald-800 whitespace-nowrap">{item.aba}</td>
+                          <td className="p-2.5 font-mono font-bold text-slate-900">{item.claim.vehiclePlate || '-'}</td>
+                          <td className="p-2.5 text-slate-600">{item.claim.vehiclePrefix || '-'}</td>
+                          <td className="p-2.5 font-medium text-slate-800">{item.claim.driverName || '-'}</td>
+                          <td className="p-2.5 text-slate-600 whitespace-nowrap">{item.claim.date || '-'}</td>
+                          <td className="p-2.5 text-slate-700 max-w-[180px] truncate" title={item.claim.occurrenceType}>
+                            {item.claim.occurrenceType}
+                          </td>
+                          <td className="p-2.5 text-slate-700 max-w-[150px] truncate">
+                            {item.claim.thirdPartyVehicleDescription || item.claim.thirdPartyPlate ? `${item.claim.thirdPartyVehicleDescription || ''} ${item.claim.thirdPartyPlate || ''}`.trim() : '-'}
+                          </td>
+                          <td className="p-2.5">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                              {item.claim.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+              <span className="text-xs text-slate-500">
+                Os sinistros serão gravados no banco de dados e sincronizados em tempo real.
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={isImporting}
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setLinhasParaImportar([]);
+                  }}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={isImporting || linhasParaImportar.length === 0}
+                  onClick={handleConfirmImport}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 disabled:opacity-50"
+                >
+                  <i className="fa-solid fa-cloud-arrow-up"></i>
+                  <span>
+                    {isImporting
+                      ? `Importando (${importProgress?.current || 0}/${importProgress?.total || 0})...`
+                      : `Confirmar Importação (${linhasParaImportar.length} sinistros)`}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
