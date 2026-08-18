@@ -21,6 +21,14 @@ function paraData(valor: any): string {
   return String(valor).split(' ')[0];
 }
 
+function paraTexto(valor: any): string {
+  if (valor === null || valor === undefined) return '';
+  if (valor instanceof Date) {
+    return `${String(valor.getDate()).padStart(2, '0')}/${String(valor.getMonth() + 1).padStart(2, '0')}/${valor.getFullYear()}`;
+  }
+  return String(valor).trim();
+}
+
 function acharColuna(headers: string[], candidatos: string[]): number {
   for (const c of candidatos) {
     const idx = headers.findIndex((h) => NORMALIZAR(h) === NORMALIZAR(c));
@@ -96,21 +104,21 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       const situacaoRaw = NORMALIZAR(pegar(linha, idx.situacao));
       const status: ClaimStatus = MAPA_STATUS[situacaoRaw] || 'Novo';
 
-      const descricaoPartes = [ocorrido, pegar(linha, idx.observacao)].filter(Boolean);
+      const descricaoPartes = [paraTexto(ocorrido), paraTexto(pegar(linha, idx.observacao))].filter(Boolean);
 
       const claim: Omit<Claim, 'id'> = {
         claimNumber: `SIN-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
         protocol: `PROT-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
-        occurrenceType: (pegar(linha, idx.tipo) as string) || 'Não especificado',
+        occurrenceType: paraTexto(pegar(linha, idx.tipo)) || 'Não especificado',
         date: paraData(data),
-        time: (pegar(linha, idx.horario) as string) || '',
-        occurrenceTime: (pegar(linha, idx.horario) as string) || '',
+        time: paraTexto(pegar(linha, idx.horario)),
+        occurrenceTime: paraTexto(pegar(linha, idx.horario)),
         location: '',
         city: 'Gravataí',
         state: 'RS',
-        vehiclePlate: (placa as string) || '',
-        vehiclePrefix: (pegar(linha, idx.prefixo) as string) || '',
-        driverName: (motorista as string) || '',
+        vehiclePlate: paraTexto(placa),
+        vehiclePrefix: paraTexto(pegar(linha, idx.prefixo)),
+        driverName: paraTexto(motorista),
         priority: 'Média',
         status,
         estimatedCost: pegarNum(linha, idx.custoNosso) ?? 0,
@@ -118,17 +126,17 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
         policyNumber: '',
         boNumber: '',
         description: descricaoPartes.join(' — ') || 'Importado de planilha, sem descrição detalhada.',
-        supervisorName: (pegar(linha, idx.supervisor) as string) || '',
-        thirdPartyVehicleDescription: (pegar(linha, idx.carroEnvolvido) as string) || '',
-        thirdPartyPlate: (pegar(linha, idx.placa2) as string) || '',
-        atFault: (pegar(linha, idx.culpado) as string) || '',
+        supervisorName: paraTexto(pegar(linha, idx.supervisor)),
+        thirdPartyVehicleDescription: paraTexto(pegar(linha, idx.carroEnvolvido)),
+        thirdPartyPlate: paraTexto(pegar(linha, idx.placa2)),
+        atFault: paraTexto(pegar(linha, idx.culpado)),
         paymentDirection: (NORMALIZAR(pegar(linha, idx.pagarCobrar)) === 'PAGAR' ? 'Pagar' : NORMALIZAR(pegar(linha, idx.pagarCobrar)) === 'COBRAR' ? 'Cobrar' : ''),
         thirdPartyRepairCost: pegarNum(linha, idx.custoEnvolvido),
         ownVehicleRepairCost: pegarNum(linha, idx.custoNosso),
         totalValue: pegarNum(linha, idx.valorTotal),
         chargeAmount: pegarNum(linha, idx.quantoCobrar),
-        firstDiscountMonth: (pegar(linha, idx.mesDesconto) as string) || '',
-        thirdPartyDocument: (pegar(linha, idx.cpfs) as string) || '',
+        firstDiscountMonth: paraTexto(pegar(linha, idx.mesDesconto)),
+        thirdPartyDocument: paraTexto(pegar(linha, idx.cpfs)),
       };
 
       resultado.push({ claim, aba: nomeAba, linhaOriginal: l + 1 });
