@@ -187,20 +187,25 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                       <strong>Nome:</strong> <span className="font-bold text-slate-900">{claim.driverName}</span>
                     </p>
                     <p>
-                      <strong>CPF / Doc:</strong> {matchedDriver?.docNumber || '002.574.880-73'}
+                      <strong>CPF / Doc:</strong> {matchedDriver?.docNumber || 'Não informado'}
                     </p>
                     <p>
-                      <strong>Telefone:</strong> {matchedDriver?.phone || '(051) 98266-0028'}
+                      <strong>Telefone:</strong> {matchedDriver?.phone || 'Não informado'}
                     </p>
                     <p>
-                      <strong>Email:</strong> {matchedDriver?.email || 'contato@transpinho.com'}
+                      <strong>Email:</strong> {matchedDriver?.email || 'Não informado'}
                     </p>
+                    {claim.supervisorName && (
+                      <p className="mt-2 pt-2 border-t border-slate-100">
+                        <strong>Supervisor Responsável:</strong> {claim.supervisorName}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Seção: Dados do Terceiro Envolvido & Responsabilidade */}
-              {(claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.supervisorName || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
+              {(claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
                 <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
@@ -230,12 +235,6 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                       <div>
                         <span className="block text-[10px] font-bold text-slate-500 uppercase">CPF / Doc do Terceiro</span>
                         <p className="font-semibold text-slate-800">{claim.thirdPartyDocument}</p>
-                      </div>
-                    )}
-                    {claim.supervisorName && (
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Supervisor</span>
-                        <p className="font-semibold text-slate-800">{claim.supervisorName}</p>
                       </div>
                     )}
                     {claim.paymentDirection && (
