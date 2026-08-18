@@ -60,6 +60,7 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+    forced-color-adjust: none !important;
     position: fixed !important;
     inset: 0 !important;
     left: 0 !important;
