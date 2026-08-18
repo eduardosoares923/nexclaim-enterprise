@@ -49,6 +49,8 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
   const resultado: LinhaImportada[] = [];
 
   workbook.SheetNames.forEach((nomeAba) => {
+    if (NORMALIZAR(nomeAba) === 'DADOS') return;
+
     const sheet = workbook.Sheets[nomeAba];
     const linhas: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
     if (linhas.length < 2) return;
@@ -144,4 +146,110 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
   });
 
   return resultado;
+}
+
+export interface CadastroImportado {
+  placa: string;
+  prefixo: string;
+  motorista: string;
+  supervisor: string;
+}
+
+export interface SinistroDados {
+  claim: Omit<Claim, 'id'>;
+  linhaOriginal: number;
+}
+
+export interface ResultadoAbaDados {
+  cadastros: CadastroImportado[];
+  sinistros: SinistroDados[];
+}
+
+export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null> {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+
+  const nomeAba = workbook.SheetNames.find((n) => NORMALIZAR(n) === 'DADOS');
+  if (!nomeAba) return null;
+
+  const sheet = workbook.Sheets[nomeAba];
+  const linhas: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+  const indiceHeader = linhas.findIndex((linha) => linha.some((c) => NORMALIZAR(c) === 'PLACA'));
+  if (indiceHeader === -1) return null;
+
+  const headers = linhas[indiceHeader].map((h) => (h ?? '').toString());
+  const idx = {
+    placa: acharColuna(headers, ['PLACA']),
+    prefixo: acharColuna(headers, ['PREFIXO']),
+    situacao: acharColuna(headers, ['SITUAÇÃO', 'SITUACAO']),
+    ocorrido: acharColuna(headers, ['OCORRIDO']),
+    tipo: acharColuna(headers, ['TIPO DE SINISTRO']),
+    vitima: acharColuna(headers, ['VITIMA', 'VÍTIMA']),
+    carroOcorrencia: acharColuna(headers, ['CARRO DA OCORRENCIA', 'CARRO DA OCORRÊNCIA']),
+    supervisor: acharColuna(headers, ['SUPERVISOR']),
+    motorista: acharColuna(headers, ['MOTORISTA']),
+  };
+
+  const pegar = (linha: any[], i: number) => (i === -1 ? undefined : linha[i]);
+  const cadastros: CadastroImportado[] = [];
+  const sinistros: SinistroDados[] = [];
+
+  for (let l = indiceHeader + 1; l < linhas.length; l++) {
+    const linha = linhas[l];
+    if (!linha) continue;
+
+    const placa = paraTexto(pegar(linha, idx.placa));
+    const motorista = paraTexto(pegar(linha, idx.motorista));
+    if (!placa && !motorista) continue;
+
+    cadastros.push({
+      placa,
+      prefixo: paraTexto(pegar(linha, idx.prefixo)),
+      motorista,
+      supervisor: paraTexto(pegar(linha, idx.supervisor)),
+    });
+
+    const situacao = paraTexto(pegar(linha, idx.situacao));
+    const ocorrido = paraTexto(pegar(linha, idx.ocorrido));
+    const tipo = paraTexto(pegar(linha, idx.tipo));
+
+    if (situacao || ocorrido || tipo) {
+      const situacaoNorm = NORMALIZAR(situacao);
+      const status: ClaimStatus =
+        MAPA_STATUS[situacaoNorm] ||
+        (situacaoNorm.includes('NÃO RESOLVID') || situacaoNorm.includes('NAO RESOLVID')
+          ? 'Em análise'
+          : situacaoNorm.includes('RESOLVID')
+          ? 'Resolvido'
+          : 'Novo');
+
+      const vitima = paraTexto(pegar(linha, idx.vitima));
+      const claim: Omit<Claim, 'id'> = {
+        claimNumber: `SIN-IMP-DADOS-${l}`,
+        protocol: `PROT-IMP-DADOS-${l}`,
+        occurrenceType: tipo || 'Não especificado',
+        date: '',
+        time: '',
+        location: '',
+        city: 'Gravataí',
+        state: 'RS',
+        vehiclePlate: placa,
+        vehiclePrefix: paraTexto(pegar(linha, idx.prefixo)),
+        driverName: motorista,
+        priority: 'Média',
+        status,
+        estimatedCost: 0,
+        insurer: '',
+        policyNumber: '',
+        boNumber: '',
+        description: [ocorrido, vitima && `Vítima: ${vitima}`].filter(Boolean).join(' — ') || 'Importado da aba DADOS.',
+        supervisorName: paraTexto(pegar(linha, idx.supervisor)),
+        thirdPartyVehicleDescription: paraTexto(pegar(linha, idx.carroOcorrencia)),
+      };
+
+      sinistros.push({ claim, linhaOriginal: l + 1 });
+    }
+  }
+
+  return { cadastros, sinistros };
 }

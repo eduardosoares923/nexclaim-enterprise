@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
-import { lerPlanilhaSinistros, LinhaImportada } from '../services/claimsImport';
+import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados } from '../services/claimsImport';
+import { firebaseService } from '../services/firebase';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -27,6 +29,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   onDeleteClaim,
   onUpdateClaim,
 }) => {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -38,6 +41,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
   // Estados da Importação de Planilha
   const [linhasParaImportar, setLinhasParaImportar] = useState<LinhaImportada[]>([]);
+  const [resultadoDados, setResultadoDados] = useState<ResultadoAbaDados | null>(null);
   const [abasSelecionadas, setAbasSelecionadas] = useState<Set<string>>(new Set());
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [isImporting, setIsImporting] = useState<boolean>(false);
@@ -52,21 +56,50 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
+  // Normalização e detecção de veículos/motoristas novos a partir da aba DADOS
+  const existingPlates = new Set(vehicles.map((v) => (v.plate || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase()));
+  const existingPeople = new Set(people.map((p) => (p.name || '').trim().toUpperCase()));
+
+  const novosVeiculosMap = new Map<string, { placa: string; prefixo: string }>();
+  if (resultadoDados) {
+    resultadoDados.cadastros.forEach((cad) => {
+      const cleanPlate = cad.placa.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      if (cleanPlate && !existingPlates.has(cleanPlate) && !novosVeiculosMap.has(cleanPlate)) {
+        novosVeiculosMap.set(cleanPlate, { placa: cad.placa, prefixo: cad.prefixo });
+      }
+    });
+  }
+  const novosVeiculosParaSalvar = Array.from(novosVeiculosMap.values());
+
+  const novosMotoristasMap = new Map<string, { motorista: string }>();
+  if (resultadoDados) {
+    resultadoDados.cadastros.forEach((cad) => {
+      const cleanName = cad.motorista.trim().toUpperCase();
+      if (cleanName && !existingPeople.has(cleanName) && !novosMotoristasMap.has(cleanName)) {
+        novosMotoristasMap.set(cleanName, { motorista: cad.motorista });
+      }
+    });
+  }
+  const novosMotoristasParaSalvar = Array.from(novosMotoristasMap.values());
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       const linhas = await lerPlanilhaSinistros(file);
-      if (!linhas || linhas.length === 0) {
+      const dados = await lerAbaDados(file);
+
+      if ((!linhas || linhas.length === 0) && (!dados || dados.cadastros.length === 0)) {
         alert('Não foi possível identificar as colunas da planilha. Verifique se ela tem uma coluna PLACA.');
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
-      setLinhasParaImportar(linhas);
+      setLinhasParaImportar(linhas || []);
+      setResultadoDados(dados);
 
       // Inicializa com todas as abas EXCETO as que são resumos/agregados ("2026", "DADOS", etc.)
-      const todasAbas = Array.from(new Set(linhas.map((l) => l.aba)));
+      const todasAbas = Array.from(new Set((linhas || []).map((l) => l.aba)));
       const abasIniciais = new Set(todasAbas.filter((aba) => !isAbaResumo(aba)));
       setAbasSelecionadas(abasIniciais);
 
@@ -103,24 +136,86 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const linhasFiltradas = linhasParaImportar.filter((l) => abasSelecionadas.has(l.aba));
 
   const handleConfirmImport = async () => {
-    if (linhasFiltradas.length === 0) return;
-    setIsImporting(true);
-    setImportProgress({ current: 0, total: linhasFiltradas.length });
+    const totalItens =
+      linhasFiltradas.length +
+      novosVeiculosParaSalvar.length +
+      novosMotoristasParaSalvar.length +
+      (resultadoDados?.sinistros.length || 0);
 
+    if (totalItens === 0) return;
+    setIsImporting(true);
+    setImportProgress({ current: 0, total: totalItens });
+
+    let processados = 0;
+
+    // 1. Gravar novos veículos da aba DADOS
+    for (const v of novosVeiculosParaSalvar) {
+      try {
+        await firebaseService.saveVehicle({
+          plate: v.placa,
+          prefix: v.prefixo,
+          renavam: '',
+          brand: '',
+          model: '',
+          year: new Date().getFullYear(),
+          color: '',
+          status: 'Ativo',
+        } as any);
+      } catch (err) {
+        console.warn('Erro ao salvar veículo importado:', err);
+      }
+      processados++;
+      setImportProgress({ current: processados, total: totalItens });
+    }
+
+    // 2. Gravar novos motoristas da aba DADOS
+    for (const p of novosMotoristasParaSalvar) {
+      try {
+        await firebaseService.savePerson({
+          name: p.motorista,
+          docNumber: '',
+          phone: '',
+          email: '',
+          address: '',
+          type: 'Condutor',
+        } as any);
+      } catch (err) {
+        console.warn('Erro ao salvar condutor importado:', err);
+      }
+      processados++;
+      setImportProgress({ current: processados, total: totalItens });
+    }
+
+    // 3. Gravar sinistros históricos da aba DADOS
+    if (resultadoDados?.sinistros) {
+      for (const s of resultadoDados.sinistros) {
+        onSaveNewClaim(s.claim as Claim);
+        processados++;
+        setImportProgress({ current: processados, total: totalItens });
+      }
+    }
+
+    // 4. Gravar sinistros das abas mensais selecionadas
     for (let i = 0; i < linhasFiltradas.length; i++) {
       const item = linhasFiltradas[i];
       onSaveNewClaim(item.claim as Claim);
-      setImportProgress({ current: i + 1, total: linhasFiltradas.length });
+      processados++;
+      setImportProgress({ current: processados, total: totalItens });
       if (linhasFiltradas.length > 50 && i % 10 === 0) {
         await new Promise((r) => setTimeout(r, 10));
       }
     }
+
+    // 5. Invalidar cache das queries de veículos e condutores
+    await queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+    await queryClient.invalidateQueries({ queryKey: ['people'] });
 
     setIsImporting(false);
     setImportProgress(null);
     setShowImportModal(false);
     setLinhasParaImportar([]);
     setAbasSelecionadas(new Set());
+    setResultadoDados(null);
   };
 
   const resumoPorAba = linhasParaImportar.reduce<Record<string, number>>((acc, l) => {
@@ -466,10 +561,10 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </div>
                 <div>
                   <h3 className="font-bold text-xs uppercase tracking-wider text-white">
-                    Pré-visualização da Importação de Sinistros
+                    Pré-visualização da Importação de Sinistros & Frota
                   </h3>
                   <span className="text-[10px] text-emerald-400 font-bold">
-                    {linhasFiltradas.length} de {linhasParaImportar.length} sinistro(s) selecionado(s) para importação
+                    {linhasFiltradas.length + (resultadoDados?.sinistros.length || 0)} sinistros ({linhasFiltradas.length} abas mensais + {resultadoDados?.sinistros.length || 0} aba DADOS) • {novosVeiculosParaSalvar.length} veículos novos • {novosMotoristasParaSalvar.length} condutores novos
                   </span>
                 </div>
               </div>
@@ -479,6 +574,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     setShowImportModal(false);
                     setLinhasParaImportar([]);
                     setAbasSelecionadas(new Set());
+                    setResultadoDados(null);
                   }}
                   className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
                 >
@@ -489,7 +585,32 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4 text-xs">
-              {/* Resumo e seleção por abas identificadas */}
+              {/* Seção Fixa Automática: Aba DADOS */}
+              {resultadoDados && (
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl space-y-1.5 shadow-2xs">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center text-xs">
+                        <i className="fa-solid fa-id-card"></i>
+                      </div>
+                      <h4 className="font-bold text-blue-950 uppercase text-[11px]">
+                        Aba DADOS (Cadastro Completo de Veículo / Motorista & Sinistros)
+                      </h4>
+                    </div>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-blue-200/80 text-blue-900 border border-blue-300 uppercase">
+                      Inclusão Automática
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-900 leading-relaxed">
+                    Identificados <strong>{resultadoDados.cadastros.length}</strong> cadastros de veículo/motorista (
+                    <strong className="text-emerald-700 font-bold">{novosVeiculosParaSalvar.length} veículos novos</strong> e{' '}
+                    <strong className="text-emerald-700 font-bold">{novosMotoristasParaSalvar.length} motoristas novos</strong> que serão cadastrados automaticamente na frota) e{' '}
+                    <strong>{resultadoDados.sinistros.length}</strong> sinistros com dados preenchidos.
+                  </p>
+                </div>
+              )}
+
+              {/* Resumo e seleção por abas mensais identificadas */}
               <div>
                 <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                   <h4 className="font-bold text-slate-700 uppercase text-[11px]">
@@ -558,7 +679,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   <div className="flex items-center justify-between text-xs font-bold text-amber-950">
                     <span className="flex items-center gap-2">
                       <i className="fa-solid fa-circle-notch fa-spin text-amber-600"></i>
-                      Importando sinistros para o sistema...
+                      Importando sinistros e cadastrando veículos/motoristas...
                     </span>
                     <span>
                       {importProgress.current} de {importProgress.total} ({Math.round((importProgress.current / importProgress.total) * 100)}%)
@@ -583,7 +704,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 {linhasFiltradas.length === 0 ? (
                   <div className="p-8 border border-dashed border-slate-300 rounded-lg text-center text-slate-500 bg-slate-50">
                     <i className="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i>
-                    Nenhuma aba selecionada. Marque ao menos uma aba acima para visualizar a amostra e importar.
+                    Nenhuma aba mensal selecionada.
                   </div>
                 ) : (
                   <div className="border border-slate-200 rounded-lg overflow-x-auto max-h-64">
@@ -631,9 +752,9 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             {/* Footer */}
             <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <span className="text-xs text-slate-500">
-                {linhasFiltradas.length === 0
+                {linhasFiltradas.length === 0 && !resultadoDados
                   ? 'Selecione pelo menos uma aba para importar.'
-                  : `Pronto para importar ${linhasFiltradas.length} sinistros em ${abasSelecionadas.size} aba(s).`}
+                  : `Pronto para importar ${linhasFiltradas.length + (resultadoDados?.sinistros.length || 0)} sinistros (${linhasFiltradas.length} abas mensais + ${resultadoDados?.sinistros.length || 0} aba DADOS) e ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -643,6 +764,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     setShowImportModal(false);
                     setLinhasParaImportar([]);
                     setAbasSelecionadas(new Set());
+                    setResultadoDados(null);
                   }}
                   className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition disabled:opacity-50"
                 >
@@ -650,7 +772,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </button>
                 <button
                   type="button"
-                  disabled={isImporting || linhasFiltradas.length === 0}
+                  disabled={isImporting || (linhasFiltradas.length === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && resultadoDados.sinistros.length === 0)))}
                   onClick={handleConfirmImport}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -658,9 +780,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   <span>
                     {isImporting
                       ? `Importando (${importProgress?.current || 0}/${importProgress?.total || 0})...`
-                      : linhasFiltradas.length === 0
-                      ? 'Selecione uma aba'
-                      : `Confirmar Importação (${linhasFiltradas.length} sinistros)`}
+                      : `Confirmar Importação (${linhasFiltradas.length + (resultadoDados?.sinistros.length || 0)} sinistros)`}
                   </span>
                 </button>
               </div>
