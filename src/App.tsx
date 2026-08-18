@@ -35,6 +35,10 @@ import {
   useCreatePerson,
   useUpdatePerson,
   useDeletePerson,
+  useWorkOrders,
+  useCreateWorkOrder,
+  useUpdateWorkOrder,
+  useDeleteWorkOrder,
 } from './hooks/useFirestoreData';
 import {
   Claim,
@@ -68,6 +72,7 @@ export const App: React.FC = () => {
   const { data: terms = [], isLoading: loadingTerms } = useTerms();
   const { data: vehicles = [], isLoading: loadingVehicles } = useVehicles();
   const { data: people = [], isLoading: loadingPeople } = usePeople();
+  const { data: workOrders = [], isLoading: loadingWorkOrders } = useWorkOrders();
 
   // Mutations
   const createClaimMutation = useCreateClaim();
@@ -89,6 +94,10 @@ export const App: React.FC = () => {
   const createPersonMutation = useCreatePerson();
   const updatePersonMutation = useUpdatePerson();
   const deletePersonMutation = useDeletePerson();
+
+  const createWorkOrderMutation = useCreateWorkOrder();
+  const updateWorkOrderMutation = useUpdateWorkOrder();
+  const deleteWorkOrderMutation = useDeleteWorkOrder();
 
   // Selected claim for term generation
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
@@ -429,6 +438,10 @@ export const App: React.FC = () => {
                   vehicles={vehicles}
                   people={people}
                   claims={claims}
+                  orders={workOrders}
+                  onSaveOrder={(data) => createWorkOrderMutation.mutate(data)}
+                  onUpdateOrder={(id, data) => updateWorkOrderMutation.mutate({ id, data })}
+                  onDeleteOrder={(id) => deleteWorkOrderMutation.mutate(id)}
                 />
               }
             />

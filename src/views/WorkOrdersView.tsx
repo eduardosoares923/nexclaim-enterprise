@@ -27,55 +27,64 @@ interface WorkOrdersViewProps {
   vehicles: Vehicle[];
   people: Person[];
   claims: Claim[];
+  orders: WorkOrder[];
+  onSaveOrder: (data: Omit<WorkOrder, 'id'>) => void;
+  onUpdateOrder: (id: string, data: Partial<WorkOrder>) => void;
+  onDeleteOrder: (id: string) => void;
 }
 
-export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people, claims }) => {
-  const [orders, setOrders] = useState<WorkOrder[]>([
-    {
-      id: 'os-1',
-      orderNumber: 'OS-2026-00481',
-      date: '2026-06-16',
-      vehiclePlate: 'JCO8C10',
-      vehiclePrefix: '24127',
-      driverName: 'ANDREIA MERCEDES ROCHA DE ARAUJO',
-      workshopName: 'Oficina Central Trans Pinho Gravataí',
-      status: 'Aprovada',
-      items: [
-        { id: 'item-1', description: 'Para-choque Traseiro VW Constellation', type: 'Peça', quantity: 1, unitPrice: 1850.0, total: 1850.0 },
-        { id: 'item-2', description: 'Lanterna Traseira LED Direita', type: 'Peça', quantity: 1, unitPrice: 450.0, total: 450.0 },
-        { id: 'item-3', description: 'Serviço de Alinhamento de Chassi Traseiro & Chapeação', type: 'Chapeação', quantity: 1, unitPrice: 800.0, total: 800.0 },
-        { id: 'item-4', description: 'Pintura Epóxi e Verniz de Alta Resistência', type: 'Pintura', quantity: 1, unitPrice: 400.0, total: 400.0 },
-      ],
-      notes: 'Reparo decorrente do sinistro SIN-2026-00124. Autorizado desconto em folha do condutor.',
-    },
-    {
-      id: 'os-2',
-      orderNumber: 'OS-2026-00482',
-      date: '2026-06-25',
-      vehiclePlate: 'TRD3E72',
-      vehiclePrefix: '226',
-      driverName: 'MICHELE ROSA DA ROSA',
-      workshopName: 'Chapeação & Pintura São Cristóvão',
-      status: 'Orçamento',
-      items: [
-        { id: 'item-5', description: 'Retoque de Para-lama Dianteiro Direito', type: 'Pintura', quantity: 1, unitPrice: 350.0, total: 350.0 },
-        { id: 'item-6', description: 'Desamassamento de Estribo Lateral', type: 'Chapeação', quantity: 1, unitPrice: 280.0, total: 280.0 },
-      ],
-      notes: 'Orçamento prévio para aprovação.',
-    },
-  ]);
-
+export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
+  vehicles,
+  people,
+  claims,
+  orders = [],
+  onSaveOrder,
+  onUpdateOrder,
+  onDeleteOrder,
+}) => {
   const [selectedOrder, setSelectedOrder] = useState<WorkOrder | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null);
 
-  // Form new OS
+  // Form state
   const [newPlate, setNewPlate] = useState(vehicles[0]?.plate || 'JCO8C10');
   const [newDriver, setNewDriver] = useState(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
   const [newWorkshop, setNewWorkshop] = useState('Oficina Central Trans Pinho Gravataí');
+  const [newStatus, setNewStatus] = useState<WorkOrder['status']>('Orçamento');
   const [newItems, setNewItems] = useState<WorkOrderItem[]>([
     { id: '1', description: 'Mão de Obra de Chapeação', type: 'Chapeação', quantity: 1, unitPrice: 500, total: 500 },
   ]);
   const [newNotes, setNewNotes] = useState('');
+
+  // Sync form inputs when editingOrder changes
+  React.useEffect(() => {
+    if (editingOrder) {
+      setNewPlate(editingOrder.vehiclePlate || vehicles[0]?.plate || '');
+      setNewDriver(editingOrder.driverName || people[0]?.name || '');
+      setNewWorkshop(editingOrder.workshopName || 'Oficina Central Trans Pinho Gravataí');
+      setNewStatus(editingOrder.status || 'Orçamento');
+      setNewItems(
+        editingOrder.items && editingOrder.items.length > 0
+          ? editingOrder.items
+          : [{ id: '1', description: 'Mão de Obra de Chapeação', type: 'Chapeação', quantity: 1, unitPrice: 500, total: 500 }]
+      );
+      setNewNotes(editingOrder.notes || '');
+    } else {
+      setNewPlate(vehicles[0]?.plate || 'JCO8C10');
+      setNewDriver(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
+      setNewWorkshop('Oficina Central Trans Pinho Gravataí');
+      setNewStatus('Orçamento');
+      setNewItems([
+        { id: '1', description: 'Mão de Obra de Chapeação', type: 'Chapeação', quantity: 1, unitPrice: 500, total: 500 },
+      ]);
+      setNewNotes('');
+    }
+  }, [editingOrder, vehicles, people]);
+
+  const handleCloseModal = () => {
+    setShowCreateModal(false);
+    setEditingOrder(null);
+  };
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -117,22 +126,32 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
     e.preventDefault();
     const matchedV = vehicles.find((v) => v.plate === newPlate);
 
-    const order: WorkOrder = {
-      id: `os-${Date.now()}`,
-      orderNumber: `OS-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-      date: new Date().toISOString().split('T')[0],
-      vehiclePlate: newPlate,
-      vehiclePrefix: matchedV?.prefix || '24127',
-      driverName: newDriver,
-      workshopName: newWorkshop,
-      status: 'Orçamento',
-      items: newItems,
-      notes: newNotes,
-    };
+    if (editingOrder) {
+      onUpdateOrder(editingOrder.id, {
+        vehiclePlate: newPlate,
+        vehiclePrefix: matchedV?.prefix || editingOrder.vehiclePrefix || '',
+        driverName: newDriver,
+        workshopName: newWorkshop,
+        status: newStatus,
+        items: newItems,
+        notes: newNotes,
+      });
+    } else {
+      const orderData: Omit<WorkOrder, 'id'> = {
+        orderNumber: `OS-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+        date: new Date().toISOString().split('T')[0],
+        vehiclePlate: newPlate,
+        vehiclePrefix: matchedV?.prefix || '24127',
+        driverName: newDriver,
+        workshopName: newWorkshop,
+        status: 'Orçamento',
+        items: newItems,
+        notes: newNotes,
+      };
+      onSaveOrder(orderData);
+    }
 
-    setOrders((prev) => [order, ...prev]);
-    setShowCreateModal(false);
-    setNewNotes('');
+    handleCloseModal();
   };
 
   return (
@@ -152,7 +171,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
         </div>
 
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => {
+            setEditingOrder(null);
+            setShowCreateModal(true);
+          }}
           className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95"
         >
           <i className="fa-solid fa-plus text-xs"></i>
@@ -178,6 +200,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                     order.status === 'Aprovada'
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                      : order.status === 'Concluída' || order.status === 'Faturada'
+                      ? 'bg-blue-50 text-blue-700 border-blue-300'
+                      : order.status === 'Em Execução'
+                      ? 'bg-indigo-50 text-indigo-700 border-indigo-300'
                       : 'bg-amber-50 text-amber-800 border-amber-300'
                   }`}
                 >
@@ -221,13 +247,23 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
                   <div className="text-base font-black text-slate-900">{formatCurrency(totalVal)}</div>
                 </div>
 
-                <button
-                  onClick={() => setSelectedOrder(order)}
-                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-2xs transition"
-                >
-                  <i className="fa-solid fa-print text-amber-400"></i>
-                  <span>Ver OS / Imprimir</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setEditingOrder(order)}
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-200"
+                    title="Editar OS"
+                  >
+                    <i className="fa-solid fa-pen-to-square text-slate-600"></i>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedOrder(order)}
+                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-2xs transition"
+                  >
+                    <i className="fa-solid fa-print text-amber-400"></i>
+                    <span>Ver OS / Imprimir</span>
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -358,16 +394,18 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
         </div>
       )}
 
-      {/* Modal Create OS */}
-      {showCreateModal && (
+      {/* Modal Create / Edit OS */}
+      {(showCreateModal || editingOrder !== null) && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-wrench text-amber-500"></i>
-                Nova Ordem de Serviço & Orçamento
+                {editingOrder
+                  ? `Editar Ordem de Serviço ${editingOrder.orderNumber}`
+                  : 'Nova Ordem de Serviço & Orçamento'}
               </h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-700">
                 <i className="fa-solid fa-xmark text-base"></i>
               </button>
             </div>
@@ -379,7 +417,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
                   <select
                     value={newPlate}
                     onChange={(e) => setNewPlate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-semibold text-slate-900"
                   >
                     {vehicles.map((v) => (
                       <option key={v.id} value={v.plate}>
@@ -393,7 +431,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
                   <select
                     value={newDriver}
                     onChange={(e) => setNewDriver(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-semibold text-slate-900"
                   >
                     {people.map((p) => (
                       <option key={p.id} value={p.name}>
@@ -404,14 +442,32 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Oficina / Prestador de Serviço</label>
-                <input
-                  type="text"
-                  value={newWorkshop}
-                  onChange={(e) => setNewWorkshop(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
-                />
+              <div className={editingOrder ? 'grid grid-cols-2 gap-3' : ''}>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Oficina / Prestador de Serviço</label>
+                  <input
+                    type="text"
+                    value={newWorkshop}
+                    onChange={(e) => setNewWorkshop(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+                  />
+                </div>
+                {editingOrder && (
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Status da Ordem de Serviço *</label>
+                    <select
+                      value={newStatus}
+                      onChange={(e) => setNewStatus(e.target.value as WorkOrder['status'])}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-bold text-slate-900"
+                    >
+                      <option value="Orçamento">Orçamento</option>
+                      <option value="Aprovada">Aprovada</option>
+                      <option value="Em Execução">Em Execução</option>
+                      <option value="Concluída">Concluída</option>
+                      <option value="Faturada">Faturada</option>
+                    </select>
+                  </div>
+                )}
               </div>
 
               {/* Dynamic Items list */}
@@ -503,7 +559,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
               <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-lg"
                 >
                   Cancelar
@@ -512,7 +568,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({ vehicles, people
                   type="submit"
                   className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-5 py-2 rounded-lg shadow-sm"
                 >
-                  Salvar Ordem de Serviço
+                  {editingOrder ? 'Salvar Alterações' : 'Salvar Ordem de Serviço'}
                 </button>
               </div>
             </form>

@@ -23,6 +23,7 @@ import {
 import { deleteDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
+import { WorkOrder } from '../views/WorkOrdersView';
 
 // User's Real Firebase Project Credentials
 export const firebaseConfig = {
@@ -236,6 +237,49 @@ export const firebaseService = {
       await deleteDoc(doc(db, 'people', id));
     } catch (e) {
       console.error('Firestore deletePerson error:', e);
+      throw e;
+    }
+  },
+
+  // Sync Work Orders (OS & Orçamentos)
+  async fetchWorkOrders(): Promise<WorkOrder[]> {
+    try {
+      const snap = await getDocs(collection(db, 'workOrders'));
+      if (!snap.empty) {
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as WorkOrder));
+      }
+      return [];
+    } catch (e) {
+      console.error('Firestore fetchWorkOrders error:', e);
+      throw e;
+    }
+  },
+
+  async saveWorkOrder(data: Omit<WorkOrder, 'id'>): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'workOrders'), data);
+      return docRef.id;
+    } catch (e) {
+      console.error('Firestore saveWorkOrder error:', e);
+      throw e;
+    }
+  },
+
+  async updateWorkOrder(id: string, data: Partial<WorkOrder>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'workOrders', id), data);
+    } catch (e) {
+      console.error('Firestore updateWorkOrder error:', e);
+      throw e;
+    }
+  },
+
+  async deleteWorkOrder(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'workOrders', id));
+    } catch (e) {
+      console.error('Firestore deleteWorkOrder error:', e);
+      throw e;
     }
   },
 

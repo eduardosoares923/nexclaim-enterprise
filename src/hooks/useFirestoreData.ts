@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firebaseService } from '../services/firebase';
 import { Claim, Fine, Term, Vehicle, Person } from '../types';
+import { WorkOrder } from '../views/WorkOrdersView';
 
 // ==========================================
 // CLAIMS HOOKS
@@ -216,6 +217,47 @@ export function useDeletePerson() {
     mutationFn: (id: string) => firebaseService.deletePerson(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['people'] });
+    },
+  });
+}
+
+// ==========================================
+// WORK ORDERS HOOKS (OS & ORÇAMENTOS)
+// ==========================================
+export function useWorkOrders() {
+  return useQuery<WorkOrder[]>({
+    queryKey: ['workOrders'],
+    queryFn: () => firebaseService.fetchWorkOrders(),
+  });
+}
+
+export function useCreateWorkOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<WorkOrder, 'id'>) => firebaseService.saveWorkOrder(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+    },
+  });
+}
+
+export function useUpdateWorkOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<WorkOrder> }) =>
+      firebaseService.updateWorkOrder(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+    },
+  });
+}
+
+export function useDeleteWorkOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => firebaseService.deleteWorkOrder(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
     },
   });
 }
