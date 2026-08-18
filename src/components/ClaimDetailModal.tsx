@@ -31,7 +31,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Modal Top Header */}
-        <div className="p-5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800">
+        <div className="print:hidden p-5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-base shadow-sm">
               <i className="fa-solid fa-folder-closed"></i>
@@ -81,7 +81,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 bg-slate-50 px-6 text-xs font-bold gap-6">
+        <div className="print:hidden flex border-b border-slate-200 bg-slate-50 px-6 text-xs font-bold gap-6">
           <button
             onClick={() => setActiveTab('geral')}
             className={`py-3 border-b-2 transition ${
@@ -128,7 +128,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
         </div>
 
         {/* Modal Tab Content */}
-        <div className="p-6 overflow-y-auto max-h-[65vh] space-y-6">
+        <div className="trans-pinho-doc p-6 overflow-y-auto max-h-[65vh] space-y-6">
           {activeTab === 'geral' && (
             <div className="space-y-6">
               {/* Metrics Grid */}

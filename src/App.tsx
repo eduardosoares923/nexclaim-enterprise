@@ -360,6 +360,7 @@ export const App: React.FC = () => {
                     setShowTermGenModal(true);
                   }}
                   onDeleteClaim={(id) => deleteClaimMutation.mutate(id)}
+                  onUpdateClaim={(id, data) => updateClaimMutation.mutate({ id, data })}
                 />
               }
             />

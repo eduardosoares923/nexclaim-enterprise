@@ -4,34 +4,40 @@ import { Claim, Person, Vehicle, ClaimStatus, PriorityType } from '../types';
 interface NewClaimModalProps {
   people: Person[];
   vehicles: Vehicle[];
+  claim?: Claim;
   onClose: () => void;
   onSaveClaim: (claim: Claim) => void;
+  onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
 }
 
 export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   people,
   vehicles,
+  claim,
   onClose,
   onSaveClaim,
+  onUpdateClaim,
 }) => {
-  const [claimNumber] = useState(`SIN-2026-${Math.floor(10000 + Math.random() * 90000)}`);
-  const [protocol] = useState(`PROT-2026-${Math.floor(100000 + Math.random() * 900000)}`);
-  const [occurrenceType, setOccurrenceType] = useState('Colisão Traseira com Avarias');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState('14:30');
-  const [location, setLocation] = useState('BR-116, km 270');
-  const [city, setCity] = useState('Gravataí');
-  const [state, setState] = useState('RS');
-  const [vehiclePlate, setVehiclePlate] = useState(vehicles[0]?.plate || 'JCO8C10');
-  const [driverName, setDriverName] = useState(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
-  const [priority, setPriority] = useState<PriorityType>('Alta');
-  const [status, setStatus] = useState<ClaimStatus>('Em análise');
-  const [estimatedCost, setEstimatedCost] = useState<number>(3500);
-  const [insurer, setInsurer] = useState('Porto Seguro Cia de Seguros');
-  const [policyNumber, setPolicyNumber] = useState('AP-99201928-01');
-  const [boNumber, setBoNumber] = useState('BO-RS-48912/2026');
+  const [claimNumber] = useState(claim ? claim.claimNumber : `SIN-2026-${Math.floor(10000 + Math.random() * 90000)}`);
+  const [protocol] = useState(claim ? claim.protocol : `PROT-2026-${Math.floor(100000 + Math.random() * 900000)}`);
+  const [occurrenceType, setOccurrenceType] = useState(claim ? claim.occurrenceType : 'Colisão Traseira com Avarias');
+  const [date, setDate] = useState(claim ? claim.date : new Date().toISOString().split('T')[0]);
+  const [time, setTime] = useState(claim ? claim.time : '14:30');
+  const [location, setLocation] = useState(claim ? claim.location : 'BR-116, km 270');
+  const [city, setCity] = useState(claim ? claim.city : 'Gravataí');
+  const [state, setState] = useState(claim ? claim.state : 'RS');
+  const [vehiclePlate, setVehiclePlate] = useState(claim ? claim.vehiclePlate : (vehicles[0]?.plate || 'JCO8C10'));
+  const [driverName, setDriverName] = useState(claim ? claim.driverName : (people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO'));
+  const [priority, setPriority] = useState<PriorityType>(claim ? claim.priority : 'Alta');
+  const [status, setStatus] = useState<ClaimStatus>(claim ? claim.status : 'Em análise');
+  const [estimatedCost, setEstimatedCost] = useState<number>(claim ? claim.estimatedCost : 3500);
+  const [insurer, setInsurer] = useState(claim ? (claim.insurer || '') : 'Porto Seguro Cia de Seguros');
+  const [policyNumber, setPolicyNumber] = useState(claim ? (claim.policyNumber || '') : 'AP-99201928-01');
+  const [boNumber, setBoNumber] = useState(claim ? (claim.boNumber || '') : 'BO-RS-48912/2026');
   const [description, setDescription] = useState(
-    'Ocorrência com avarias materiais no veículo durante trajeto operacional. Condutor ciente dos fatos.'
+    claim
+      ? claim.description
+      : 'Ocorrência com avarias materiais no veículo durante trajeto operacional. Condutor ciente dos fatos.'
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -40,36 +46,63 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
     const selectedVehicle = vehicles.find((v) => v.plate === vehiclePlate);
     const selectedPerson = people.find((p) => p.name === driverName);
 
-    const newClaim: Claim = {
-      id: `claim-${Date.now()}`,
-      claimNumber,
-      protocol,
-      status,
-      priority,
-      occurrenceType,
-      date,
-      time,
-      location,
-      city,
-      state,
-      description,
-      vehicleId: selectedVehicle?.id,
-      vehiclePlate,
-      vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
-      driverId: selectedPerson?.id,
-      driverName,
-      insurer,
-      policyNumber,
-      boNumber,
-      assignedUser: 'Carlos Pinho',
-      estimatedCost: Number(estimatedCost) || 0,
-      approvedCost: Number(estimatedCost) || 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      notes: 'Cadastrado no novo portal React Trans Pinho.',
-    };
+    if (claim && onUpdateClaim) {
+      onUpdateClaim(claim.id, {
+        status,
+        priority,
+        occurrenceType,
+        date,
+        time,
+        location,
+        city,
+        state,
+        description,
+        vehicleId: selectedVehicle?.id || claim.vehicleId,
+        vehiclePlate,
+        vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
+        driverId: selectedPerson?.id || claim.driverId,
+        driverName,
+        insurer,
+        policyNumber,
+        boNumber,
+        estimatedCost: Number(estimatedCost) || 0,
+        approvedCost: Number(estimatedCost) || 0,
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      const newClaim: Claim = {
+        id: `claim-${Date.now()}`,
+        claimNumber,
+        protocol,
+        status,
+        priority,
+        occurrenceType,
+        date,
+        time,
+        location,
+        city,
+        state,
+        description,
+        vehicleId: selectedVehicle?.id,
+        vehiclePlate,
+        vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
+        driverId: selectedPerson?.id,
+        driverName,
+        insurer,
+        policyNumber,
+        boNumber,
+        assignedUser: 'Carlos Pinho',
+        estimatedCost: Number(estimatedCost) || 0,
+        approvedCost: Number(estimatedCost) || 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        notes: 'Cadastrado no novo portal React Trans Pinho.',
+      };
 
-    onSaveClaim(newClaim);
+      onSaveClaim(newClaim);
+    }
+
+    onClose();
   };
 
   return (
@@ -79,11 +112,11 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
-              <i className="fa-solid fa-folder-plus"></i>
+              <i className={claim ? "fa-solid fa-pen-to-square" : "fa-solid fa-folder-plus"}></i>
             </div>
             <div>
               <h3 className="font-bold text-xs uppercase tracking-wider text-white">
-                Cadastrar Novo Sinistro / Ocorrência
+                {claim ? `Editar Sinistro ${claim.claimNumber}` : 'Cadastrar Novo Sinistro / Ocorrência'}
               </h3>
               <span className="text-[10px] text-amber-400">
                 {claimNumber} • {protocol}
@@ -286,7 +319,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2"
             >
               <i className="fa-solid fa-check"></i>
-              <span>Salvar Sinistro</span>
+              <span>{claim ? 'Salvar Alterações' : 'Salvar Sinistro'}</span>
             </button>
           </div>
         </form>

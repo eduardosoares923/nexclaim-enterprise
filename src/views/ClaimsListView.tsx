@@ -12,6 +12,7 @@ interface ClaimsListViewProps {
   onSaveNewClaim: (claim: Claim) => void;
   onOpenTermGenerator: (claim: Claim) => void;
   onDeleteClaim?: (id: string) => void;
+  onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
 }
 
 export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
@@ -23,6 +24,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   onSaveNewClaim,
   onOpenTermGenerator,
   onDeleteClaim,
+  onUpdateClaim,
 }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -31,6 +33,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
   const [selectedClaimDetail, setSelectedClaimDetail] = useState<Claim | null>(null);
   const [showNewClaimModal, setShowNewClaimModal] = useState(false);
+  const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -212,6 +215,13 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     </td>
                     <td className="p-3.5 text-right space-x-1.5 whitespace-nowrap">
                       <button
+                        onClick={() => setEditingClaim(claim)}
+                        className="btn bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] px-2.5 py-1 rounded font-bold transition shadow-2xs border border-slate-200"
+                        title="Editar Sinistro"
+                      >
+                        <i className="fa-solid fa-pen-to-square mr-1"></i> Editar
+                      </button>
+                      <button
                         onClick={() => setSelectedClaimDetail(claim)}
                         className="btn bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-[11px] px-2.5 py-1 rounded font-bold transition shadow-2xs"
                         title="Ver Dossiê"
@@ -276,10 +286,16 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5 flex-wrap">
+                <button
+                  onClick={() => setEditingClaim(claim)}
+                  className="flex-1 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-center transition border border-slate-200"
+                >
+                  <i className="fa-solid fa-pen-to-square mr-1"></i> Editar
+                </button>
                 <button
                   onClick={() => setSelectedClaimDetail(claim)}
-                  className="flex-1 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-center transition"
+                  className="flex-1 py-1.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-center transition"
                 >
                   Ver Dossiê
                 </button>
@@ -310,15 +326,25 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         />
       )}
 
-      {/* New Claim Modal */}
-      {showNewClaimModal && (
+      {/* New / Edit Claim Modal */}
+      {(showNewClaimModal || editingClaim !== null) && (
         <NewClaimModal
+          claim={editingClaim || undefined}
           people={people}
           vehicles={vehicles}
-          onClose={() => setShowNewClaimModal(false)}
+          onClose={() => {
+            setShowNewClaimModal(false);
+            setEditingClaim(null);
+          }}
           onSaveClaim={(newClaim) => {
             onSaveNewClaim(newClaim);
             setShowNewClaimModal(false);
+          }}
+          onUpdateClaim={(id, data) => {
+            if (onUpdateClaim) {
+              onUpdateClaim(id, data);
+            }
+            setEditingClaim(null);
           }}
         />
       )}
