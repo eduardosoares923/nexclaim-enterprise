@@ -25,9 +25,10 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Configuração do Worker do PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+// Configuração do Worker do PDF.js bundled
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 // User's Real Firebase Project Credentials
 export const firebaseConfig = {
@@ -46,6 +47,19 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
+/**
+ * Remove campos undefined para evitar erros no Firestore
+ */
+function removeUndefinedFields<T extends Record<string, any>>(obj: T): T {
+  const cleaned = { ...obj };
+  Object.keys(cleaned).forEach((key) => {
+    if (cleaned[key] === undefined) {
+      delete cleaned[key];
+    }
+  });
+  return cleaned;
+}
+
 // Firestore Realtime Collections API Services
 export const firebaseService = {
   // Sync Claims
@@ -63,7 +77,7 @@ export const firebaseService = {
 
   async saveClaim(claimData: Omit<Claim, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'claims'), claimData);
+      const docRef = await addDoc(collection(db, 'claims'), removeUndefinedFields(claimData));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveClaim error:', e);
@@ -73,7 +87,7 @@ export const firebaseService = {
 
   async updateClaim(id: string, data: Partial<Claim>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'claims', id), data);
+      await updateDoc(doc(db, 'claims', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateClaim error:', e);
     }
@@ -102,7 +116,7 @@ export const firebaseService = {
 
   async saveFine(fineData: Omit<Fine, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'fines'), fineData);
+      const docRef = await addDoc(collection(db, 'fines'), removeUndefinedFields(fineData));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveFine error:', e);
@@ -112,7 +126,7 @@ export const firebaseService = {
 
   async updateFine(id: string, data: Partial<Fine>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'fines', id), data);
+      await updateDoc(doc(db, 'fines', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateFine error:', e);
     }
@@ -141,7 +155,7 @@ export const firebaseService = {
 
   async saveTerm(termData: Omit<Term, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'terms'), termData);
+      const docRef = await addDoc(collection(db, 'terms'), removeUndefinedFields(termData));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveTerm error:', e);
@@ -151,7 +165,7 @@ export const firebaseService = {
 
   async updateTerm(id: string, data: Partial<Term>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'terms', id), data);
+      await updateDoc(doc(db, 'terms', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateTerm error:', e);
     }
@@ -181,7 +195,7 @@ export const firebaseService = {
   async saveVehicle(vehicleData: Omit<Vehicle, 'id'>): Promise<string> {
     console.log('[DIAG] saveVehicle função chamada, db=', db, 'vehicleData=', vehicleData);
     try {
-      const docRef = await addDoc(collection(db, 'vehicles'), vehicleData);
+      const docRef = await addDoc(collection(db, 'vehicles'), removeUndefinedFields(vehicleData));
       return docRef.id;
     } catch (e) {
       console.error('[DIAG] Firestore saveVehicle error REAL:', e);
@@ -191,7 +205,7 @@ export const firebaseService = {
 
   async updateVehicle(id: string, data: Partial<Vehicle>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'vehicles', id), data);
+      await updateDoc(doc(db, 'vehicles', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateVehicle error:', e);
     }
@@ -220,7 +234,7 @@ export const firebaseService = {
 
   async savePerson(personData: Omit<Person, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'people'), personData);
+      const docRef = await addDoc(collection(db, 'people'), removeUndefinedFields(personData));
       return docRef.id;
     } catch (e) {
       console.error('Firestore savePerson error:', e);
@@ -230,7 +244,7 @@ export const firebaseService = {
 
   async updatePerson(id: string, data: Partial<Person>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'people', id), data);
+      await updateDoc(doc(db, 'people', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updatePerson error:', e);
     }
@@ -261,7 +275,7 @@ export const firebaseService = {
 
   async saveWorkOrder(data: Omit<WorkOrder, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'workOrders'), data);
+      const docRef = await addDoc(collection(db, 'workOrders'), removeUndefinedFields(data));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveWorkOrder error:', e);
@@ -271,7 +285,7 @@ export const firebaseService = {
 
   async updateWorkOrder(id: string, data: Partial<WorkOrder>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'workOrders', id), data);
+      await updateDoc(doc(db, 'workOrders', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateWorkOrder error:', e);
       throw e;
@@ -374,6 +388,11 @@ export async function extractTextFromPdf(file: File): Promise<string> {
         .map((item: any) => (item.str !== undefined ? item.str : ''))
         .join(' ');
       fullText += (pageNum > 1 ? '\n\n' : '') + `--- [Página ${pageNum} de ${pdf.numPages}] ---\n` + pageText;
+    }
+
+    const textoReal = fullText.replace(/---\s*\[Página.*?\]\s*---/g, '').trim();
+    if (!textoReal) {
+      throw new Error('Não foi possível extrair texto deste PDF. Ele pode ser uma imagem escaneada sem camada de texto.');
     }
 
     return fullText.trim();

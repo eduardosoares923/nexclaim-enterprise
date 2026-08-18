@@ -421,7 +421,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="print:hidden p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
                   OS
@@ -451,7 +451,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             {(() => {
               const brand = COMPANY_BRANDS[selectedOrder.companyBrand || 'trans-pinho'] || COMPANY_BRANDS['trans-pinho'];
               return (
-                <div className="p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-sans text-slate-900 leading-relaxed space-y-6">
+                <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-sans text-slate-900 leading-relaxed space-y-6">
                   {/* Header Empresa Dinâmico */}
                   <div className="text-center border-b-2 border-slate-900 pb-4">
                     <h1 className="text-base font-black uppercase text-slate-950 tracking-tight">
@@ -619,8 +619,8 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
       {/* Modal Create / Edit OS */}
       {(showCreateModal || editingOrder !== null) && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center px-4 py-8 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 my-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-wrench text-amber-500"></i>
