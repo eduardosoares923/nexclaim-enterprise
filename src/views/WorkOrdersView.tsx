@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Vehicle, Person, Claim } from '../types';
 import { extractTextFromPdf, extrairItensDoTexto, firebaseService } from '../services/firebase';
 import { SignaturePad } from '../components/SignaturePad';
@@ -462,7 +463,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
       </div>
 
       {/* Modal View / Print OS */}
-      {selectedOrder && (
+      {selectedOrder && createPortal(
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
@@ -695,11 +696,12 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               );
             })()}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal Create / Edit OS */}
-      {(showCreateModal || editingOrder !== null) && (
+      {(showCreateModal || editingOrder !== null) && createPortal(
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center px-4 py-8 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 my-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -1117,7 +1119,8 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
