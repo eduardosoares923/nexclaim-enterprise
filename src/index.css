@@ -57,6 +57,9 @@
     background: transparent !important;
   }
   .trans-pinho-doc {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
     position: fixed !important;
     inset: 0 !important;
     left: 0 !important;
