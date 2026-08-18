@@ -167,13 +167,13 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                     </p>
                     <p>
                       <strong>Prefixo Trans Pinho:</strong>{' '}
-                      <span className="font-bold text-amber-600">{matchedVehicle?.prefix || '24127'}</span>
+                      <span className="font-bold text-amber-600">{matchedVehicle?.prefix || claim.vehiclePrefix || 'Não informado'}</span>
                     </p>
                     <p>
                       <strong>Modelo:</strong> {claim.vehicleModel}
                     </p>
                     <p>
-                      <strong>Renavam:</strong> {matchedVehicle?.renavam || '01293847561'}
+                      <strong>Renavam:</strong> {matchedVehicle?.renavam || 'Não informado'}
                     </p>
                   </div>
                 </div>
@@ -196,7 +196,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                       <strong>Email:</strong> {matchedDriver?.email || 'Não informado'}
                     </p>
                     {claim.supervisorName && (
-                      <p className="mt-2 pt-2 border-t border-slate-100">
+                      <p>
                         <strong>Supervisor Responsável:</strong> {claim.supervisorName}
                       </p>
                     )}
