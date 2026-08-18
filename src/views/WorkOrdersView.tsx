@@ -247,6 +247,24 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   const calculateTotal = (items: WorkOrderItem[]) =>
     items.reduce((acc, item) => acc + (item.total || 0), 0);
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Aprovada': return 'bg-emerald-50 text-emerald-700 border-emerald-300';
+      case 'Concluída': case 'Faturada': return 'bg-blue-50 text-blue-700 border-blue-300';
+      case 'Em Execução': return 'bg-indigo-50 text-indigo-700 border-indigo-300';
+      default: return 'bg-amber-50 text-amber-800 border-amber-300';
+    }
+  };
+
+  const handlePrintOrder = () => {
+    const tituloOriginal = document.title;
+    document.title = `OS-${selectedOrder?.orderNumber || 'documento'}`;
+    window.print();
+    setTimeout(() => {
+      document.title = tituloOriginal;
+    }, 500);
+  };
+
   const handleAddItem = () => {
     setNewItems((prev) => [
       ...prev,
@@ -300,11 +318,13 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         paymentHolderName: newPaymentHolderName || undefined,
       });
     } else {
-      const orderData: Omit<WorkOrder, 'id'> = {
-        orderNumber: `OS-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+      const orderCount = orders.length + 1;
+      const orderNumber = `OS-${new Date().getFullYear()}-${String(orderCount).padStart(3, '0')}`;
+      onSaveOrder({
+        orderNumber,
         date: new Date().toISOString().split('T')[0],
         vehiclePlate: newPlate,
-        vehiclePrefix: matchedV?.prefix || '24127',
+        vehiclePrefix: matchedV?.prefix || 'TP-000',
         driverName: newDriver,
         workshopName: newWorkshop,
         status: 'Orçamento',
@@ -318,8 +338,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         paymentPhone: newPaymentPhone || undefined,
         paymentBank: newPaymentBank || undefined,
         paymentHolderName: newPaymentHolderName || undefined,
-      };
-      onSaveOrder(orderData);
+      });
     }
 
     handleCloseModal();
@@ -327,17 +346,15 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+      {/* Top Header Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300 uppercase tracking-wider">
-            Manutenção & Reparação • Trans Pinho
-          </span>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight mt-1">
-            Orçamentos & Ordens de Serviço (OS Chapeação)
+          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <i className="fa-solid fa-wrench text-amber-500"></i>
+            <span>Ordens de Serviço & Orçamentos</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Discriminação de peças, mão de obra, chapeação e pintura de avarias da frota.
+            Gestão oficial de consertos, chapeação, pintura e compras vinculadas à frota Trans Pinho e Vieira Center.
           </p>
         </div>
 
@@ -346,97 +363,70 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             setEditingOrder(null);
             setShowCreateModal(true);
           }}
-          className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95"
+          className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition self-stretch sm:self-auto justify-center"
         >
-          <i className="fa-solid fa-plus text-xs"></i>
+          <i className="fa-solid fa-plus text-amber-400"></i>
           <span>Nova Ordem de Serviço</span>
         </button>
       </div>
 
-      {/* Orders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Grid of Work Orders */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {orders.map((order) => {
-          const totalVal = calculateTotal(order.items);
+          const totalVal = calculateTotal(order.items || []);
           const brandConfig = COMPANY_BRANDS[order.companyBrand || 'trans-pinho'] || COMPANY_BRANDS['trans-pinho'];
+
           return (
             <div
               key={order.id}
-              className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-amber-400 transition space-y-4"
+              className="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs hover:shadow-md transition space-y-4 flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-bold text-slate-900 text-base">{order.orderNumber}</span>
-                  <span className="ml-2 text-xs text-slate-500">{order.date}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
-                    {brandConfig.initials}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                    {order.orderNumber}
                   </span>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                      order.status === 'Aprovada'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                        : order.status === 'Concluída' || order.status === 'Faturada'
-                        ? 'bg-blue-50 text-blue-700 border-blue-300'
-                        : order.status === 'Em Execução'
-                        ? 'bg-indigo-50 text-indigo-700 border-indigo-300'
-                        : 'bg-amber-50 text-amber-800 border-amber-300'
-                    }`}
-                  >
-                    {order.status}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-lg text-xs space-y-1 text-slate-700">
-                <p>
-                  <strong>Marca / Identidade:</strong>{' '}
-                  <span className="font-bold text-slate-900">{brandConfig.name}</span>
-                </p>
-                <p>
-                  <strong>Veículo / Prefixo:</strong>{' '}
-                  <span className="font-mono font-bold text-slate-900">{order.vehiclePlate}</span> (Prefixo{' '}
-                  {order.vehiclePrefix})
-                </p>
-                <p>
-                  <strong>Condutor:</strong> {order.driverName}
-                </p>
-                <p>
-                  <strong>Oficina / Prestador:</strong> {order.workshopName}
-                </p>
-                {order.budgetPdfUrl && (
-                  <p className="text-amber-800 font-semibold flex items-center gap-1 mt-1 pt-1 border-t border-slate-200">
-                    <i className="fa-solid fa-file-pdf text-rose-500"></i>
-                    <span>Possui Orçamento PDF anexado</span>
-                  </p>
-                )}
-                {order.signatureDataUrl && (
-                  <p className="text-emerald-700 font-semibold flex items-center gap-1">
-                    <i className="fa-solid fa-signature text-emerald-600"></i>
-                    <span>Assinatura Digital Registrada</span>
-                  </p>
-                )}
-              </div>
-
-              {/* Items summary */}
-              <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                <div className="text-[11px] font-bold uppercase text-slate-400">Itens / Serviços ({order.items.length})</div>
-                {order.items.slice(0, 3).map((it, idx) => (
-                  <div key={idx} className="flex justify-between text-xs text-slate-600">
-                    <span className="truncate max-w-[220px]">
-                      {it.quantity}x {it.description}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-800 text-amber-300">
+                      {brandConfig.initials}
                     </span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(it.total)}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(order.status)}`}>
+                      {order.status}
+                    </span>
                   </div>
-                ))}
-                {order.items.length > 3 && (
-                  <div className="text-[10px] text-amber-600 font-semibold">+ {order.items.length - 3} outros itens</div>
-                )}
+                </div>
+
+                <div>
+                  <h4 className="font-black text-slate-900 text-sm flex items-center gap-1.5">
+                    <i className="fa-solid fa-truck-front text-slate-400 text-xs"></i>
+                    <span>{order.vehiclePlate}</span>
+                    <span className="text-slate-400 font-normal text-xs">({order.vehiclePrefix})</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 truncate mt-0.5">
+                    <i className="fa-solid fa-user-gear mr-1 text-slate-400"></i>
+                    {order.driverName}
+                  </p>
+                </div>
+
+                <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl space-y-1 border border-slate-100">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-slate-400">Oficina:</span>
+                    <span className="font-semibold text-slate-800 truncate max-w-[150px]">{order.workshopName}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-slate-400">Itens / Peças:</span>
+                    <span className="font-bold text-slate-800">{order.items?.length || 0} item(ns)</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-slate-400">Data:</span>
+                    <span>{order.date}</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Total da OS</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Valor Total</span>
                   <div className="text-base font-black text-slate-900">{formatCurrency(totalVal)}</div>
                 </div>
 
@@ -444,17 +434,14 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   <button
                     onClick={() => setEditingOrder(order)}
                     className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-200"
-                    title="Editar OS"
                   >
-                    <i className="fa-solid fa-pen-to-square text-slate-600"></i>
-                    <span>Editar</span>
+                    <i className="fa-solid fa-pen-to-square"></i> Editar
                   </button>
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-2xs transition"
+                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition"
                   >
-                    <i className="fa-solid fa-print text-amber-400"></i>
-                    <span>Ver OS / Imprimir</span>
+                    <i className="fa-solid fa-eye"></i> Detalhes
                   </button>
                 </div>
               </div>
@@ -480,7 +467,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => window.print()}
+                  onClick={handlePrintOrder}
                   className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition"
                 >
                   <i className="fa-solid fa-print"></i> Imprimir OS
@@ -500,25 +487,26 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               return (
                 <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-sans text-slate-900 leading-relaxed space-y-6">
                   {/* Header Empresa Dinâmico */}
-                  <div className="text-center border-b-2 border-slate-900 pb-4">
-                    <h1 className="text-base font-black uppercase text-slate-950 tracking-tight">
-                      {brand.name}
-                    </h1>
-                    {brand.subtitle && (
-                      <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mt-0.5">
-                        {brand.subtitle}
-                      </p>
-                    )}
-                    {brand.address && (
-                      <p className="text-xs text-slate-600 mt-0.5">{brand.address}</p>
-                    )}
-                    {brand.phone && (
-                      <p className="text-xs text-slate-600">Telefone: {brand.phone}</p>
-                    )}
-                    <h2 className="text-sm font-bold uppercase mt-3 tracking-wider bg-slate-100 py-1 border border-slate-300 text-slate-900">
-                      ORDEM DE SERVIÇO & ORÇAMENTO DE REPARO • {selectedOrder.orderNumber}
-                    </h2>
+                  <div className="flex items-center justify-center gap-3 border-b-2 border-slate-900 pb-4">
+                    <div className="w-11 h-11 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-base shrink-0">
+                      {brand.initials}
+                    </div>
+                    <div className="text-left">
+                      <h1 className="text-base font-black uppercase text-slate-950 tracking-tight leading-tight">
+                        {brand.name}
+                      </h1>
+                      {brand.subtitle && (
+                        <p className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">
+                          {brand.subtitle}
+                        </p>
+                      )}
+                      {brand.address && <p className="text-[11px] text-slate-600">{brand.address}</p>}
+                      {brand.phone && <p className="text-[11px] text-slate-600">Telefone: {brand.phone}</p>}
+                    </div>
                   </div>
+                  <h2 className="text-sm font-bold uppercase mt-3 tracking-wider bg-slate-900 text-amber-400 py-1.5 rounded text-center">
+                    Ordem de Serviço & Orçamento de Reparo • {selectedOrder.orderNumber}
+                  </h2>
 
                   {/* Link para Orçamento Original PDF (se existir) */}
                   {selectedOrder.budgetPdfUrl && (
@@ -553,28 +541,34 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                       <span>{selectedOrder.date}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Status</span>
-                      <span className="font-bold text-amber-700">{selectedOrder.status}</span>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block mb-0.5">Status</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                        ['Aprovada', 'Concluída', 'Faturada'].includes(selectedOrder.status)
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          : 'bg-amber-50 text-amber-800 border-amber-300'
+                      }`}>
+                        {selectedOrder.status}
+                      </span>
                     </div>
                   </div>
 
                   {/* Tabela de Itens */}
                   <div>
                     <table className="w-full text-left text-xs border border-slate-300">
-                      <thead className="bg-slate-100 text-slate-900 font-bold border-b border-slate-300">
+                      <thead className="bg-slate-900 text-white font-bold border-b border-slate-900">
                         <tr>
-                          <th className="p-2 border-r border-slate-300">Tipo</th>
-                          <th className="p-2 border-r border-slate-300">Descrição da Peça / Serviço</th>
-                          <th className="p-2 border-r border-slate-300 text-center">Qtd</th>
-                          <th className="p-2 border-r border-slate-300 text-right">Valor Unitário</th>
+                          <th className="p-2 border-r border-slate-700">Tipo</th>
+                          <th className="p-2 border-r border-slate-700">Descrição da Peça / Serviço</th>
+                          <th className="p-2 border-r border-slate-700 text-center">Qtd</th>
+                          <th className="p-2 border-r border-slate-700 text-right">Valor Unitário</th>
                           <th className="p-2 text-right">Total</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-200">
+                      <tbody className="divide-y divide-slate-200 [&>tr:nth-child(even)]:bg-slate-50">
                         {selectedOrder.items.map((it, idx) => (
                           <tr key={idx}>
                             <td className="p-2 border-r border-slate-200 font-semibold text-[11px]">{it.type}</td>
-                            <td className="p-2 border-r border-slate-200">{it.description}</td>
+                            <td className="p-2 border-r border-slate-200">{it.description || <span className='text-slate-400 italic'>Sem descrição detalhada</span>}</td>
                             <td className="p-2 border-r border-slate-200 text-center font-bold">{it.quantity}</td>
                             <td className="p-2 border-r border-slate-200 text-right">{formatCurrency(it.unitPrice)}</td>
                             <td className="p-2 text-right font-bold text-slate-900">{formatCurrency(it.total)}</td>
@@ -603,26 +597,27 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
                   {/* Dados de Pagamento no Documento */}
                   {(selectedOrder.paymentPhone || selectedOrder.paymentBank || selectedOrder.paymentHolderName) && (
-                    <div className="text-xs p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
-                      <span className="font-bold uppercase text-[10px] text-slate-500 block">
-                        Dados para Pagamento / Transferência / PIX:
+                    <div className="text-xs p-3 bg-amber-50 border-l-4 border-amber-500 border-t border-r border-b border-slate-200 rounded-lg space-y-1.5">
+                      <span className="font-bold uppercase text-[10px] text-amber-950 flex items-center gap-1.5">
+                        <i className="fa-solid fa-money-bill-wave text-amber-600"></i>
+                        <span>Dados para Pagamento / Transferência / PIX:</span>
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-800">
                         {selectedOrder.paymentPhone && (
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Chave PIX / Telefone:</span>
+                            <span className="text-[10px] text-slate-500 uppercase font-bold block">Chave PIX / Telefone:</span>
                             <span className="font-semibold">{selectedOrder.paymentPhone}</span>
                           </div>
                         )}
                         {selectedOrder.paymentBank && (
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Banco:</span>
+                            <span className="text-[10px] text-slate-500 uppercase font-bold block">Banco:</span>
                             <span className="font-semibold">{selectedOrder.paymentBank}</span>
                           </div>
                         )}
                         {selectedOrder.paymentHolderName && (
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Titular da Conta:</span>
+                            <span className="text-[10px] text-slate-500 uppercase font-bold block">Titular da Conta:</span>
                             <span className="font-semibold">{selectedOrder.paymentHolderName}</span>
                           </div>
                         )}
