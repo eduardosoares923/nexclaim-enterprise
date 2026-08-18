@@ -16,10 +16,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const location = useLocation();
 
-  const menuItems = [
+  interface MenuItem {
+    path: string;
+    label: string;
+    icon: string;
+    badge?: number;
+    isNew?: boolean;
+  }
+
+  const menuItems: MenuItem[] = [
     { path: '/', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
     { path: '/termos', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: termsCount },
-    { path: '/os', label: 'Orçamentos & OS Chapeação', icon: 'fa-wrench', isNew: true },
+    { path: '/os', label: 'Orçamentos & OS Chapeação', icon: 'fa-wrench' },
     { path: '/sinistros', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
     { path: '/multas', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
     { path: '/templates', label: 'Modelos de Documentos', icon: 'fa-sliders' },
