@@ -53,8 +53,6 @@
   }
   .trans-pinho-doc, .trans-pinho-doc * {
     visibility: visible !important;
-    color: #000 !important;
-    background: transparent !important;
   }
   .trans-pinho-doc {
     -webkit-print-color-adjust: exact !important;
