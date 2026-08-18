@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Vehicle, Person, Claim } from '../types';
+import { extractTextFromPdf, firebaseService } from '../services/firebase';
+import { SignaturePad } from '../components/SignaturePad';
 
 export interface WorkOrderItem {
   id: string;
@@ -21,6 +23,10 @@ export interface WorkOrder {
   status: 'Orçamento' | 'Aprovada' | 'Em Execução' | 'Concluída' | 'Faturada';
   items: WorkOrderItem[];
   notes: string;
+  budgetPdfUrl?: string;
+  extractedPdfText?: string;
+  signatureDataUrl?: string;
+  requiresSignature?: boolean;
 }
 
 interface WorkOrdersViewProps {
@@ -56,8 +62,15 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   ]);
   const [newNotes, setNewNotes] = useState('');
 
+  // PDF & Signature states
+  const [budgetPdfUrl, setBudgetPdfUrl] = useState<string>('');
+  const [extractedPdfText, setExtractedPdfText] = useState<string>('');
+  const [isExtractingPdf, setIsExtractingPdf] = useState<boolean>(false);
+  const [newSignature, setNewSignature] = useState<string | null>(null);
+  const [newRequiresSignature, setNewRequiresSignature] = useState<boolean>(true);
+
   // Sync form inputs when editingOrder changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingOrder) {
       setNewPlate(editingOrder.vehiclePlate || vehicles[0]?.plate || '');
       setNewDriver(editingOrder.driverName || people[0]?.name || '');
@@ -69,6 +82,12 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
           : [{ id: '1', description: 'Mão de Obra de Chapeação', type: 'Chapeação', quantity: 1, unitPrice: 500, total: 500 }]
       );
       setNewNotes(editingOrder.notes || '');
+      setBudgetPdfUrl(editingOrder.budgetPdfUrl || '');
+      setExtractedPdfText(editingOrder.extractedPdfText || '');
+      setNewSignature(editingOrder.signatureDataUrl || null);
+      setNewRequiresSignature(
+        editingOrder.requiresSignature !== undefined ? editingOrder.requiresSignature : true
+      );
     } else {
       setNewPlate(vehicles[0]?.plate || 'JCO8C10');
       setNewDriver(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
@@ -78,12 +97,39 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         { id: '1', description: 'Mão de Obra de Chapeação', type: 'Chapeação', quantity: 1, unitPrice: 500, total: 500 },
       ]);
       setNewNotes('');
+      setBudgetPdfUrl('');
+      setExtractedPdfText('');
+      setNewSignature(null);
+      setNewRequiresSignature(true);
     }
   }, [editingOrder, vehicles, people]);
 
   const handleCloseModal = () => {
     setShowCreateModal(false);
     setEditingOrder(null);
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsExtractingPdf(true);
+    try {
+      // 1. Extrair texto do PDF com pdfjs-dist
+      const text = await extractTextFromPdf(file);
+      setExtractedPdfText(text);
+
+      // 2. Upload do arquivo original para o Cloud Storage
+      const url = await firebaseService.uploadFile(file, 'work-orders');
+      if (url) {
+        setBudgetPdfUrl(url);
+      }
+    } catch (err: any) {
+      alert(`Erro ao processar PDF: ${err?.message || err}`);
+    } finally {
+      setIsExtractingPdf(false);
+      e.target.value = '';
+    }
   };
 
   const formatCurrency = (val: number) =>
@@ -135,6 +181,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         status: newStatus,
         items: newItems,
         notes: newNotes,
+        budgetPdfUrl: budgetPdfUrl || undefined,
+        extractedPdfText: extractedPdfText || undefined,
+        signatureDataUrl: newRequiresSignature ? (newSignature || undefined) : undefined,
+        requiresSignature: newRequiresSignature,
       });
     } else {
       const orderData: Omit<WorkOrder, 'id'> = {
@@ -147,6 +197,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         status: 'Orçamento',
         items: newItems,
         notes: newNotes,
+        budgetPdfUrl: budgetPdfUrl || undefined,
+        extractedPdfText: extractedPdfText || undefined,
+        signatureDataUrl: newRequiresSignature ? (newSignature || undefined) : undefined,
+        requiresSignature: newRequiresSignature,
       };
       onSaveOrder(orderData);
     }
@@ -223,6 +277,18 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 <p>
                   <strong>Oficina / Prestador:</strong> {order.workshopName}
                 </p>
+                {order.budgetPdfUrl && (
+                  <p className="text-amber-800 font-semibold flex items-center gap-1 mt-1 pt-1 border-t border-slate-200">
+                    <i className="fa-solid fa-file-pdf text-rose-500"></i>
+                    <span>Possui Orçamento PDF anexado</span>
+                  </p>
+                )}
+                {order.signatureDataUrl && (
+                  <p className="text-emerald-700 font-semibold flex items-center gap-1">
+                    <i className="fa-solid fa-signature text-emerald-600"></i>
+                    <span>Assinatura Digital Registrada</span>
+                  </p>
+                )}
               </div>
 
               {/* Items summary */}
@@ -315,6 +381,24 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 </h2>
               </div>
 
+              {/* Link para Orçamento Original PDF (se existir) */}
+              {selectedOrder.budgetPdfUrl && (
+                <div className="print:hidden flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-xs text-amber-950 font-bold">
+                    <i className="fa-solid fa-file-pdf text-rose-500 text-base"></i>
+                    <span>Documento de Orçamento Original da Oficina em Anexo</span>
+                  </div>
+                  <a
+                    href={selectedOrder.budgetPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"
+                  >
+                    <i className="fa-solid fa-arrow-up-right-from-square"></i> Ver Orçamento Original (PDF)
+                  </a>
+                </div>
+              )}
+
               {/* Dados do Veículo */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 bg-slate-50 border border-slate-200 rounded-lg">
                 <div>
@@ -384,10 +468,26 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   <p className="font-bold uppercase text-slate-900">{selectedOrder.workshopName}</p>
                   <p className="text-[10px] text-slate-500">Oficina Responsável</p>
                 </div>
-                <div className="border-t border-slate-900 pt-2">
-                  <p className="font-bold uppercase text-slate-900">{selectedOrder.driverName}</p>
-                  <p className="text-[10px] text-slate-500">Aprovação / Trans Pinho</p>
-                </div>
+
+                {selectedOrder.requiresSignature === false ? (
+                  <div className="pt-4 flex items-center justify-center">
+                    <span className="text-[11px] text-slate-500 italic">
+                      Assinatura não exigida para esta Ordem de Serviço
+                    </span>
+                  </div>
+                ) : (
+                  <div className="border-t border-slate-900 pt-2 flex flex-col items-center">
+                    {selectedOrder.signatureDataUrl && (
+                      <img
+                        src={selectedOrder.signatureDataUrl}
+                        alt="Assinatura de Aprovação"
+                        className="h-12 max-h-12 object-contain mb-1"
+                      />
+                    )}
+                    <p className="font-bold uppercase text-slate-900">{selectedOrder.driverName}</p>
+                    <p className="text-[10px] text-slate-500">Aprovação / Trans Pinho</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -466,6 +566,72 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                       <option value="Concluída">Concluída</option>
                       <option value="Faturada">Faturada</option>
                     </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Importar Orçamento (PDF) Section */}
+              <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-lg space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-bold text-xs text-amber-950 flex items-center gap-1.5">
+                      <i className="fa-solid fa-file-pdf text-rose-500"></i>
+                      Importar Orçamento (PDF)
+                    </span>
+                    <p className="text-[11px] text-amber-800">
+                      Anexe o orçamento da oficina para extrair o texto automaticamente e arquivar o documento.
+                    </p>
+                  </div>
+
+                  <label className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition cursor-pointer self-start sm:self-auto">
+                    <i className={`fa-solid ${isExtractingPdf ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>
+                    <span>{isExtractingPdf ? 'Lendo PDF...' : 'Selecionar PDF'}</span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={handlePdfUpload}
+                      disabled={isExtractingPdf}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {budgetPdfUrl && (
+                  <div className="flex items-center gap-2 text-xs text-emerald-800 font-semibold bg-emerald-50 p-2 rounded border border-emerald-200">
+                    <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                    <span>PDF anexado com sucesso.</span>
+                    <a
+                      href={budgetPdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline ml-auto font-bold text-emerald-900 hover:text-emerald-700 flex items-center gap-1"
+                    >
+                      <i className="fa-solid fa-arrow-up-right-from-square"></i> Ver PDF Anexado
+                    </a>
+                  </div>
+                )}
+
+                {extractedPdfText && (
+                  <div className="space-y-1 pt-1">
+                    <div className="text-[11px] text-amber-900 font-semibold flex items-center justify-between">
+                      <span>Texto Extraído do PDF:</span>
+                      <button
+                        type="button"
+                        onClick={() => setExtractedPdfText('')}
+                        className="text-amber-800 hover:text-rose-600 text-[10px]"
+                      >
+                        Ocultar texto
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-slate-600 bg-amber-100/50 p-1.5 rounded border border-amber-200">
+                      ⚠️ Texto extraído do PDF. Confira os valores e preencha os itens abaixo manualmente, a extração automática de tabelas não é sempre precisa.
+                    </p>
+                    <textarea
+                      readOnly
+                      value={extractedPdfText}
+                      rows={4}
+                      className="w-full p-2 text-[10px] font-mono bg-white border border-slate-300 rounded leading-tight text-slate-800 focus:outline-none"
+                    />
                   </div>
                 )}
               </div>
@@ -554,6 +720,42 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
                   placeholder="Ex: Danos decorrentes de colisão traseira. Peças genuínas solicitadas."
                 ></textarea>
+              </div>
+
+              {/* Seção de Assinatura com Toggle */}
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={newRequiresSignature}
+                      onChange={(e) => setNewRequiresSignature(e.target.checked)}
+                      className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-slate-300"
+                    />
+                    <span className="font-bold text-xs text-slate-900">
+                      Exigir Assinatura de Aprovação nesta OS
+                    </span>
+                  </label>
+                  <span className="text-[10px] text-slate-500">
+                    {newRequiresSignature ? 'Assinatura ativa' : 'Isenta de assinatura'}
+                  </span>
+                </div>
+
+                {newRequiresSignature ? (
+                  <div className="space-y-1.5 pt-2 border-t border-slate-200">
+                    <label className="block font-bold text-slate-700 text-xs">
+                      Assinatura do Responsável pela Aprovação:
+                    </label>
+                    <SignaturePad
+                      value={newSignature}
+                      onChange={(dataUrl) => setNewSignature(dataUrl)}
+                    />
+                  </div>
+                ) : (
+                  <div className="p-3 bg-slate-100 rounded text-center text-xs text-slate-500 italic">
+                    Assinatura não exigida para esta OS.
+                  </div>
+                )}
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">

@@ -24,6 +24,10 @@ import { deleteDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Configuração do Worker do PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 // User's Real Firebase Project Credentials
 export const firebaseConfig = {
@@ -351,4 +355,30 @@ export function observarAutenticacao(
   callback: (user: User | null) => void
 ) {
   return onAuthStateChanged(auth, callback);
+}
+
+/**
+ * Extração de texto de PDFs (Orçamentos de Oficina / Vistoria)
+ */
+export async function extractTextFromPdf(file: File): Promise<string> {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
+    const pdf = await loadingTask.promise;
+    let fullText = '';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => (item.str !== undefined ? item.str : ''))
+        .join(' ');
+      fullText += (pageNum > 1 ? '\n\n' : '') + `--- [Página ${pageNum} de ${pdf.numPages}] ---\n` + pageText;
+    }
+
+    return fullText.trim();
+  } catch (error: any) {
+    console.error('Erro ao extrair texto do PDF com pdfjs-dist:', error);
+    throw new Error(`Falha ao ler o arquivo PDF: ${error?.message || error}`);
+  }
 }
