@@ -484,31 +484,79 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             {/* Printable Sheet */}
             {(() => {
               const brand = COMPANY_BRANDS[selectedOrder.companyBrand || 'trans-pinho'] || COMPANY_BRANDS['trans-pinho'];
+              const mostrarCliente = (selectedOrder.companyBrand || 'trans-pinho') !== 'trans-pinho';
+              const TIPO_SIGLA: Record<string, string> = { 'Mão de Obra': 'MO', 'Chapeação': 'CHP', 'Pintura': 'PNT', 'Mecânica': 'MEC', 'Peça': 'PC' };
+              const itensServico = selectedOrder.items.filter((it) => it.type !== 'Peça');
+              const itensPeca = selectedOrder.items.filter((it) => it.type === 'Peça');
+              const totalServicos = itensServico.reduce((acc, it) => acc + (it.total || 0), 0);
+              const totalPecas = itensPeca.reduce((acc, it) => acc + (it.total || 0), 0);
+
               return (
                 <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-sans text-slate-900 leading-relaxed space-y-6">
-                  {/* Header Empresa Dinâmico */}
-                  <div className="flex items-center justify-center gap-3 border-b-2 border-slate-900 pb-4">
-                    <div className="w-11 h-11 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-base shrink-0">
-                      {brand.initials}
+                  {/* 1. Faixa Superior e Cabeçalho */}
+                  <div className="-mx-8 sm:-mx-12 -mt-8 sm:-mt-12 mb-4 h-1.5 bg-blue-500 print:mx-0 print:mt-0" />
+                  <div className="flex items-start justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-base shrink-0">
+                        {brand.initials}
+                      </div>
+                      <div>
+                        <h1 className="text-base font-black uppercase text-slate-950 tracking-tight leading-tight">{brand.name}</h1>
+                        {brand.subtitle && <p className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">{brand.subtitle}</p>}
+                      </div>
                     </div>
-                    <div className="text-left">
-                      <h1 className="text-base font-black uppercase text-slate-950 tracking-tight leading-tight">
-                        {brand.name}
-                      </h1>
-                      {brand.subtitle && (
-                        <p className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">
-                          {brand.subtitle}
-                        </p>
-                      )}
-                      {brand.address && <p className="text-[11px] text-slate-600">{brand.address}</p>}
-                      {brand.phone && <p className="text-[11px] text-slate-600">Telefone: {brand.phone}</p>}
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Detalhes de Serviço</span>
+                      <p className="text-xs text-slate-600 mt-1">OS Nº <span className="font-black text-slate-900">{selectedOrder.orderNumber}</span></p>
+                      <p className="text-xs text-slate-600">Data <span className="font-bold text-slate-900">{selectedOrder.date}</span></p>
                     </div>
                   </div>
-                  <h2 className="text-sm font-bold uppercase mt-3 tracking-wider bg-slate-900 text-amber-400 py-1.5 rounded text-center">
-                    Ordem de Serviço & Orçamento de Reparo • {selectedOrder.orderNumber}
-                  </h2>
 
-                  {/* Link para Orçamento Original PDF (se existir) */}
+                  {/* 2. Caixas de Dados (Cliente/Condutor + Veículo) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-blue-50/60 border border-blue-100 rounded-lg">
+                      <span className="text-[10px] font-bold uppercase text-blue-800 tracking-wider flex items-center gap-1.5">
+                        <i className="fa-solid fa-user"></i> {mostrarCliente ? 'Dados do Cliente' : 'Dados do Condutor'}
+                      </span>
+                      <div className="mt-1.5 text-xs space-y-0.5">
+                        {mostrarCliente ? (
+                          <>
+                            <p className="font-bold text-slate-900">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</p>
+                            <p className="text-slate-600">CNPJ: 94.476.207/0001-80</p>
+                            <p className="text-slate-600">Tel: (051) 3047-0212 / (051) 98266-0028</p>
+                            <p className="text-slate-600">E-mail: operacional@transpinho.com</p>
+                          </>
+                        ) : (
+                          <p className="font-bold text-slate-900">{selectedOrder.driverName}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="p-3 bg-blue-50/60 border border-blue-100 rounded-lg">
+                      <span className="text-[10px] font-bold uppercase text-blue-800 tracking-wider flex items-center gap-1.5">
+                        <i className="fa-solid fa-truck"></i> Dados do Veículo
+                      </span>
+                      <div className="mt-1.5 grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-[10px] text-slate-400 uppercase font-bold block">Placa</span>
+                          <span className="font-mono font-bold text-slate-900">{selectedOrder.vehiclePlate}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 uppercase font-bold block">Prefixo</span>
+                          <span className="font-bold text-slate-900">{selectedOrder.vehiclePrefix}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Relatório Técnico (se houver observações) */}
+                  {selectedOrder.notes && (
+                    <div className="p-3 bg-slate-50 border-l-4 border-blue-500 rounded-r-lg">
+                      <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Relatório Técnico</span>
+                      <p className="text-xs text-slate-700 leading-relaxed">{selectedOrder.notes}</p>
+                    </div>
+                  )}
+
+                  {/* 4. Link para Orçamento Original PDF (se existir) */}
                   {selectedOrder.budgetPdfUrl && (
                     <div className="print:hidden flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg">
                       <div className="flex items-center gap-2 text-xs text-amber-950 font-bold">
@@ -526,104 +574,91 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     </div>
                   )}
 
-                  {/* Dados do Veículo */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  {/* 5. Tabela de Serviços */}
+                  {itensServico.length > 0 && (
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Placa</span>
-                      <span className="font-mono font-bold text-slate-900">{selectedOrder.vehiclePlate}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Prefixo</span>
-                      <span className="font-bold text-slate-900">{selectedOrder.vehiclePrefix}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Data</span>
-                      <span>{selectedOrder.date}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block mb-0.5">Status</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                        ['Aprovada', 'Concluída', 'Faturada'].includes(selectedOrder.status)
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                          : 'bg-amber-50 text-amber-800 border-amber-300'
-                      }`}>
-                        {selectedOrder.status}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Tabela de Itens */}
-                  <div>
-                    <table className="w-full text-left text-xs border border-slate-300">
-                      <thead className="bg-slate-900 text-white font-bold border-b border-slate-900">
-                        <tr>
-                          <th className="p-2 border-r border-slate-700">Tipo</th>
-                          <th className="p-2 border-r border-slate-700">Descrição da Peça / Serviço</th>
-                          <th className="p-2 border-r border-slate-700 text-center">Qtd</th>
-                          <th className="p-2 border-r border-slate-700 text-right">Valor Unitário</th>
-                          <th className="p-2 text-right">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 [&>tr:nth-child(even)]:bg-slate-50">
-                        {selectedOrder.items.map((it, idx) => (
-                          <tr key={idx}>
-                            <td className="p-2 border-r border-slate-200 font-semibold text-[11px]">{it.type}</td>
-                            <td className="p-2 border-r border-slate-200">{it.description || <span className='text-slate-400 italic'>Sem descrição detalhada</span>}</td>
-                            <td className="p-2 border-r border-slate-200 text-center font-bold">{it.quantity}</td>
-                            <td className="p-2 border-r border-slate-200 text-right">{formatCurrency(it.unitPrice)}</td>
-                            <td className="p-2 text-right font-bold text-slate-900">{formatCurrency(it.total)}</td>
+                      <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1.5">Serviços & Peças</span>
+                      <table className="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+                        <thead className="bg-slate-900 text-white">
+                          <tr>
+                            <th className="p-2">Tipo</th>
+                            <th className="p-2">Descrição</th>
+                            <th className="p-2 text-center">Qtd</th>
+                            <th className="p-2 text-right">V. Unit</th>
+                            <th className="p-2 text-right">V. Total</th>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="bg-slate-100 font-black text-sm border-t-2 border-slate-900">
-                          <td colSpan={4} className="p-2 text-right uppercase">
-                            Valor Total Geral:
-                          </td>
-                          <td className="p-2 text-right text-slate-950">
-                            {formatCurrency(calculateTotal(selectedOrder.items))}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-
-                  {/* Observações */}
-                  {selectedOrder.notes && (
-                    <div className="text-xs p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                      <strong>Observações:</strong> {selectedOrder.notes}
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 [&>tr:nth-child(even)]:bg-slate-50">
+                          {itensServico.map((it, idx) => (
+                            <tr key={idx}>
+                              <td className="p-2"><span className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700">{TIPO_SIGLA[it.type] || it.type}</span></td>
+                              <td className="p-2">{it.description || <span className="text-slate-400 italic">Sem descrição detalhada</span>}</td>
+                              <td className="p-2 text-center font-bold">{it.quantity}</td>
+                              <td className="p-2 text-right">{formatCurrency(it.unitPrice)}</td>
+                              <td className="p-2 text-right font-bold text-slate-900">{formatCurrency(it.total)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
 
-                  {/* Dados de Pagamento no Documento */}
-                  {(selectedOrder.paymentPhone || selectedOrder.paymentBank || selectedOrder.paymentHolderName) && (
-                    <div className="text-xs p-3 bg-amber-50 border-l-4 border-amber-500 border-t border-r border-b border-slate-200 rounded-lg space-y-1.5">
-                      <span className="font-bold uppercase text-[10px] text-amber-950 flex items-center gap-1.5">
-                        <i className="fa-solid fa-money-bill-wave text-amber-600"></i>
-                        <span>Dados para Pagamento / Transferência / PIX:</span>
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-800">
-                        {selectedOrder.paymentPhone && (
-                          <div>
-                            <span className="text-[10px] text-slate-500 uppercase font-bold block">Chave PIX / Telefone:</span>
-                            <span className="font-semibold">{selectedOrder.paymentPhone}</span>
-                          </div>
-                        )}
-                        {selectedOrder.paymentBank && (
-                          <div>
-                            <span className="text-[10px] text-slate-500 uppercase font-bold block">Banco:</span>
-                            <span className="font-semibold">{selectedOrder.paymentBank}</span>
-                          </div>
-                        )}
-                        {selectedOrder.paymentHolderName && (
-                          <div>
-                            <span className="text-[10px] text-slate-500 uppercase font-bold block">Titular da Conta:</span>
-                            <span className="font-semibold">{selectedOrder.paymentHolderName}</span>
-                          </div>
-                        )}
+                  {/* 6. Tabela de Peças / Materiais */}
+                  {itensPeca.length > 0 && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-emerald-700 tracking-wider block mb-1.5">Peças & Materiais</span>
+                      <table className="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+                        <thead className="bg-emerald-50 text-emerald-900 border-b border-emerald-200">
+                          <tr>
+                            <th className="p-2">Item</th>
+                            <th className="p-2 text-center">Und</th>
+                            <th className="p-2 text-right">Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {itensPeca.map((it, idx) => (
+                            <tr key={idx}>
+                              <td className="p-2">{it.description || <span className="text-slate-400 italic">Sem descrição</span>}</td>
+                              <td className="p-2 text-center font-bold">{it.quantity}</td>
+                              <td className="p-2 text-right font-bold text-emerald-700">{formatCurrency(it.total)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* 7. Rodapé: Pagamento + Resumo Financeiro */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                    {(selectedOrder.paymentPhone || selectedOrder.paymentBank || selectedOrder.paymentHolderName) ? (
+                      <div className="text-xs p-3 bg-amber-50 border-l-4 border-amber-500 border-t border-r border-b border-slate-200 rounded-r-lg space-y-1">
+                        <span className="font-bold uppercase text-[10px] text-amber-800 flex items-center gap-1.5">
+                          <i className="fa-solid fa-money-bill-wave"></i> Pagamento
+                        </span>
+                        {selectedOrder.paymentPhone && <p><span className="text-slate-500">Chave PIX:</span> <span className="font-bold">{selectedOrder.paymentPhone}</span></p>}
+                        {selectedOrder.paymentBank && <p><span className="text-slate-500">Banco:</span> <span className="font-bold">{selectedOrder.paymentBank}</span></p>}
+                        {selectedOrder.paymentHolderName && <p><span className="text-slate-500">Favorecido:</span> <span className="font-bold">{selectedOrder.paymentHolderName}</span></p>}
+                      </div>
+                    ) : <div />}
+
+                    <div className="text-xs space-y-1.5">
+                      {totalServicos > 0 && (
+                        <div className="flex justify-between"><span className="text-slate-500">Serviços / Mão de Obra</span><span className="font-bold text-slate-900">{formatCurrency(totalServicos)}</span></div>
+                      )}
+                      {totalPecas > 0 && (
+                        <div className="flex justify-between"><span className="text-emerald-700">Peças & Materiais</span><span className="font-bold text-emerald-700">{formatCurrency(totalPecas)}</span></div>
+                      )}
+                      <div className="flex justify-between items-center bg-slate-900 text-white px-3 py-2 rounded-lg mt-2">
+                        <span className="text-xs font-bold uppercase">Valor Total</span>
+                        <span className="text-base font-black text-amber-400">{formatCurrency(calculateTotal(selectedOrder.items))}</span>
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* 8. Rodapé de Texto Legal */}
+                  <p className="text-center text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+                    Este documento é um detalhamento técnico dos serviços prestados. A garantia de peças e serviços obedece à legislação em vigor.
+                  </p>
 
                   {/* Assinaturas */}
                   {selectedOrder.requiresSignature !== false && (
