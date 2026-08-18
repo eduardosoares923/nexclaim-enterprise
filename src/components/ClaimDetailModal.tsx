@@ -205,7 +205,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
               </div>
 
               {/* Seção: Dados do Terceiro Envolvido & Responsabilidade */}
-              {(claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
+              {Boolean(claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
                 <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
