@@ -223,6 +223,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     return acc;
   }, {});
 
+  const sinistrosDaAbaDados = claims.filter((c) => c.claimNumber?.startsWith('SIN-IMP-DADOS-'));
+
   const filteredClaims = claims.filter((c) => {
     const matchesSearch =
       search === '' ||
@@ -256,6 +258,25 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {onDeleteClaim && sinistrosDaAbaDados.length > 0 && (
+            <button
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Tem certeza que deseja excluir ${sinistrosDaAbaDados.length} sinistro(s) importado(s) da aba DADOS? Essa ação não pode ser desfeita.`
+                  )
+                ) {
+                  sinistrosDaAbaDados.forEach((c) => onDeleteClaim(c.id));
+                }
+              }}
+              className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-1.5 transition border border-rose-200 shadow-xs cursor-pointer"
+              title="Excluir todos os sinistros importados da aba DADOS"
+            >
+              <i className="fa-solid fa-trash-can"></i>
+              <span>Excluir Importados da Aba DADOS ({sinistrosDaAbaDados.length})</span>
+            </button>
+          )}
+
           <input
             ref={fileInputRef}
             type="file"
@@ -265,7 +286,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
             title="Importar sinistros de planilha Excel com múltiplas abas"
           >
             <i className="fa-solid fa-file-excel text-xs"></i>
@@ -273,7 +294,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           </button>
           <button
             onClick={() => setShowNewClaimModal(true)}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95"
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
           >
             <i className="fa-solid fa-plus text-xs"></i>
             <span>Novo Sinistro</span>
