@@ -64,6 +64,10 @@ export interface WorkOrder {
   paymentPhone?: string;
   paymentBank?: string;
   paymentHolderName?: string;
+  clientName?: string;
+  clientDocument?: string;
+  clientPhone?: string;
+  clientEmail?: string;
 }
 
 interface WorkOrdersViewProps {
@@ -91,6 +95,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
   // Form state
   const [newCompanyBrand, setNewCompanyBrand] = useState<string>('trans-pinho');
+  const [newClientName, setNewClientName] = useState<string>('');
+  const [newClientDocument, setNewClientDocument] = useState<string>('');
+  const [newClientPhone, setNewClientPhone] = useState<string>('');
+  const [newClientEmail, setNewClientEmail] = useState<string>('');
   const [newPlate, setNewPlate] = useState(vehicles[0]?.plate || 'JCO8C10');
   const [newDriver, setNewDriver] = useState(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
   const [newWorkshop, setNewWorkshop] = useState('Oficina Central Trans Pinho Gravataí');
@@ -118,6 +126,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
     if (editingOrder) {
       const brandKey = editingOrder.companyBrand || 'trans-pinho';
       setNewCompanyBrand(brandKey);
+      setNewClientName(editingOrder.clientName || '');
+      setNewClientDocument(editingOrder.clientDocument || '');
+      setNewClientPhone(editingOrder.clientPhone || '');
+      setNewClientEmail(editingOrder.clientEmail || '');
       setNewPlate(editingOrder.vehiclePlate || vehicles[0]?.plate || '');
       setNewDriver(editingOrder.driverName || people[0]?.name || '');
       setNewWorkshop(editingOrder.workshopName || 'Oficina Central Trans Pinho Gravataí');
@@ -140,6 +152,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
       );
     } else {
       setNewCompanyBrand('trans-pinho');
+      setNewClientName('');
+      setNewClientDocument('');
+      setNewClientPhone('');
+      setNewClientEmail('');
       setNewPlate(vehicles[0]?.plate || 'JCO8C10');
       setNewDriver(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
       setNewWorkshop('Oficina Central Trans Pinho Gravataí');
@@ -170,12 +186,24 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         setNewPaymentHolderName(brandConfig.defaultPaymentHolderName || '');
       }
     }
+
+    // Se a nova marca não for 'trans-pinho' E os campos de cliente ainda estiverem vazios, preenche automaticamente
+    if (newBrandKey !== 'trans-pinho') {
+      if (!newClientName.trim()) setNewClientName('JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)');
+      if (!newClientDocument.trim()) setNewClientDocument('94.476.207/0001-80');
+      if (!newClientPhone.trim()) setNewClientPhone('(051) 3047-0212 / (051) 98266-0028');
+      if (!newClientEmail.trim()) setNewClientEmail('operacional@transpinho.com');
+    }
   };
 
   const handleCloseModal = () => {
     setShowCreateModal(false);
     setEditingOrder(null);
     setDetectedPdfItems([]);
+    setNewClientName('');
+    setNewClientDocument('');
+    setNewClientPhone('');
+    setNewClientEmail('');
   };
 
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -317,6 +345,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         paymentPhone: newPaymentPhone || undefined,
         paymentBank: newPaymentBank || undefined,
         paymentHolderName: newPaymentHolderName || undefined,
+        clientName: newClientName || undefined,
+        clientDocument: newClientDocument || undefined,
+        clientPhone: newClientPhone || undefined,
+        clientEmail: newClientEmail || undefined,
       });
     } else {
       const orderCount = orders.length + 1;
@@ -339,6 +371,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         paymentPhone: newPaymentPhone || undefined,
         paymentBank: newPaymentBank || undefined,
         paymentHolderName: newPaymentHolderName || undefined,
+        clientName: newClientName || undefined,
+        clientDocument: newClientDocument || undefined,
+        clientPhone: newClientPhone || undefined,
+        clientEmail: newClientEmail || undefined,
       });
     }
 
@@ -533,10 +569,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                       <div className="mt-1.5 text-xs space-y-0.5">
                         {mostrarCliente ? (
                           <>
-                            <p className="font-bold text-slate-900">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</p>
-                            <p className="text-slate-600">CNPJ: 94.476.207/0001-80</p>
-                            <p className="text-slate-600">Tel: (051) 3047-0212 / (051) 98266-0028</p>
-                            <p className="text-slate-600">E-mail: operacional@transpinho.com</p>
+                            <p className="font-bold text-slate-900">{selectedOrder.clientName || 'JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)'}</p>
+                            {selectedOrder.clientDocument && <p className="text-slate-600">CNPJ/CPF: {selectedOrder.clientDocument}</p>}
+                            {selectedOrder.clientPhone && <p className="text-slate-600">Tel: {selectedOrder.clientPhone}</p>}
+                            {selectedOrder.clientEmail && <p className="text-slate-600">E-mail: {selectedOrder.clientEmail}</p>}
                           </>
                         ) : (
                           <p className="font-bold text-slate-900">{selectedOrder.driverName}</p>
@@ -737,6 +773,67 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 <p className="text-[10px] text-amber-800 mt-1">
                   Define o cabeçalho impresso oficial e sugere os dados de pagamento padrão.
                 </p>
+              </div>
+
+              {/* Dados do Cliente */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                    <i className="fa-solid fa-user-tie text-blue-600"></i>
+                    <span>Dados do Cliente</span>
+                  </label>
+                  <span className="text-[10px] text-slate-400">Opcional / Preenchido automaticamente</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">
+                      Nome / Razão Social
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)"
+                      value={newClientName}
+                      onChange={(e) => setNewClientName(e.target.value)}
+                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">
+                      CNPJ / CPF
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: 94.476.207/0001-80"
+                      value={newClientDocument}
+                      onChange={(e) => setNewClientDocument(e.target.value)}
+                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">
+                      Telefone
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: (051) 3047-0212 / (051) 98266-0028"
+                      value={newClientPhone}
+                      onChange={(e) => setNewClientPhone(e.target.value)}
+                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">
+                      E-mail
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="Ex: operacional@transpinho.com"
+                      value={newClientEmail}
+                      onChange={(e) => setNewClientEmail(e.target.value)}
+                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
