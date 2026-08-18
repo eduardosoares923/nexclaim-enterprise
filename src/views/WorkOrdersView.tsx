@@ -631,19 +631,12 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   )}
 
                   {/* Assinaturas */}
-                  <div className="grid grid-cols-2 gap-8 pt-10 text-center text-xs">
-                    <div className="border-t border-slate-900 pt-2">
-                      <p className="font-bold uppercase text-slate-900">{selectedOrder.workshopName}</p>
-                      <p className="text-[10px] text-slate-500">Oficina Responsável</p>
-                    </div>
-
-                    {selectedOrder.requiresSignature === false ? (
-                      <div className="pt-4 flex items-center justify-center">
-                        <span className="text-[11px] text-slate-500 italic">
-                          Assinatura não exigida para esta Ordem de Serviço
-                        </span>
+                  {selectedOrder.requiresSignature !== false && (
+                    <div className="grid grid-cols-2 gap-8 pt-10 text-center text-xs">
+                      <div className="border-t border-slate-900 pt-2">
+                        <p className="font-bold uppercase text-slate-900">{selectedOrder.workshopName}</p>
+                        <p className="text-[10px] text-slate-500">Oficina Responsável</p>
                       </div>
-                    ) : (
                       <div className="border-t border-slate-900 pt-2 flex flex-col items-center">
                         {selectedOrder.signatureDataUrl && (
                           <img
@@ -655,8 +648,8 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                         <p className="font-bold uppercase text-slate-900">{selectedOrder.driverName}</p>
                         <p className="text-[10px] text-slate-500">Aprovação / {brand.name.split(' ')[0]}</p>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}

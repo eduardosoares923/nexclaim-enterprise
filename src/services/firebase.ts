@@ -25,10 +25,10 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import 'pdfjs-dist/build/pdf.worker.min.mjs';
 
 // Configuração do Worker do PDF.js bundled
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 // User's Real Firebase Project Credentials
 export const firebaseConfig = {
@@ -378,7 +378,12 @@ export async function extractTextFromPdf(file: File): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
-    const pdf = await loadingTask.promise;
+    const pdf = await Promise.race([
+      loadingTask.promise,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Tempo esgotado ao carregar o PDF (mais de 20 segundos). Tente novamente ou use um arquivo menor.')), 20000)
+      ),
+    ]);
     let fullText = '';
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
