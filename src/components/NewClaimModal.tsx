@@ -44,10 +44,13 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   const [paymentDirection, setPaymentDirection] = useState<'Pagar' | 'Cobrar' | ''>(claim?.paymentDirection || '');
   const [thirdPartyRepairCost, setThirdPartyRepairCost] = useState<string>(claim?.thirdPartyRepairCost?.toString() || '');
   const [ownVehicleRepairCost, setOwnVehicleRepairCost] = useState<string>(claim?.ownVehicleRepairCost?.toString() || '');
-  const [totalValue, setTotalValue] = useState<string>(claim?.totalValue?.toString() || '');
   const [chargeAmount, setChargeAmount] = useState<string>(claim?.chargeAmount?.toString() || '');
   const [firstDiscountMonth, setFirstDiscountMonth] = useState(claim?.firstDiscountMonth || '');
   const [thirdPartyDocument, setThirdPartyDocument] = useState(claim?.thirdPartyDocument || '');
+
+  const valorTotalCalculado = (
+    (parseFloat(thirdPartyRepairCost) || 0) + (parseFloat(ownVehicleRepairCost) || 0)
+  );
 
   const parseNum = (val: string) => {
     if (!val || val.trim() === '') return undefined;
@@ -91,7 +94,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         paymentDirection,
         thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
         ownVehicleRepairCost: parseNum(ownVehicleRepairCost),
-        totalValue: parseNum(totalValue),
+        totalValue: valorTotalCalculado > 0 ? valorTotalCalculado : undefined,
         chargeAmount: parseNum(chargeAmount),
         firstDiscountMonth,
         updatedAt: new Date().toISOString(),
@@ -130,7 +133,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         paymentDirection,
         thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
         ownVehicleRepairCost: parseNum(ownVehicleRepairCost),
-        totalValue: parseNum(totalValue),
+        totalValue: valorTotalCalculado > 0 ? valorTotalCalculado : undefined,
         chargeAmount: parseNum(chargeAmount),
         firstDiscountMonth,
         createdAt: new Date().toISOString(),
@@ -429,13 +432,15 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Culpado / Responsável</label>
-                <input
-                  type="text"
+                <select
                   value={atFault}
                   onChange={(e) => setAtFault(e.target.value)}
-                  placeholder="Ex: Terceiro / Motorista Trans Pinho"
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
+                >
+                  <option value="">Selecione</option>
+                  <option value="Terceiro">Terceiro</option>
+                  <option value="Motorista Trans Pinho">Motorista Trans Pinho</option>
+                </select>
               </div>
 
               <div>
@@ -476,14 +481,13 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Valor Total (R$)</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Valor Total (R$) — calculado automaticamente</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  value={totalValue}
-                  onChange={(e) => setTotalValue(e.target.value)}
+                  type="text"
+                  readOnly
+                  value={valorTotalCalculado > 0 ? valorTotalCalculado.toFixed(2).replace('.', ',') : ''}
                   placeholder="0,00"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed"
                 />
               </div>
 

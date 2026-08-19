@@ -29,6 +29,14 @@ function paraTexto(valor: any): string {
   return String(valor).trim();
 }
 
+function normalizarCulpado(valor: string): string {
+  if (!valor) return '';
+  const v = NORMALIZAR(valor);
+  if (v.includes('TERCEIRO')) return 'Terceiro';
+  if (v.includes('MOTORISTA') || v.includes('TRANS PINHO') || v.includes('NOSSO')) return 'Motorista Trans Pinho';
+  return valor;
+}
+
 function acharColuna(headers: string[], candidatos: string[]): number {
   for (const c of candidatos) {
     const idx = headers.findIndex((h) => NORMALIZAR(h) === NORMALIZAR(c));
@@ -72,13 +80,12 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       ocorrido: acharColuna(headers, ['OCORRIDO']),
       carroEnvolvido: acharColuna(headers, ['CARRO ENVOLVIDO']),
       placa2: acharColuna(headers, ['PLACA2', 'PLACAS']),
-      culpado: acharColuna(headers, ['CULPADO']),
+      culpado: acharColuna(headers, ['CULPADO', 'RESPONSÁVEL', 'RESPONSAVEL']),
       situacao: acharColuna(headers, ['SITUAÇÃO', 'SITUACAO']),
       pagarCobrar: acharColuna(headers, ['PAGAR OU COBRAR']),
       custoEnvolvido: acharColuna(headers, ['CUSTO DO VEICULO DO ENVOLVIDO', 'CUSTO DO VEÍCULO DO ENVOLVIDO']),
       custoNosso: acharColuna(headers, ['CUSTO DO NOSSO VEICULO', 'CUSTO DO NOSSO VEÍCULO']),
       observacao: acharColuna(headers, ['OBSERVAÇÃO', 'OBSERVACAO', 'OBS']),
-      valorTotal: acharColuna(headers, ['VALOR TOTAL']),
       quantoCobrar: acharColuna(headers, ['QUANTO COBRAR']),
       mesDesconto: acharColuna(headers, ['MÊS DA PRIMEIRO DESCONTO', 'MES DA PRIMEIRO DESCONTO']),
       cpfs: acharColuna(headers, ['CPFS', 'CPF']),
@@ -108,6 +115,10 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
 
       const descricaoPartes = [paraTexto(ocorrido), paraTexto(pegar(linha, idx.observacao))].filter(Boolean);
 
+      const custoTerceiro = pegarNum(linha, idx.custoEnvolvido);
+      const custoNosso = pegarNum(linha, idx.custoNosso);
+      const totalCalculado = (custoTerceiro || 0) + (custoNosso || 0);
+
       const claim: Omit<Claim, 'id'> = {
         claimNumber: `SIN-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
         protocol: `PROT-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
@@ -123,7 +134,7 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
         driverName: paraTexto(motorista),
         priority: 'Média',
         status,
-        estimatedCost: pegarNum(linha, idx.custoNosso) ?? 0,
+        estimatedCost: custoNosso ?? 0,
         insurer: '',
         policyNumber: '',
         boNumber: '',
@@ -131,11 +142,11 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
         supervisorName: paraTexto(pegar(linha, idx.supervisor)),
         thirdPartyVehicleDescription: paraTexto(pegar(linha, idx.carroEnvolvido)),
         thirdPartyPlate: paraTexto(pegar(linha, idx.placa2)),
-        atFault: paraTexto(pegar(linha, idx.culpado)),
+        atFault: normalizarCulpado(paraTexto(pegar(linha, idx.culpado))),
         paymentDirection: (NORMALIZAR(pegar(linha, idx.pagarCobrar)) === 'PAGAR' ? 'Pagar' : NORMALIZAR(pegar(linha, idx.pagarCobrar)) === 'COBRAR' ? 'Cobrar' : ''),
-        thirdPartyRepairCost: pegarNum(linha, idx.custoEnvolvido),
-        ownVehicleRepairCost: pegarNum(linha, idx.custoNosso),
-        totalValue: pegarNum(linha, idx.valorTotal),
+        thirdPartyRepairCost: custoTerceiro,
+        ownVehicleRepairCost: custoNosso,
+        totalValue: totalCalculado > 0 ? totalCalculado : undefined,
         chargeAmount: pegarNum(linha, idx.quantoCobrar),
         firstDiscountMonth: paraTexto(pegar(linha, idx.mesDesconto)),
         thirdPartyDocument: paraTexto(pegar(linha, idx.cpfs)),
@@ -188,6 +199,7 @@ export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null>
     carroOcorrencia: acharColuna(headers, ['CARRO DA OCORRENCIA', 'CARRO DA OCORRÊNCIA']),
     supervisor: acharColuna(headers, ['SUPERVISOR']),
     motorista: acharColuna(headers, ['MOTORISTA']),
+    culpado: acharColuna(headers, ['CULPADO', 'RESPONSÁVEL', 'RESPONSAVEL']),
   };
 
   const pegar = (linha: any[], i: number) => (i === -1 ? undefined : linha[i]);
@@ -245,6 +257,7 @@ export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null>
         description: [ocorrido, vitima && `Vítima: ${vitima}`].filter(Boolean).join(' — ') || 'Importado da aba DADOS.',
         supervisorName: paraTexto(pegar(linha, idx.supervisor)),
         thirdPartyVehicleDescription: paraTexto(pegar(linha, idx.carroOcorrencia)),
+        atFault: normalizarCulpado(paraTexto(pegar(linha, idx.culpado))),
       };
 
       sinistros.push({ claim, linhaOriginal: l + 1 });
