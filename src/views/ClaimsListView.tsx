@@ -564,7 +564,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     </td>
                     <td className="p-3.5">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${
                           claim.status === 'Resolvido'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                             : claim.status === 'Em análise'
