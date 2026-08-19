@@ -267,3 +267,39 @@ export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null>
 
   return { cadastros, sinistros };
 }
+
+export function exportarSinistrosParaExcel(claims: Claim[]) {
+  const linhas = claims.map((c) => ({
+    'Nº SINISTRO': c.claimNumber,
+    PROTOCOLO: c.protocol,
+    PLACA: c.vehiclePlate,
+    PREFIXO: c.vehiclePrefix || '',
+    DATA: c.date,
+    HORARIO: c.time || c.occurrenceTime || '',
+    MOTORISTA: c.driverName,
+    'TIPO DE SINISTRO': c.occurrenceType,
+    SUPERVISOR: c.supervisorName || '',
+    OCORRIDO: c.description,
+    'CARRO ENVOLVIDO': c.thirdPartyVehicleDescription || '',
+    PLACAS: c.thirdPartyPlate || '',
+    'NOME DO RESPONSÁVEL ENVOLVIDO': c.thirdPartyName || '',
+    CPFS: c.thirdPartyDocument || '',
+    CULPADO: c.atFault || '',
+    SITUAÇÃO: c.status,
+    'DETALHAMENTO DO CASO': c.caseDetail || '',
+    'PAGAR OU COBRAR': c.paymentDirection || '',
+    'CUSTO DO VEICULO DO ENVOLVIDO': c.thirdPartyRepairCost ?? '',
+    'CUSTO DO NOSSO VEICULO': c.ownVehicleRepairCost ?? '',
+    'VALOR TOTAL': c.totalValue ?? '',
+    PRIORIDADE: c.priority,
+    'Nº B.O.': c.boNumber || '',
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(linhas);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sinistros');
+
+  const dataHoje = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(workbook, `Sinistros_TransPinho_${dataHoje}.xlsx`);
+}
+

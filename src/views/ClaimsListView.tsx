@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
-import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados } from '../services/claimsImport';
+import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 
@@ -61,6 +61,20 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Menu Mais Ações
+  const [showMoreActions, setShowMoreActions] = useState(false);
+  const moreActionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (moreActionsRef.current && !moreActionsRef.current.contains(e.target as Node)) {
+        setShowMoreActions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const isAbaResumo = (aba: string) => {
     const norm = (aba ?? '').toString().trim().toUpperCase();
@@ -312,54 +326,67 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={corrigirTiposExistentes}
-            className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-blue-200 cursor-pointer shadow-xs"
-            title="Padronizar grafia e corrigir erros de digitação dos tipos de ocorrência"
-          >
-            <i className="fa-solid fa-broom"></i>
-            <span>Corrigir Tipos de Ocorrência Duplicados</span>
-          </button>
-
-          {onDeleteClaim && sinistrosDaAbaDados.length > 0 && (
+          <div className="relative" ref={moreActionsRef}>
             <button
-              onClick={() => {
-                if (
-                  window.confirm(
-                    `Tem certeza que deseja excluir ${sinistrosDaAbaDados.length} sinistro(s) importado(s) da aba DADOS? Essa ação não pode ser desfeita.`
-                  )
-                ) {
-                  sinistrosDaAbaDados.forEach((c) => onDeleteClaim(c.id));
-                }
-              }}
-              className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-rose-200 shadow-xs cursor-pointer"
-              title="Excluir todos os sinistros importados da aba DADOS"
+              onClick={() => setShowMoreActions((v) => !v)}
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-200 shadow-xs cursor-pointer"
             >
-              <i className="fa-solid fa-trash-can"></i>
-              <span>Excluir Importados da Aba DADOS ({sinistrosDaAbaDados.length})</span>
+              <i className="fa-solid fa-ellipsis-vertical"></i>
+              <span>Mais Ações</span>
+              <i className="fa-solid fa-chevron-down text-[9px]"></i>
             </button>
-          )}
+            {showMoreActions && (
+              <div className="absolute z-30 top-full mt-1 right-0 w-72 bg-white border border-slate-200 rounded-lg shadow-lg py-1.5">
+                <button
+                  onClick={() => {
+                    corrigirTiposExistentes();
+                    setShowMoreActions(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-broom"></i> Corrigir Tipos de Ocorrência Duplicados
+                </button>
 
-          {onDeleteClaim && claims.length > 0 && (
-            <button
-              onClick={() => {
-                if (
-                  window.confirm(
-                    `ATENÇÃO: isso vai excluir TODOS os ${claims.length} sinistros do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`
-                  )
-                ) {
-                  if (window.confirm('Confirme mais uma vez: excluir TODOS os sinistros agora?')) {
-                    claims.forEach((c) => onDeleteClaim(c.id));
-                  }
-                }
-              }}
-              className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition shadow-xs cursor-pointer"
-              title="Excluir todos os sinistros do sistema"
-            >
-              <i className="fa-solid fa-triangle-exclamation"></i>
-              <span>Excluir Todos os Sinistros ({claims.length})</span>
-            </button>
-          )}
+                {onDeleteClaim && sinistrosDaAbaDados.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          `Tem certeza que deseja excluir ${sinistrosDaAbaDados.length} sinistro(s) importado(s) da aba DADOS? Essa ação não pode ser desfeita.`
+                        )
+                      ) {
+                        sinistrosDaAbaDados.forEach((c) => onDeleteClaim(c.id));
+                      }
+                      setShowMoreActions(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-trash-can"></i> Excluir Importados da Aba DADOS ({sinistrosDaAbaDados.length})
+                  </button>
+                )}
+
+                {onDeleteClaim && claims.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          `ATENÇÃO: isso vai excluir TODOS os ${claims.length} sinistros do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`
+                        )
+                      ) {
+                        if (window.confirm('Confirme mais uma vez: excluir TODOS os sinistros agora?')) {
+                          claims.forEach((c) => onDeleteClaim(c.id));
+                        }
+                      }
+                      setShowMoreActions(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 flex items-center gap-2 border-t border-slate-100 mt-1 pt-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-triangle-exclamation"></i> Excluir Todos os Sinistros ({claims.length})
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
           <input
             type="file"
@@ -373,9 +400,19 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
             title="Importar sinistros de planilha Excel com múltiplas abas"
           >
-            <i className="fa-solid fa-file-excel text-xs"></i>
-            <span>Importar Planilha (.xlsx)</span>
+            <i className="fa-solid fa-file-import text-xs"></i>
+            <span>Importar (.xlsx)</span>
           </button>
+
+          <button
+            onClick={() => exportarSinistrosParaExcel(sortedClaims)}
+            className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition active:scale-95 cursor-pointer"
+            title="Exportar os sinistros filtrados/ordenados atuais para Excel"
+          >
+            <i className="fa-solid fa-file-export text-xs"></i>
+            <span>Exportar (.xlsx)</span>
+          </button>
+
           <button
             onClick={() => setShowNewClaimModal(true)}
             className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
