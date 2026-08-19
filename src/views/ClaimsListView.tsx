@@ -33,6 +33,9 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [occurrenceTypeFilter, setOccurrenceTypeFilter] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   const [selectedClaimDetail, setSelectedClaimDetail] = useState<Claim | null>(null);
@@ -225,6 +228,10 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
   const sinistrosDaAbaDados = claims.filter((c) => c.claimNumber?.startsWith('SIN-IMP-DADOS-'));
 
+  const tiposOcorrenciaDisponiveis = Array.from(
+    new Set(claims.map((c) => c.occurrenceType).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
   const filteredClaims = claims.filter((c) => {
     const matchesSearch =
       search === '' ||
@@ -237,8 +244,11 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
     const matchesStatus = !statusFilter || c.status === statusFilter;
     const matchesPriority = !priorityFilter || c.priority === priorityFilter;
+    const matchesDateFrom = !dateFrom || (c.date && c.date >= dateFrom);
+    const matchesDateTo = !dateTo || (c.date && c.date <= dateTo);
+    const matchesOccurrenceType = !occurrenceTypeFilter || c.occurrenceType === occurrenceTypeFilter;
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesSearch && matchesStatus && matchesPriority && matchesDateFrom && matchesDateTo && matchesOccurrenceType;
   });
 
   return (
@@ -291,7 +301,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 }
               }}
               className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition shadow-xs cursor-pointer"
-              title="Excluir permanentemente todos os sinistros da base"
+              title="Excluir todos os sinistros do sistema"
             >
               <i className="fa-solid fa-triangle-exclamation"></i>
               <span>Excluir Todos os Sinistros ({claims.length})</span>
@@ -299,10 +309,10 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           )}
 
           <input
-            ref={fileInputRef}
             type="file"
-            accept=".xlsx, .xls"
+            ref={fileInputRef}
             onChange={handleFileSelect}
+            accept=".xlsx, .xls"
             className="hidden"
           />
           <button
@@ -370,6 +380,56 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               <option value="Alta">Alta</option>
               <option value="Crítica">Crítica</option>
             </select>
+          </div>
+        </div>
+
+        {/* Linha 2 de Filtros: Data de / Data até / Tipo de Ocorrência / Limpar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-slate-100">
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data de</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data até</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Ocorrência</label>
+            <select
+              value={occurrenceTypeFilter}
+              onChange={(e) => setOccurrenceTypeFilter(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+            >
+              <option value="">Todos os Tipos</option>
+              {tiposOcorrenciaDisponiveis.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setSearch('');
+                setStatusFilter('');
+                setPriorityFilter('');
+                setDateFrom('');
+                setDateTo('');
+                setOccurrenceTypeFilter('');
+              }}
+              className="w-full px-3 py-2 text-xs font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-lg hover:border-rose-200 hover:bg-rose-50 transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <i className="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
+            </button>
           </div>
         </div>
 
