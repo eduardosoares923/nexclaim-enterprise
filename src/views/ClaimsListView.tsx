@@ -36,6 +36,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [occurrenceTypeFilter, setOccurrenceTypeFilter] = useState('');
+  const [sortBy, setSortBy] = useState<'data-desc' | 'data-asc' | 'nome' | 'placa'>('data-desc');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   const [selectedClaimDetail, setSelectedClaimDetail] = useState<Claim | null>(null);
@@ -251,6 +252,20 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     return matchesSearch && matchesStatus && matchesPriority && matchesDateFrom && matchesDateTo && matchesOccurrenceType;
   });
 
+  const sortedClaims = [...filteredClaims].sort((a, b) => {
+    switch (sortBy) {
+      case 'data-asc':
+        return (a.date || '').localeCompare(b.date || '');
+      case 'nome':
+        return (a.driverName || '').localeCompare(b.driverName || '', 'pt-BR');
+      case 'placa':
+        return (a.vehiclePlate || '').localeCompare(b.vehiclePlate || '');
+      case 'data-desc':
+      default:
+        return (b.date || '').localeCompare(a.date || '');
+    }
+  });
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -383,8 +398,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           </div>
         </div>
 
-        {/* Linha 2 de Filtros: Data de / Data até / Tipo de Ocorrência / Limpar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-slate-100">
+        {/* Linha 2 de Filtros: Data de / Data até / Tipo de Ocorrência / Ordenação / Limpar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-3 border-t border-slate-100">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data de</label>
             <input
@@ -416,6 +431,19 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ordenar por</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+            >
+              <option value="data-desc">Mais recente primeiro</option>
+              <option value="data-asc">Mais antigo primeiro</option>
+              <option value="nome">Nome do Condutor (A-Z)</option>
+              <option value="placa">Placa (A-Z)</option>
+            </select>
+          </div>
           <div className="flex items-end">
             <button
               onClick={() => {
@@ -425,6 +453,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 setDateFrom('');
                 setDateTo('');
                 setOccurrenceTypeFilter('');
+                setSortBy('data-desc');
               }}
               className="w-full px-3 py-2 text-xs font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-lg hover:border-rose-200 hover:bg-rose-50 transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
@@ -436,7 +465,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         {/* View Mode Toggle */}
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
           <span>
-            Exibindo <strong>{filteredClaims.length}</strong> de {claims.length} sinistro(s)
+            Exibindo <strong>{sortedClaims.length}</strong> de {claims.length} sinistro(s)
           </span>
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
             <button
@@ -460,7 +489,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       </div>
 
       {/* Main Claims List View */}
-      {filteredClaims.length === 0 ? (
+      {sortedClaims.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-xs space-y-3">
           <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">
             <i className="fa-solid fa-folder-open"></i>
@@ -484,7 +513,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredClaims.map((claim) => (
+                {sortedClaims.map((claim) => (
                   <tr key={claim.id} className="hover:bg-amber-50/30 transition-colors">
                     <td className="p-3.5">
                       <div className="font-bold text-slate-900">{claim.claimNumber}</div>
@@ -555,7 +584,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredClaims.map((claim) => (
+          {sortedClaims.map((claim) => (
             <div
               key={claim.id}
               className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:shadow-md transition space-y-3 flex flex-col justify-between"
