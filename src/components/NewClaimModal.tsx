@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Claim, Person, Vehicle, ClaimStatus, PriorityType } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 import { Combobox } from './Combobox';
@@ -145,7 +146,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
     onClose();
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
@@ -502,6 +503,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

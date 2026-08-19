@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
@@ -734,7 +735,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       )}
 
       {/* Modal de Pré-visualização da Importação */}
-      {showImportModal && (
+      {showImportModal && createPortal(
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
@@ -970,7 +971,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
