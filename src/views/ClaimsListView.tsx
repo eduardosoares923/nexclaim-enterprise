@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
-import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel } from '../services/claimsImport';
+import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 
@@ -65,6 +65,24 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   // Menu Mais Ações
   const [showMoreActions, setShowMoreActions] = useState(false);
   const moreActionsRef = useRef<HTMLDivElement>(null);
+
+  // Estados de Exportação Customizada de Colunas
+  const [colunasExportSelecionadas, setColunasExportSelecionadas] = useState<string[]>(
+    COLUNAS_EXPORTACAO_SINISTROS.map((c) => c.chave)
+  );
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const handleToggleColuna = (chave: string) => {
+    setColunasExportSelecionadas((prev) =>
+      prev.includes(chave) ? prev.filter((c) => c !== chave) : [...prev, chave]
+    );
+  };
+  const handleSelectAllColunas = () => {
+    setColunasExportSelecionadas(COLUNAS_EXPORTACAO_SINISTROS.map((c) => c.chave));
+  };
+  const handleClearAllColunas = () => {
+    setColunasExportSelecionadas([]);
+  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -405,9 +423,9 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           </button>
 
           <button
-            onClick={() => exportarSinistrosParaExcel(sortedClaims)}
+            onClick={() => setShowExportModal(true)}
             className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition active:scale-95 cursor-pointer"
-            title="Exportar os sinistros filtrados/ordenados atuais para Excel"
+            title="Escolher colunas e exportar os sinistros atuais para Excel"
           >
             <i className="fa-solid fa-file-export text-xs"></i>
             <span>Exportar (.xlsx)</span>
@@ -1006,6 +1024,110 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   </span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de Escolha de Colunas para Exportação */}
+      {showExportModal && createPortal(
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
+                  <i className="fa-solid fa-file-excel"></i>
+                </div>
+                <div>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-white">
+                    Escolher Colunas para Exportar
+                  </h3>
+                  <span className="text-[10px] text-amber-400">
+                    {colunasExportSelecionadas.length} de {COLUNAS_EXPORTACAO_SINISTROS.length} colunas selecionadas • {sortedClaims.length} sinistro(s)
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+              >
+                <i className="fa-solid fa-xmark text-base"></i>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-4 text-xs">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-slate-600 text-xs">
+                  Marque as colunas que devem aparecer no relatório Excel:
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSelectAllColunas}
+                    className="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                  >
+                    Selecionar Todas
+                  </button>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    type="button"
+                    onClick={handleClearAllColunas}
+                    className="text-[11px] font-bold text-slate-500 hover:text-slate-700 hover:underline cursor-pointer"
+                  >
+                    Limpar Seleção
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {COLUNAS_EXPORTACAO_SINISTROS.map((col) => {
+                  const isChecked = colunasExportSelecionadas.includes(col.chave);
+                  return (
+                    <label
+                      key={col.chave}
+                      className={`p-2.5 rounded-lg border flex items-center gap-2.5 cursor-pointer transition select-none ${
+                        isChecked
+                          ? 'bg-amber-50/60 border-amber-300 text-slate-900 font-semibold'
+                          : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleToggleColuna(col.chave)}
+                        className="rounded text-amber-600 focus:ring-amber-500 h-4 w-4 cursor-pointer"
+                      />
+                      <span className="text-xs">{col.rotulo}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowExportModal(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={colunasExportSelecionadas.length === 0}
+                onClick={() => {
+                  exportarSinistrosParaExcel(sortedClaims, colunasExportSelecionadas);
+                  setShowExportModal(false);
+                }}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <i className="fa-solid fa-file-export"></i>
+                <span>Exportar Agora ({colunasExportSelecionadas.length} colunas)</span>
+              </button>
             </div>
           </div>
         </div>,

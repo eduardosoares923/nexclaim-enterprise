@@ -270,61 +270,124 @@ export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null>
   return { cadastros, sinistros };
 }
 
-export function exportarSinistrosParaExcel(claims: Claim[]) {
-  const linhas = claims.map((c) => ({
-    'Nº SINISTRO': c.claimNumber,
-    PROTOCOLO: c.protocol,
-    PLACA: c.vehiclePlate,
-    PREFIXO: c.vehiclePrefix || '',
-    DATA: c.date,
-    HORARIO: c.time || c.occurrenceTime || '',
-    MOTORISTA: c.driverName,
-    'TIPO DE SINISTRO': c.occurrenceType,
-    SUPERVISOR: c.supervisorName || '',
-    OCORRIDO: c.description,
-    'CARRO ENVOLVIDO': c.thirdPartyVehicleDescription || '',
-    PLACAS: c.thirdPartyPlate || '',
-    'NOME DO RESPONSÁVEL ENVOLVIDO': c.thirdPartyName || '',
-    CPFS: c.thirdPartyDocument || '',
-    CULPADO: c.atFault || '',
-    SITUAÇÃO: c.status,
-    'DETALHAMENTO DO CASO': c.caseDetail || '',
-    'PAGAR OU COBRAR': c.paymentDirection || '',
-    'CUSTO DO VEICULO DO ENVOLVIDO': c.thirdPartyRepairCost ?? '',
-    'CUSTO DO NOSSO VEICULO': c.ownVehicleRepairCost ?? '',
-    'VALOR TOTAL': c.totalValue ?? '',
-    PRIORIDADE: c.priority,
-    'Nº B.O.': c.boNumber || '',
-  }));
+export interface ColunaExportacao {
+  chave: string;
+  rotulo: string;
+  tipo?: 'moeda';
+}
 
-  const worksheet = XLSXStyle.utils.json_to_sheet(linhas);
+export const COLUNAS_EXPORTACAO_SINISTROS: ColunaExportacao[] = [
+  { chave: 'claimNumber', rotulo: 'Nº Sinistro' },
+  { chave: 'protocol', rotulo: 'Protocolo' },
+  { chave: 'vehiclePlate', rotulo: 'Placa' },
+  { chave: 'vehiclePrefix', rotulo: 'Prefixo' },
+  { chave: 'date', rotulo: 'Data' },
+  { chave: 'time', rotulo: 'Horário' },
+  { chave: 'driverName', rotulo: 'Motorista' },
+  { chave: 'occurrenceType', rotulo: 'Tipo de Sinistro' },
+  { chave: 'supervisorName', rotulo: 'Supervisor' },
+  { chave: 'description', rotulo: 'Ocorrido' },
+  { chave: 'thirdPartyVehicleDescription', rotulo: 'Carro Envolvido' },
+  { chave: 'thirdPartyPlate', rotulo: 'Placa do Terceiro' },
+  { chave: 'thirdPartyName', rotulo: 'Nome do Responsável Envolvido' },
+  { chave: 'thirdPartyDocument', rotulo: 'CPF do Terceiro' },
+  { chave: 'atFault', rotulo: 'Culpado' },
+  { chave: 'status', rotulo: 'Situação' },
+  { chave: 'caseDetail', rotulo: 'Detalhamento do Caso' },
+  { chave: 'paymentDirection', rotulo: 'Pagar ou Cobrar' },
+  { chave: 'thirdPartyRepairCost', rotulo: 'Custo do Terceiro', tipo: 'moeda' },
+  { chave: 'ownVehicleRepairCost', rotulo: 'Custo do Nosso Veículo', tipo: 'moeda' },
+  { chave: 'totalValue', rotulo: 'Valor Total', tipo: 'moeda' },
+  { chave: 'priority', rotulo: 'Prioridade' },
+  { chave: 'boNumber', rotulo: 'Nº B.O.' },
+];
 
-  const headers = Object.keys(linhas[0] || {});
-  const larguras = headers.map((h) => {
-    const maiorConteudo = Math.max(h.length, ...linhas.map((l: any) => String(l[h] ?? '').length));
-    return { wch: Math.min(Math.max(maiorConteudo + 2, 10), 40) };
+export function exportarSinistrosParaExcel(claims: Claim[], colunasChaves: string[]) {
+  const colunas = COLUNAS_EXPORTACAO_SINISTROS.filter((c) => colunasChaves.includes(c.chave));
+  if (colunas.length === 0) return;
+
+  const TITULO = 'Relatório de Sinistros — Trans Pinho';
+  const dataGeracao = new Date().toLocaleDateString('pt-BR');
+
+  const linhasDados = claims.map((c: any) => colunas.map((col) => c[col.chave] ?? ''));
+
+  const aoa: any[][] = [
+    [TITULO],
+    [`Gerado em ${dataGeracao} — ${claims.length} sinistro(s)`],
+    [],
+    colunas.map((c) => c.rotulo),
+    ...linhasDados,
+  ];
+
+  const worksheet = XLSXStyle.utils.aoa_to_sheet(aoa);
+
+  const LINHA_CABECALHO = 3; // índice 0-based da linha com os rótulos das colunas
+  const LINHA_PRIMEIRO_DADO = 4;
+
+  worksheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: colunas.length - 1 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: colunas.length - 1 } },
+  ];
+
+  worksheet['!cols'] = colunas.map((col) => {
+    const maior = Math.max(col.rotulo.length, ...claims.map((c: any) => String(c[col.chave] ?? '').length));
+    return { wch: Math.min(Math.max(maior + 2, 10), 40) };
   });
-  worksheet['!cols'] = larguras;
-  worksheet['!freeze'] = { xSplit: 0, ySplit: 1 };
-  worksheet['!autofilter'] = { ref: worksheet['!ref'] || 'A1' };
+  worksheet['!freeze'] = { xSplit: 0, ySplit: LINHA_CABECALHO + 1 };
+  worksheet['!autofilter'] = { ref: XLSXStyle.utils.encode_range({ s: { r: LINHA_CABECALHO, c: 0 }, e: { r: LINHA_CABECALHO, c: colunas.length - 1 } }) };
 
-  const estiloCabecalho = {
-    font: { bold: true, color: { rgb: 'FFFFFF' } },
-    fill: { fgColor: { rgb: '1E293B' } },
-    alignment: { vertical: 'center', horizontal: 'left' },
-  };
+  const enderecar = (r: number, c: number) => XLSXStyle.utils.encode_cell({ r, c });
 
-  headers.forEach((_, i) => {
-    const endereco = XLSXStyle.utils.encode_cell({ r: 0, c: i });
-    if (worksheet[endereco]) {
-      worksheet[endereco].s = estiloCabecalho;
+  if (worksheet[enderecar(0, 0)]) {
+    worksheet[enderecar(0, 0)].s = {
+      font: { bold: true, sz: 14, color: { rgb: '1E293B' } },
+      alignment: { horizontal: 'left' },
+    };
+  }
+  if (worksheet[enderecar(1, 0)]) {
+    worksheet[enderecar(1, 0)].s = {
+      font: { italic: true, sz: 10, color: { rgb: '64748B' } },
+    };
+  }
+
+  const bordaFina = { style: 'thin', color: { rgb: 'E2E8F0' } };
+
+  colunas.forEach((col, c) => {
+    const enderecoCab = enderecar(LINHA_CABECALHO, c);
+    if (worksheet[enderecoCab]) {
+      worksheet[enderecoCab].s = {
+        font: { bold: true, color: { rgb: 'FFFFFF' } },
+        fill: { fgColor: { rgb: '1E293B' } },
+        alignment: { vertical: 'center', horizontal: 'left' },
+        border: { top: bordaFina, bottom: bordaFina, left: bordaFina, right: bordaFina },
+      };
     }
+
+    claims.forEach((_, i) => {
+      const r = LINHA_PRIMEIRO_DADO + i;
+      const endereco = enderecar(r, c);
+      if (!worksheet[endereco]) return;
+
+      const zebra = i % 2 === 1 ? 'F8FAFC' : 'FFFFFF';
+      const estilo: any = {
+        fill: { fgColor: { rgb: zebra } },
+        border: { top: bordaFina, bottom: bordaFina, left: bordaFina, right: bordaFina },
+        alignment: { vertical: 'center' },
+      };
+
+      if (col.tipo === 'moeda' && typeof worksheet[endereco].v === 'number') {
+        estilo.numFmt = '"R$" #,##0.00';
+        estilo.alignment.horizontal = 'right';
+      }
+
+      worksheet[endereco].s = estilo;
+    });
   });
 
   const workbook = XLSXStyle.utils.book_new();
   XLSXStyle.utils.book_append_sheet(workbook, worksheet, 'Sinistros');
 
-  const dataHoje = new Date().toISOString().split('T')[0];
-  XLSXStyle.writeFile(workbook, `Sinistros_TransPinho_${dataHoje}.xlsx`);
+  const dataArquivo = new Date().toISOString().split('T')[0];
+  XLSXStyle.writeFile(workbook, `Sinistros_TransPinho_${dataArquivo}.xlsx`);
 }
 
