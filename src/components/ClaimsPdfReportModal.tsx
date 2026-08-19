@@ -41,7 +41,7 @@ export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose
 
   return createPortal(
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center px-4 py-8 overflow-y-auto print:static print:p-0 print:bg-white print:overflow-visible">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-4 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 print:shadow-none print:border-none print:rounded-none print:max-w-none print:w-auto print:my-0">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-4 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 print:shadow-none print:border-none print:rounded-none print:max-w-none print:w-auto print:my-0 print:overflow-visible">
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 print:hidden">
           <div className="flex items-center gap-2">
             <i className="fa-solid fa-file-pdf text-rose-400"></i>
