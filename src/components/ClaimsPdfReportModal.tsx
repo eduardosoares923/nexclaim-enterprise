@@ -12,13 +12,19 @@ interface Props {
 export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose }) => {
   const dataGeracao = new Date().toLocaleDateString('pt-BR');
 
+  const truncarTexto = (texto: string, max: number = 60): string => {
+    if (!texto) return '—';
+    const t = String(texto);
+    return t.length > max ? t.slice(0, max).trim() + '…' : t;
+  };
+
   const formatarValor = (c: any, col: ColunaExportacao) => {
     const v = c[col.chave];
     if (col.tipo === 'moeda') {
       const n = typeof v === 'number' ? v : parseFloat(v);
       return isNaN(n) || !v ? '—' : n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
-    return v || '—';
+    return truncarTexto(v, col.chave === 'description' ? 70 : 30);
   };
 
   const valorTotalGeral = claims.reduce((acc, c) => acc + (c.totalValue || c.estimatedCost || 0), 0);
@@ -47,6 +53,13 @@ export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose
             </button>
           </div>
         </div>
+
+        {colunas.length > 8 && (
+          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-[11px] print:hidden">
+            <i className="fa-solid fa-triangle-exclamation mr-1"></i>
+            Você selecionou {colunas.length} colunas. Para um PDF mais legível, considere escolher no máximo 6 a 8 colunas — o texto ficará bem pequeno com muitas colunas.
+          </div>
+        )}
 
         <div className="trans-pinho-doc p-8 overflow-y-auto print:p-0 print:overflow-visible">
           <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
@@ -78,11 +91,11 @@ export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose
             </div>
           </div>
 
-          <table className="w-full text-left text-[9px] border border-slate-200">
+          <table className="w-full text-left text-[9px] border border-slate-200 table-fixed">
             <thead className="bg-slate-900 text-white">
               <tr>
                 {colunas.map((col) => (
-                  <th key={col.chave} className="p-1.5 whitespace-nowrap">{col.rotulo}</th>
+                  <th key={col.chave} className="p-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{col.rotulo}</th>
                 ))}
               </tr>
             </thead>
@@ -90,7 +103,7 @@ export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose
               {claims.map((c, i) => (
                 <tr key={i}>
                   {colunas.map((col) => (
-                    <td key={col.chave} className="p-1.5 align-top">{formatarValor(c, col)}</td>
+                    <td key={col.chave} className="p-1.5 align-top whitespace-nowrap overflow-hidden text-ellipsis">{formatarValor(c, col)}</td>
                   ))}
                 </tr>
               ))}
