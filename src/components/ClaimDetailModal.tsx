@@ -132,7 +132,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
           {activeTab === 'geral' && (
             <div className="space-y-6">
               {/* Metrics Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
                 <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
                   <span className="text-[10px] uppercase font-bold text-slate-400">Prejuízo Estimado</span>
                   <p className="text-base font-black text-slate-900 mt-1">
@@ -143,6 +143,12 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                   <span className="text-[10px] uppercase font-bold text-slate-400">Status do Dossiê</span>
                   <p className="text-xs font-bold text-blue-700 mt-1">{claim.status}</p>
                 </div>
+                {claim.caseDetail && (
+                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Detalhamento do Caso</span>
+                    <span className="font-semibold text-slate-800 text-xs block mt-1">{claim.caseDetail}</span>
+                  </div>
+                )}
                 <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
                   <span className="text-[10px] uppercase font-bold text-slate-400">Data & Hora</span>
                   <p className="text-xs font-bold text-slate-800 mt-1">

@@ -106,6 +106,7 @@ export interface Claim {
   thirdPartyDocument?: string;
   thirdPartyName?: string;
   occurrenceTime?: string;
+  caseDetail?: string;
 }
 
 export interface Fine {

@@ -44,6 +44,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [occurrenceTypeFilter, setOccurrenceTypeFilter] = useState('');
+  const [caseDetailFilter, setCaseDetailFilter] = useState('');
   const [sortBy, setSortBy] = useState<'data-desc' | 'data-asc' | 'nome' | 'placa'>('data-desc');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
@@ -241,6 +242,10 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     new Set(claims.map((c) => normalizarTipoOcorrencia(c.occurrenceType)).filter(Boolean))
   ).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
+  const detalhamentosDisponiveis = Array.from(
+    new Set(claims.map((c) => c.caseDetail).filter(Boolean))
+  ).sort((a, b) => a!.localeCompare(b!, 'pt-BR'));
+
   const filteredClaims = claims.filter((c) => {
     const matchesSearch =
       search === '' ||
@@ -256,8 +261,9 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     const matchesDateFrom = !dateFrom || (c.date && c.date >= dateFrom);
     const matchesDateTo = !dateTo || (c.date && c.date <= dateTo);
     const matchesOccurrenceType = !occurrenceTypeFilter || normalizarTipoOcorrencia(c.occurrenceType) === occurrenceTypeFilter;
+    const matchesCaseDetail = !caseDetailFilter || c.caseDetail === caseDetailFilter;
 
-    return matchesSearch && matchesStatus && matchesPriority && matchesDateFrom && matchesDateTo && matchesOccurrenceType;
+    return matchesSearch && matchesStatus && matchesPriority && matchesDateFrom && matchesDateTo && matchesOccurrenceType && matchesCaseDetail;
   });
 
   const sortedClaims = [...filteredClaims].sort((a, b) => {
@@ -429,8 +435,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           </div>
         </div>
 
-        {/* Linha 2 de Filtros: Data de / Data até / Tipo de Ocorrência / Ordenação / Limpar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-3 border-t border-slate-100">
+        {/* Linha 2 de Filtros: Data de / Data até / Tipo / Detalhamento / Ordenação / Limpar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-3 border-t border-slate-100">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data de</label>
             <input
@@ -463,6 +469,19 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             </select>
           </div>
           <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Detalhamento do Caso</label>
+            <select
+              value={caseDetailFilter}
+              onChange={(e) => setCaseDetailFilter(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+            >
+              <option value="">Todos os Detalhamentos</option>
+              {detalhamentosDisponiveis.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ordenar por</label>
             <select
               value={sortBy}
@@ -484,6 +503,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 setDateFrom('');
                 setDateTo('');
                 setOccurrenceTypeFilter('');
+                setCaseDetailFilter('');
                 setSortBy('data-desc');
               }}
               className="w-full px-3 py-2 text-xs font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-lg hover:border-rose-200 hover:bg-rose-50 transition flex items-center justify-center gap-1.5 cursor-pointer"
