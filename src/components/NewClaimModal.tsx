@@ -61,8 +61,8 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const selectedVehicle = vehicles.find((v) => v.plate === vehiclePlate);
-    const selectedPerson = people.find((p) => p.name === driverName);
+    const selectedVehicle = vehicles.find((v) => v.plate.toUpperCase() === vehiclePlate.toUpperCase());
+    const selectedPerson = people.find((p) => p.name.trim().toUpperCase() === driverName.trim().toUpperCase());
 
     if (claim && onUpdateClaim) {
       onUpdateClaim(claim.id, {
@@ -181,19 +181,27 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Tipo de Ocorrência *
               </label>
-              <select
+              <input
+                type="text"
+                list="lista-tipos-ocorrencia"
                 value={occurrenceType}
                 onChange={(e) => setOccurrenceType(e.target.value)}
+                placeholder="Selecione da lista ou digite um novo tipo"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-              >
-                <option value="Colisão Traseira com Avarias">Colisão Traseira com Avarias</option>
-                <option value="Colisão Lateral / Cruzamento">Colisão Lateral / Cruzamento</option>
-                <option value="Infração por Velocidade + NIC Duplicada">Infração por Velocidade + NIC Duplicada</option>
-                <option value="Estacionamento Proibido">Estacionamento Proibido</option>
-                <option value="Avaria em Manobra de Pátio">Avaria em Manobra de Pátio</option>
-                <option value="Dano em Pneu / Roda / Suspensão">Dano em Pneu / Roda / Suspensão</option>
-                <option value="Quebra Mecânica / Guincho">Quebra Mecânica / Guincho</option>
-              </select>
+              />
+              <datalist id="lista-tipos-ocorrencia">
+                {[
+                  'Avaria em Manobra de Pátio',
+                  'Colisão Lateral / Cruzamento',
+                  'Colisão Traseira com Avarias',
+                  'Dano em Pneu / Roda / Suspensão',
+                  'Estacionamento Proibido',
+                  'Infração por Velocidade + NIC Duplicada',
+                  'Quebra Mecânica / Guincho',
+                ].sort((a, b) => a.localeCompare(b, 'pt-BR')).map((t) => (
+                  <option key={t} value={t} />
+                ))}
+              </datalist>
             </div>
 
             {/* Veículo / Prefixo */}
@@ -201,18 +209,21 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Veículo & Prefixo Trans Pinho *
               </label>
-              <select
+              <input
+                type="text"
+                list="lista-veiculos"
                 value={vehiclePlate}
-                onChange={(e) => setVehiclePlate(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-              >
-                <option value="">Selecione um veículo</option>
-                {vehicles.map((v) => (
+                onChange={(e) => setVehiclePlate(e.target.value.toUpperCase())}
+                placeholder="Selecione da lista ou digite a placa"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 uppercase font-mono"
+              />
+              <datalist id="lista-veiculos">
+                {[...vehicles].sort((a, b) => a.plate.localeCompare(b.plate, 'pt-BR')).map((v) => (
                   <option key={v.id} value={v.plate}>
-                    {v.plate} • Prefixo {v.prefix} ({v.model})
+                    {`Prefixo ${v.prefix} (${v.model})`}
                   </option>
                 ))}
-              </select>
+              </datalist>
             </div>
 
             {/* Condutor */}
@@ -220,18 +231,21 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Condutor Responsável *
               </label>
-              <select
+              <input
+                type="text"
+                list="lista-condutores"
                 value={driverName}
                 onChange={(e) => setDriverName(e.target.value)}
+                placeholder="Selecione da lista ou digite o nome"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-              >
-                <option value="">Selecione um condutor</option>
-                {people.map((p) => (
+              />
+              <datalist id="lista-condutores">
+                {[...people].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((p) => (
                   <option key={p.id} value={p.name}>
-                    {p.name} {p.docNumber ? `(${p.docNumber})` : ''}
+                    {p.docNumber || ''}
                   </option>
                 ))}
-              </select>
+              </datalist>
             </div>
 
             {/* Prioridade & Status */}
@@ -313,6 +327,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Prejuízo Estimado (R$)
               </label>
+              <p className="text-[10px] text-slate-400 mb-1">Estimativa geral do sinistro, usada nos relatórios e no dashboard.</p>
               <input
                 type="number"
                 step="0.01"
@@ -481,7 +496,8 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Valor Total (R$) — calculado automaticamente</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Valor Total (R$)</label>
+                <p className="text-[10px] text-slate-400 mb-1">Soma automática de Custo do Terceiro + Custo do Nosso Veículo, abaixo.</p>
                 <input
                   type="text"
                   readOnly
