@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Claim, Person, Vehicle, ClaimStatus, PriorityType } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 import { Combobox } from './Combobox';
+import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 
 interface NewClaimModalProps {
   people: Person[];
@@ -68,7 +69,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
       onUpdateClaim(claim.id, {
         status,
         priority,
-        occurrenceType,
+        occurrenceType: normalizarTipoOcorrencia(occurrenceType),
         date,
         time,
         location,
@@ -103,7 +104,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         protocol,
         status,
         priority,
-        occurrenceType,
+        occurrenceType: normalizarTipoOcorrencia(occurrenceType),
         date,
         time,
         location,

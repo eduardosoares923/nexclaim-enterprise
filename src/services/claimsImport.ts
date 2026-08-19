@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { Claim, ClaimStatus } from '../types';
+import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 
 const NORMALIZAR = (s: any) => (s ?? '').toString().trim().toUpperCase();
 
@@ -122,7 +123,7 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       const claim: Omit<Claim, 'id'> = {
         claimNumber: `SIN-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
         protocol: `PROT-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
-        occurrenceType: paraTexto(pegar(linha, idx.tipo)) || 'Não especificado',
+        occurrenceType: normalizarTipoOcorrencia(paraTexto(pegar(linha, idx.tipo))),
         date: paraData(data),
         time: paraTexto(pegar(linha, idx.horario)),
         occurrenceTime: paraTexto(pegar(linha, idx.horario)),
@@ -239,7 +240,7 @@ export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null>
       const claim: Omit<Claim, 'id'> = {
         claimNumber: `SIN-IMP-DADOS-${l}`,
         protocol: `PROT-IMP-DADOS-${l}`,
-        occurrenceType: tipo || 'Não especificado',
+        occurrenceType: normalizarTipoOcorrencia(tipo),
         date: '',
         time: '',
         location: '',

@@ -5,6 +5,7 @@ import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
 import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
+import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -230,7 +231,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const sinistrosDaAbaDados = claims.filter((c) => c.claimNumber?.startsWith('SIN-IMP-DADOS-'));
 
   const tiposOcorrenciaDisponiveis = Array.from(
-    new Set(claims.map((c) => c.occurrenceType).filter(Boolean))
+    new Set(claims.map((c) => normalizarTipoOcorrencia(c.occurrenceType)).filter(Boolean))
   ).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
   const filteredClaims = claims.filter((c) => {
@@ -247,7 +248,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     const matchesPriority = !priorityFilter || c.priority === priorityFilter;
     const matchesDateFrom = !dateFrom || (c.date && c.date >= dateFrom);
     const matchesDateTo = !dateTo || (c.date && c.date <= dateTo);
-    const matchesOccurrenceType = !occurrenceTypeFilter || c.occurrenceType === occurrenceTypeFilter;
+    const matchesOccurrenceType = !occurrenceTypeFilter || normalizarTipoOcorrencia(c.occurrenceType) === occurrenceTypeFilter;
 
     return matchesSearch && matchesStatus && matchesPriority && matchesDateFrom && matchesDateTo && matchesOccurrenceType;
   });
@@ -266,6 +267,20 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     }
   });
 
+  const corrigirTiposExistentes = async () => {
+    const paraCorrigir = claims.filter((c) => normalizarTipoOcorrencia(c.occurrenceType) !== c.occurrenceType);
+    if (paraCorrigir.length === 0) {
+      alert('Nenhum sinistro precisa de correção, todos já estão com o tipo padronizado.');
+      return;
+    }
+    if (!window.confirm(`${paraCorrigir.length} sinistro(s) serão corrigidos para o formato padronizado (ex: "BATIDA FROTAL" vira "Batida Frontal"). Continuar?`)) return;
+    for (const c of paraCorrigir) {
+      await firebaseService.updateClaim(c.id, { occurrenceType: normalizarTipoOcorrencia(c.occurrenceType) });
+    }
+    queryClient.invalidateQueries({ queryKey: ['claims'] });
+    alert(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -283,6 +298,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={corrigirTiposExistentes}
+            className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-blue-200 cursor-pointer shadow-xs"
+            title="Padronizar grafia e corrigir erros de digitação dos tipos de ocorrência"
+          >
+            <i className="fa-solid fa-broom"></i>
+            <span>Corrigir Tipos de Ocorrência Duplicados</span>
+          </button>
+
           {onDeleteClaim && sinistrosDaAbaDados.length > 0 && (
             <button
               onClick={() => {
