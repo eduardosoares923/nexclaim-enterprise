@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Claim, Person, Vehicle, ClaimStatus, PriorityType } from '../types';
 import { InfoTooltip } from './InfoTooltip';
+import { Combobox } from './Combobox';
 
 interface NewClaimModalProps {
   people: Person[];
@@ -174,16 +175,12 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Tipo de Ocorrência
               </label>
-              <input
-                type="text"
-                list="lista-tipos-ocorrencia"
+              <Combobox
                 value={occurrenceType}
-                onChange={(e) => setOccurrenceType(e.target.value)}
+                onChange={setOccurrenceType}
                 placeholder="Selecione da lista ou digite um novo tipo"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-              />
-              <datalist id="lista-tipos-ocorrencia">
-                {[
+                options={[
                   'Avaria em Manobra de Pátio',
                   'Colisão Lateral / Cruzamento',
                   'Colisão Traseira com Avarias',
@@ -191,10 +188,8 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
                   'Estacionamento Proibido',
                   'Infração por Velocidade + NIC Duplicada',
                   'Quebra Mecânica / Guincho',
-                ].sort((a, b) => a.localeCompare(b, 'pt-BR')).map((t) => (
-                  <option key={t} value={t} />
-                ))}
-              </datalist>
+                ].sort((a, b) => a.localeCompare(b, 'pt-BR')).map((t) => ({ value: t }))}
+              />
             </div>
 
             {/* Veículo / Prefixo */}
@@ -202,21 +197,16 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Veículo & Prefixo Trans Pinho
               </label>
-              <input
-                type="text"
-                list="lista-veiculos"
+              <Combobox
                 value={vehiclePlate}
-                onChange={(e) => setVehiclePlate(e.target.value.toUpperCase())}
+                onChange={(v) => setVehiclePlate(v.toUpperCase())}
                 placeholder="Selecione da lista ou digite a placa"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 uppercase font-mono"
+                options={[...vehicles].sort((a, b) => a.plate.localeCompare(b.plate, 'pt-BR')).map((v) => ({
+                  value: v.plate,
+                  label: `Prefixo ${v.prefix} (${v.model})`,
+                }))}
               />
-              <datalist id="lista-veiculos">
-                {[...vehicles].sort((a, b) => a.plate.localeCompare(b.plate, 'pt-BR')).map((v) => (
-                  <option key={v.id} value={v.plate}>
-                    {`Prefixo ${v.prefix} (${v.model})`}
-                  </option>
-                ))}
-              </datalist>
             </div>
 
             {/* Condutor */}
@@ -224,21 +214,16 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Condutor Responsável
               </label>
-              <input
-                type="text"
-                list="lista-condutores"
+              <Combobox
                 value={driverName}
-                onChange={(e) => setDriverName(e.target.value)}
+                onChange={setDriverName}
                 placeholder="Selecione da lista ou digite o nome"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                options={[...people].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((p) => ({
+                  value: p.name,
+                  label: p.docNumber || '',
+                }))}
               />
-              <datalist id="lista-condutores">
-                {[...people].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((p) => (
-                  <option key={p.id} value={p.name}>
-                    {p.docNumber || ''}
-                  </option>
-                ))}
-              </datalist>
             </div>
 
             {/* Prioridade & Status */}
