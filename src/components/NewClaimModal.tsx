@@ -466,7 +466,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custo do Terceiro (R$)</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custo do Carro do Envolvido (R$)</label>
                 <p className="text-[10px] text-slate-400 mb-1">Custo do carro do envolvido (terceiro).</p>
                 <input
                   type="number"
