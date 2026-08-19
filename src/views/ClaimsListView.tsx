@@ -19,6 +19,13 @@ interface ClaimsListViewProps {
   onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
 }
 
+function formatarData(iso: string): string {
+  if (!iso) return '—';
+  const [ano, mes, dia] = iso.split('-');
+  if (!ano || !mes || !dia) return iso;
+  return `${dia}/${mes}/${ano}`;
+}
+
 export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   claims,
   people,
@@ -551,7 +558,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     <td className="p-3.5">
                       <span className="text-slate-700 truncate block max-w-[200px]">{claim.occurrenceType}</span>
                     </td>
-                    <td className="p-3.5 whitespace-nowrap">{claim.date}</td>
+                    <td className="p-3.5 whitespace-nowrap font-medium text-slate-700">{formatarData(claim.date)}</td>
                     <td className="p-3.5 font-bold text-slate-900 whitespace-nowrap">
                       {formatCurrency(claim.estimatedCost)}
                     </td>
@@ -568,37 +575,39 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                         {claim.status}
                       </span>
                     </td>
-                    <td className="p-3.5 text-right space-x-1.5 whitespace-nowrap">
-                      <button
-                        onClick={() => setEditingClaim(claim)}
-                        className="btn bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] px-2.5 py-1 rounded font-bold transition shadow-2xs border border-slate-200"
-                        title="Editar Sinistro"
-                      >
-                        <i className="fa-solid fa-pen-to-square mr-1"></i> Editar
-                      </button>
-                      <button
-                        onClick={() => setSelectedClaimDetail(claim)}
-                        className="btn bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-[11px] px-2.5 py-1 rounded font-bold transition shadow-2xs"
-                        title="Ver Dossiê"
-                      >
-                        <i className="fa-solid fa-folder-open text-amber-600 mr-1"></i> Dossiê
-                      </button>
-                      <button
-                        onClick={() => onOpenTermGenerator(claim)}
-                        className="btn bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] px-2.5 py-1 rounded font-extrabold transition shadow-2xs"
-                        title="Emitir Termo"
-                      >
-                        <i className="fa-solid fa-wand-magic-sparkles mr-1"></i> Termo
-                      </button>
-                      {onDeleteClaim && (
+                    <td className="p-3.5 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => onDeleteClaim(claim.id)}
-                          className="btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] px-2 py-1 rounded font-bold transition border border-rose-200"
-                          title="Excluir Sinistro"
+                          onClick={() => setEditingClaim(claim)}
+                          className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200"
+                          title="Editar Sinistro"
                         >
-                          <i className="fa-solid fa-trash-can"></i>
+                          <i className="fa-solid fa-pen-to-square text-xs"></i>
                         </button>
-                      )}
+                        <button
+                          onClick={() => setSelectedClaimDetail(claim)}
+                          className="w-7 h-7 flex items-center justify-center bg-white hover:bg-slate-100 border border-slate-300 text-amber-600 rounded-lg transition"
+                          title="Ver Dossiê"
+                        >
+                          <i className="fa-solid fa-folder-open text-xs"></i>
+                        </button>
+                        <button
+                          onClick={() => onOpenTermGenerator(claim)}
+                          className="w-7 h-7 flex items-center justify-center bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg transition"
+                          title="Emitir Termo"
+                        >
+                          <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                        </button>
+                        {onDeleteClaim && (
+                          <button
+                            onClick={() => onDeleteClaim(claim.id)}
+                            className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition border border-rose-200"
+                            title="Excluir Sinistro"
+                          >
+                            <i className="fa-solid fa-trash-can text-xs"></i>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
