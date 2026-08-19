@@ -26,19 +26,34 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   const [location, setLocation] = useState(claim ? claim.location : 'BR-116, km 270');
   const [city, setCity] = useState(claim ? claim.city : 'Gravataí');
   const [state, setState] = useState(claim ? claim.state : 'RS');
-  const [vehiclePlate, setVehiclePlate] = useState(claim ? claim.vehiclePlate : (vehicles[0]?.plate || 'JCO8C10'));
-  const [driverName, setDriverName] = useState(claim ? claim.driverName : (people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO'));
-  const [priority, setPriority] = useState<PriorityType>(claim ? claim.priority : 'Alta');
+  const [vehiclePlate, setVehiclePlate] = useState(claim ? claim.vehiclePlate : (vehicles[0]?.plate || ''));
+  const [driverName, setDriverName] = useState(claim ? claim.driverName : (people[0]?.name || ''));
+  const [priority, setPriority] = useState<PriorityType>(claim ? claim.priority : 'Média');
   const [status, setStatus] = useState<ClaimStatus>(claim ? claim.status : 'Em análise');
-  const [estimatedCost, setEstimatedCost] = useState<number>(claim ? claim.estimatedCost : 3500);
-  const [insurer, setInsurer] = useState(claim ? (claim.insurer || '') : 'Porto Seguro Cia de Seguros');
-  const [policyNumber, setPolicyNumber] = useState(claim ? (claim.policyNumber || '') : 'AP-99201928-01');
-  const [boNumber, setBoNumber] = useState(claim ? (claim.boNumber || '') : 'BO-RS-48912/2026');
-  const [description, setDescription] = useState(
-    claim
-      ? claim.description
-      : 'Ocorrência com avarias materiais no veículo durante trajeto operacional. Condutor ciente dos fatos.'
-  );
+  const [estimatedCost, setEstimatedCost] = useState<number>(claim ? claim.estimatedCost : 0);
+  const [insurer, setInsurer] = useState(claim ? (claim.insurer || '') : '');
+  const [policyNumber, setPolicyNumber] = useState(claim ? (claim.policyNumber || '') : '');
+  const [boNumber, setBoNumber] = useState(claim ? (claim.boNumber || '') : '');
+  const [description, setDescription] = useState(claim ? claim.description : '');
+
+  // Estados de Terceiro & Responsabilidade
+  const [supervisorName, setSupervisorName] = useState(claim?.supervisorName || '');
+  const [thirdPartyVehicleDescription, setThirdPartyVehicleDescription] = useState(claim?.thirdPartyVehicleDescription || '');
+  const [thirdPartyPlate, setThirdPartyPlate] = useState(claim?.thirdPartyPlate || '');
+  const [atFault, setAtFault] = useState(claim?.atFault || '');
+  const [paymentDirection, setPaymentDirection] = useState<'Pagar' | 'Cobrar' | ''>(claim?.paymentDirection || '');
+  const [thirdPartyRepairCost, setThirdPartyRepairCost] = useState<string>(claim?.thirdPartyRepairCost?.toString() || '');
+  const [ownVehicleRepairCost, setOwnVehicleRepairCost] = useState<string>(claim?.ownVehicleRepairCost?.toString() || '');
+  const [totalValue, setTotalValue] = useState<string>(claim?.totalValue?.toString() || '');
+  const [chargeAmount, setChargeAmount] = useState<string>(claim?.chargeAmount?.toString() || '');
+  const [firstDiscountMonth, setFirstDiscountMonth] = useState(claim?.firstDiscountMonth || '');
+  const [thirdPartyDocument, setThirdPartyDocument] = useState(claim?.thirdPartyDocument || '');
+
+  const parseNum = (val: string) => {
+    if (!val || val.trim() === '') return undefined;
+    const n = parseFloat(val);
+    return isNaN(n) ? undefined : n;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +74,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         description,
         vehicleId: selectedVehicle?.id || claim.vehicleId,
         vehiclePlate,
+        vehiclePrefix: selectedVehicle?.prefix || claim.vehiclePrefix || '',
         vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
         driverId: selectedPerson?.id || claim.driverId,
         driverName,
@@ -67,6 +83,17 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         boNumber,
         estimatedCost: Number(estimatedCost) || 0,
         approvedCost: Number(estimatedCost) || 0,
+        supervisorName,
+        thirdPartyVehicleDescription,
+        thirdPartyPlate,
+        thirdPartyDocument,
+        atFault,
+        paymentDirection,
+        thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
+        ownVehicleRepairCost: parseNum(ownVehicleRepairCost),
+        totalValue: parseNum(totalValue),
+        chargeAmount: parseNum(chargeAmount),
+        firstDiscountMonth,
         updatedAt: new Date().toISOString(),
       });
     } else {
@@ -85,6 +112,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         description,
         vehicleId: selectedVehicle?.id,
         vehiclePlate,
+        vehiclePrefix: selectedVehicle?.prefix || '',
         vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
         driverId: selectedPerson?.id,
         driverName,
@@ -94,6 +122,17 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         assignedUser: 'Carlos Pinho',
         estimatedCost: Number(estimatedCost) || 0,
         approvedCost: Number(estimatedCost) || 0,
+        supervisorName,
+        thirdPartyVehicleDescription,
+        thirdPartyPlate,
+        thirdPartyDocument,
+        atFault,
+        paymentDirection,
+        thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
+        ownVehicleRepairCost: parseNum(ownVehicleRepairCost),
+        totalValue: parseNum(totalValue),
+        chargeAmount: parseNum(chargeAmount),
+        firstDiscountMonth,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         notes: 'Cadastrado no novo portal React Trans Pinho.',
@@ -164,6 +203,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
                 onChange={(e) => setVehiclePlate(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
               >
+                <option value="">Selecione um veículo</option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.plate}>
                     {v.plate} • Prefixo {v.prefix} ({v.model})
@@ -182,9 +222,10 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
                 onChange={(e) => setDriverName(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
               >
+                <option value="">Selecione um condutor</option>
                 {people.map((p) => (
                   <option key={p.id} value={p.name}>
-                    {p.name} ({p.docNumber})
+                    {p.name} {p.docNumber ? `(${p.docNumber})` : ''}
                   </option>
                 ))}
               </select>
@@ -278,8 +319,36 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               />
             </div>
 
-            {/* Boletim de Ocorrência */}
+            {/* Seguradora & Apólice */}
             <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                Seguradora
+              </label>
+              <input
+                type="text"
+                value={insurer}
+                onChange={(e) => setInsurer(e.target.value)}
+                placeholder="Ex: Porto Seguro Cia de Seguros"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+              />
+            </div>
+
+            {/* Nº Apólice */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                Nº da Apólice
+              </label>
+              <input
+                type="text"
+                value={policyNumber}
+                onChange={(e) => setPolicyNumber(e.target.value)}
+                placeholder="Ex: AP-99201928-01"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+              />
+            </div>
+
+            {/* Boletim de Ocorrência */}
+            <div className="md:col-span-2">
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Nº Boletim de Ocorrência (B.O.)
               </label>
@@ -287,6 +356,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
                 type="text"
                 value={boNumber}
                 onChange={(e) => setBoNumber(e.target.value)}
+                placeholder="Ex: BO-RS-48912/2026"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
               />
             </div>
@@ -301,9 +371,149 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              placeholder="Descreva detalhadamente o ocorrido, avarias e circunstâncias do evento..."
               className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
             ></textarea>
           </div>
+
+          {/* Seção Colapsável: Dados do Terceiro Envolvido & Responsabilidade */}
+          <details className="border border-slate-200 rounded-lg p-3 bg-slate-50/50 open:bg-white transition-all">
+            <summary className="text-xs font-bold uppercase text-slate-600 cursor-pointer flex items-center justify-between select-none">
+              <span className="flex items-center gap-1.5">
+                <i className="fa-solid fa-car-burst text-amber-500"></i>
+                Dados do Terceiro Envolvido & Responsabilidade (Opcional)
+              </span>
+              <span className="text-[10px] text-slate-400 font-normal lowercase">clique para expandir</span>
+            </summary>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-100">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Supervisor Responsável</label>
+                <input
+                  type="text"
+                  value={supervisorName}
+                  onChange={(e) => setSupervisorName(e.target.value)}
+                  placeholder="Nome do supervisor"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Veículo do Terceiro</label>
+                <input
+                  type="text"
+                  value={thirdPartyVehicleDescription}
+                  onChange={(e) => setThirdPartyVehicleDescription(e.target.value)}
+                  placeholder="Ex: Fiat Palio Prata"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Placa do Terceiro</label>
+                <input
+                  type="text"
+                  value={thirdPartyPlate}
+                  onChange={(e) => setThirdPartyPlate(e.target.value.toUpperCase())}
+                  placeholder="Ex: ABC1D23"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 uppercase font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">CPF / Documento do Terceiro</label>
+                <input
+                  type="text"
+                  value={thirdPartyDocument}
+                  onChange={(e) => setThirdPartyDocument(e.target.value)}
+                  placeholder="Ex: 000.000.000-00"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Culpado / Responsável</label>
+                <input
+                  type="text"
+                  value={atFault}
+                  onChange={(e) => setAtFault(e.target.value)}
+                  placeholder="Ex: Terceiro / Motorista Trans Pinho"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Direção do Pagamento</label>
+                <select
+                  value={paymentDirection}
+                  onChange={(e) => setPaymentDirection(e.target.value as any)}
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                >
+                  <option value="">Selecione (Pagar / Cobrar)</option>
+                  <option value="Pagar">Pagar</option>
+                  <option value="Cobrar">Cobrar</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custo do Terceiro (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={thirdPartyRepairCost}
+                  onChange={(e) => setThirdPartyRepairCost(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custo do Nosso Veículo (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={ownVehicleRepairCost}
+                  onChange={(e) => setOwnVehicleRepairCost(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Valor Total (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={totalValue}
+                  onChange={(e) => setTotalValue(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Quanto Cobrar (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={chargeAmount}
+                  onChange={(e) => setChargeAmount(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Mês do 1º Desconto</label>
+                <input
+                  type="text"
+                  value={firstDiscountMonth}
+                  onChange={(e) => setFirstDiscountMonth(e.target.value)}
+                  placeholder="Ex: Janeiro / 2026"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                />
+              </div>
+            </div>
+          </details>
 
           {/* Footer Buttons */}
           <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
