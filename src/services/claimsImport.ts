@@ -1,4 +1,6 @@
 import * as XLSX from 'xlsx';
+// @ts-ignore
+import * as XLSXStyle from 'xlsx-js-style';
 import { Claim, ClaimStatus } from '../types';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 
@@ -295,11 +297,34 @@ export function exportarSinistrosParaExcel(claims: Claim[]) {
     'Nº B.O.': c.boNumber || '',
   }));
 
-  const worksheet = XLSX.utils.json_to_sheet(linhas);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sinistros');
+  const worksheet = XLSXStyle.utils.json_to_sheet(linhas);
+
+  const headers = Object.keys(linhas[0] || {});
+  const larguras = headers.map((h) => {
+    const maiorConteudo = Math.max(h.length, ...linhas.map((l: any) => String(l[h] ?? '').length));
+    return { wch: Math.min(Math.max(maiorConteudo + 2, 10), 40) };
+  });
+  worksheet['!cols'] = larguras;
+  worksheet['!freeze'] = { xSplit: 0, ySplit: 1 };
+  worksheet['!autofilter'] = { ref: worksheet['!ref'] || 'A1' };
+
+  const estiloCabecalho = {
+    font: { bold: true, color: { rgb: 'FFFFFF' } },
+    fill: { fgColor: { rgb: '1E293B' } },
+    alignment: { vertical: 'center', horizontal: 'left' },
+  };
+
+  headers.forEach((_, i) => {
+    const endereco = XLSXStyle.utils.encode_cell({ r: 0, c: i });
+    if (worksheet[endereco]) {
+      worksheet[endereco].s = estiloCabecalho;
+    }
+  });
+
+  const workbook = XLSXStyle.utils.book_new();
+  XLSXStyle.utils.book_append_sheet(workbook, worksheet, 'Sinistros');
 
   const dataHoje = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(workbook, `Sinistros_TransPinho_${dataHoje}.xlsx`);
+  XLSXStyle.writeFile(workbook, `Sinistros_TransPinho_${dataHoje}.xlsx`);
 }
 
