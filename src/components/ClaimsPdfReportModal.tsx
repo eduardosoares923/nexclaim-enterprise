@@ -60,7 +60,7 @@ export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose
           </div>
         </div>
 
-        <div className="trans-pinho-doc p-8 overflow-y-auto print:p-0 print:overflow-visible">
+        <div className="trans-pinho-doc print-multipagina p-8 overflow-y-auto print:p-0 print:overflow-visible">
           <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
             <div>
               <h1 className="text-base font-black uppercase text-slate-950">Relatório de Sinistros</h1>

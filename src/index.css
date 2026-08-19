@@ -76,6 +76,9 @@
     max-height: none !important;
     overflow: visible !important;
   }
+  .trans-pinho-doc.print-multipagina {
+    position: static !important;
+  }
   body, #root, .fixed {
     transform: none !important;
   }
