@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Claim, Person, Vehicle, ClaimStatus, PriorityType } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface NewClaimModalProps {
   people: Person[];
@@ -30,22 +31,20 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   const [driverName, setDriverName] = useState(claim ? claim.driverName : '');
   const [priority, setPriority] = useState<PriorityType>(claim ? claim.priority : 'Média');
   const [status, setStatus] = useState<ClaimStatus>(claim ? claim.status : 'Em análise');
-  const [estimatedCost, setEstimatedCost] = useState<number>(claim ? claim.estimatedCost : 0);
-  const [insurer, setInsurer] = useState(claim ? (claim.insurer || '') : '');
-  const [policyNumber, setPolicyNumber] = useState(claim ? (claim.policyNumber || '') : '');
   const [boNumber, setBoNumber] = useState(claim ? (claim.boNumber || '') : '');
   const [description, setDescription] = useState(claim ? claim.description : '');
 
-  // Estados de Terceiro & Responsabilidade
+  // Custos e Supervisor
+  const [ownVehicleRepairCost, setOwnVehicleRepairCost] = useState<string>(claim?.ownVehicleRepairCost?.toString() || '');
   const [supervisorName, setSupervisorName] = useState(claim?.supervisorName || '');
+
+  // Estados de Terceiro & Responsabilidade
+  const [thirdPartyName, setThirdPartyName] = useState(claim?.thirdPartyName || '');
   const [thirdPartyVehicleDescription, setThirdPartyVehicleDescription] = useState(claim?.thirdPartyVehicleDescription || '');
   const [thirdPartyPlate, setThirdPartyPlate] = useState(claim?.thirdPartyPlate || '');
   const [atFault, setAtFault] = useState(claim?.atFault || '');
   const [paymentDirection, setPaymentDirection] = useState<'Pagar' | 'Cobrar' | ''>(claim?.paymentDirection || '');
   const [thirdPartyRepairCost, setThirdPartyRepairCost] = useState<string>(claim?.thirdPartyRepairCost?.toString() || '');
-  const [ownVehicleRepairCost, setOwnVehicleRepairCost] = useState<string>(claim?.ownVehicleRepairCost?.toString() || '');
-  const [chargeAmount, setChargeAmount] = useState<string>(claim?.chargeAmount?.toString() || '');
-  const [firstDiscountMonth, setFirstDiscountMonth] = useState(claim?.firstDiscountMonth || '');
   const [thirdPartyDocument, setThirdPartyDocument] = useState(claim?.thirdPartyDocument || '');
 
   const valorTotalCalculado = (
@@ -61,8 +60,8 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const selectedVehicle = vehicles.find((v) => v.plate.toUpperCase() === vehiclePlate.toUpperCase());
-    const selectedPerson = people.find((p) => p.name.trim().toUpperCase() === driverName.trim().toUpperCase());
+    const selectedVehicle = vehiclePlate ? vehicles.find((v) => v.plate.toUpperCase() === vehiclePlate.toUpperCase()) : undefined;
+    const selectedPerson = driverName ? people.find((p) => p.name.trim().toUpperCase() === driverName.trim().toUpperCase()) : undefined;
 
     if (claim && onUpdateClaim) {
       onUpdateClaim(claim.id, {
@@ -81,22 +80,19 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
         driverId: selectedPerson?.id || claim.driverId,
         driverName,
-        insurer,
-        policyNumber,
         boNumber,
-        estimatedCost: Number(estimatedCost) || 0,
-        approvedCost: Number(estimatedCost) || 0,
-        supervisorName,
-        thirdPartyVehicleDescription,
-        thirdPartyPlate,
-        thirdPartyDocument,
-        atFault,
-        paymentDirection,
+        estimatedCost: valorTotalCalculado,
+        approvedCost: valorTotalCalculado,
+        supervisorName: supervisorName || undefined,
+        thirdPartyName: thirdPartyName || undefined,
+        thirdPartyVehicleDescription: thirdPartyVehicleDescription || undefined,
+        thirdPartyPlate: thirdPartyPlate || undefined,
+        thirdPartyDocument: thirdPartyDocument || undefined,
+        atFault: atFault || undefined,
+        paymentDirection: paymentDirection || undefined,
         thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
         ownVehicleRepairCost: parseNum(ownVehicleRepairCost),
         totalValue: valorTotalCalculado > 0 ? valorTotalCalculado : undefined,
-        chargeAmount: parseNum(chargeAmount),
-        firstDiscountMonth,
         updatedAt: new Date().toISOString(),
       });
     } else {
@@ -119,23 +115,20 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         vehicleModel: selectedVehicle ? `${selectedVehicle.model} (Prefixo ${selectedVehicle.prefix})` : vehiclePlate,
         driverId: selectedPerson?.id,
         driverName,
-        insurer,
-        policyNumber,
         boNumber,
         assignedUser: 'Carlos Pinho',
-        estimatedCost: Number(estimatedCost) || 0,
-        approvedCost: Number(estimatedCost) || 0,
-        supervisorName,
-        thirdPartyVehicleDescription,
-        thirdPartyPlate,
-        thirdPartyDocument,
-        atFault,
-        paymentDirection,
+        estimatedCost: valorTotalCalculado,
+        approvedCost: valorTotalCalculado,
+        supervisorName: supervisorName || undefined,
+        thirdPartyName: thirdPartyName || undefined,
+        thirdPartyVehicleDescription: thirdPartyVehicleDescription || undefined,
+        thirdPartyPlate: thirdPartyPlate || undefined,
+        thirdPartyDocument: thirdPartyDocument || undefined,
+        atFault: atFault || undefined,
+        paymentDirection: paymentDirection || undefined,
         thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
         ownVehicleRepairCost: parseNum(ownVehicleRepairCost),
         totalValue: valorTotalCalculado > 0 ? valorTotalCalculado : undefined,
-        chargeAmount: parseNum(chargeAmount),
-        firstDiscountMonth,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         notes: 'Cadastrado no novo portal React Trans Pinho.',
@@ -179,7 +172,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             {/* Tipo de Ocorrência */}
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                Tipo de Ocorrência *
+                Tipo de Ocorrência
               </label>
               <input
                 type="text"
@@ -207,7 +200,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             {/* Veículo / Prefixo */}
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                Veículo & Prefixo Trans Pinho *
+                Veículo & Prefixo Trans Pinho
               </label>
               <input
                 type="text"
@@ -229,7 +222,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             {/* Condutor */}
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                Condutor Responsável *
+                Condutor Responsável
               </label>
               <input
                 type="text"
@@ -322,51 +315,52 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               />
             </div>
 
-            {/* Custo Estimado */}
+            {/* Valor Total (R$) */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                Prejuízo Estimado (R$)
-              </label>
-              <p className="text-[10px] text-slate-400 mb-1">Estimativa geral do sinistro, usada nos relatórios e no dashboard.</p>
-              <input
-                type="number"
-                step="0.01"
-                value={estimatedCost}
-                onChange={(e) => setEstimatedCost(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-bold text-slate-900"
-              />
-            </div>
-
-            {/* Seguradora & Apólice */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                Seguradora
+              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1 flex items-center">
+                Valor Total (R$)
+                <InfoTooltip text="Soma automática de Custo do Terceiro + Custo do Nosso Veículo, preenchidos abaixo." />
               </label>
               <input
                 type="text"
-                value={insurer}
-                onChange={(e) => setInsurer(e.target.value)}
-                placeholder="Ex: Porto Seguro Cia de Seguros"
+                readOnly
+                value={valorTotalCalculado > 0 ? valorTotalCalculado.toFixed(2).replace('.', ',') : ''}
+                placeholder="0,00"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed font-bold"
+              />
+            </div>
+
+            {/* Custo do Nosso Veículo (R$) */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                Custo do Nosso Veículo (R$)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={ownVehicleRepairCost}
+                onChange={(e) => setOwnVehicleRepairCost(e.target.value)}
+                placeholder="0,00"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
               />
             </div>
 
-            {/* Nº Apólice */}
+            {/* Supervisor Responsável */}
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                Nº da Apólice
+                Supervisor Responsável
               </label>
               <input
                 type="text"
-                value={policyNumber}
-                onChange={(e) => setPolicyNumber(e.target.value)}
-                placeholder="Ex: AP-99201928-01"
+                value={supervisorName}
+                onChange={(e) => setSupervisorName(e.target.value)}
+                placeholder="Nome do supervisor"
                 className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
               />
             </div>
 
             {/* Boletim de Ocorrência */}
-            <div className="md:col-span-2">
+            <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                 Nº Boletim de Ocorrência (B.O.)
               </label>
@@ -402,12 +396,12 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
               <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Supervisor Responsável</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Nome do Responsável Envolvido</label>
                 <input
                   type="text"
-                  value={supervisorName}
-                  onChange={(e) => setSupervisorName(e.target.value)}
-                  placeholder="Nome do supervisor"
+                  value={thirdPartyName}
+                  onChange={(e) => setThirdPartyName(e.target.value)}
+                  placeholder="Nome da pessoa envolvida (terceiro)"
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
                 />
               </div>
@@ -473,59 +467,13 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custo do Terceiro (R$)</label>
+                <p className="text-[10px] text-slate-400 mb-1">Custo do carro do envolvido (terceiro).</p>
                 <input
                   type="number"
                   step="0.01"
                   value={thirdPartyRepairCost}
                   onChange={(e) => setThirdPartyRepairCost(e.target.value)}
                   placeholder="0,00"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Custo do Nosso Veículo (R$)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={ownVehicleRepairCost}
-                  onChange={(e) => setOwnVehicleRepairCost(e.target.value)}
-                  placeholder="0,00"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Valor Total (R$)</label>
-                <p className="text-[10px] text-slate-400 mb-1">Soma automática de Custo do Terceiro + Custo do Nosso Veículo, abaixo.</p>
-                <input
-                  type="text"
-                  readOnly
-                  value={valorTotalCalculado > 0 ? valorTotalCalculado.toFixed(2).replace('.', ',') : ''}
-                  placeholder="0,00"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Quanto Cobrar (R$)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={chargeAmount}
-                  onChange={(e) => setChargeAmount(e.target.value)}
-                  placeholder="0,00"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Mês do 1º Desconto</label>
-                <input
-                  type="text"
-                  value={firstDiscountMonth}
-                  onChange={(e) => setFirstDiscountMonth(e.target.value)}
-                  placeholder="Ex: Janeiro / 2026"
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
                 />
               </div>

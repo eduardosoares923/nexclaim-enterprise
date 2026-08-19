@@ -104,6 +104,7 @@ export interface Claim {
   chargeAmount?: number;
   firstDiscountMonth?: string;
   thirdPartyDocument?: string;
+  thirdPartyName?: string;
   occurrenceTime?: string;
 }
 

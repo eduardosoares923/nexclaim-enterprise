@@ -205,7 +205,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
               </div>
 
               {/* Seção: Dados do Terceiro Envolvido & Responsabilidade */}
-              {Boolean(claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
+              {Boolean(claim.thirdPartyName || claim.thirdPartyVehicleDescription || claim.thirdPartyPlate || claim.thirdPartyDocument || claim.atFault || claim.paymentDirection || claim.thirdPartyRepairCost || claim.ownVehicleRepairCost || claim.totalValue) && (
                 <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
@@ -219,6 +219,12 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    {claim.thirdPartyName && (
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Nome do Terceiro</span>
+                        <p className="font-bold text-slate-900">{claim.thirdPartyName}</p>
+                      </div>
+                    )}
                     {claim.thirdPartyVehicleDescription && (
                       <div>
                         <span className="block text-[10px] font-bold text-slate-500 uppercase">Veículo do Terceiro</span>
