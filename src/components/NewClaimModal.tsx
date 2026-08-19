@@ -376,16 +376,13 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             ></textarea>
           </div>
 
-          {/* Seção Colapsável: Dados do Terceiro Envolvido & Responsabilidade */}
-          <details className="border border-slate-200 rounded-lg p-3 bg-slate-50/50 open:bg-white transition-all">
-            <summary className="text-xs font-bold uppercase text-slate-600 cursor-pointer flex items-center justify-between select-none">
-              <span className="flex items-center gap-1.5">
-                <i className="fa-solid fa-car-burst text-amber-500"></i>
-                Dados do Terceiro Envolvido & Responsabilidade (Opcional)
-              </span>
-              <span className="text-[10px] text-slate-400 font-normal lowercase">clique para expandir</span>
-            </summary>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-100">
+          {/* Seção: Dados do Terceiro Envolvido & Responsabilidade */}
+          <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+            <h4 className="text-xs font-bold uppercase text-slate-600 flex items-center gap-1.5 mb-3">
+              <i className="fa-solid fa-car-burst text-amber-500"></i>
+              Dados do Terceiro Envolvido & Responsabilidade
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
               <div>
                 <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Supervisor Responsável</label>
                 <input
@@ -513,7 +510,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
                 />
               </div>
             </div>
-          </details>
+          </div>
 
           {/* Footer Buttons */}
           <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
