@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
+import { ClaimsPdfReportModal } from '../components/ClaimsPdfReportModal';
 import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
@@ -71,6 +72,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     COLUNAS_EXPORTACAO_SINISTROS.map((c) => c.chave)
   );
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
 
   const handleToggleColuna = (chave: string) => {
     setColunasExportSelecionadas((prev) =>
@@ -355,6 +357,16 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             </button>
             {showMoreActions && (
               <div className="absolute z-30 top-full mt-1 right-0 w-72 bg-white border border-slate-200 rounded-lg shadow-lg py-1.5">
+                <button
+                  onClick={() => {
+                    setShowPdfModal(true);
+                    setShowMoreActions(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer border-b border-slate-100 pb-2 mb-1"
+                >
+                  <i className="fa-solid fa-file-pdf text-rose-500"></i> Relatório de Sinistros em PDF (A4)
+                </button>
+
                 <button
                   onClick={() => {
                     corrigirTiposExistentes();
@@ -1108,7 +1120,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => setShowExportModal(false)}
@@ -1116,22 +1128,46 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               >
                 Cancelar
               </button>
-              <button
-                type="button"
-                disabled={colunasExportSelecionadas.length === 0}
-                onClick={() => {
-                  exportarSinistrosParaExcel(sortedClaims, colunasExportSelecionadas);
-                  setShowExportModal(false);
-                }}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <i className="fa-solid fa-file-export"></i>
-                <span>Exportar Agora ({colunasExportSelecionadas.length} colunas)</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={colunasExportSelecionadas.length === 0}
+                  onClick={() => {
+                    setShowPdfModal(true);
+                    setShowExportModal(false);
+                  }}
+                  className="bg-white hover:bg-slate-100 text-rose-600 border border-rose-200 font-bold text-xs px-4 py-2.5 rounded-lg shadow-xs transition active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Gerar visualização em PDF pronta para impressão"
+                >
+                  <i className="fa-solid fa-file-pdf"></i>
+                  <span>Relatório PDF</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={colunasExportSelecionadas.length === 0}
+                  onClick={() => {
+                    exportarSinistrosParaExcel(sortedClaims, colunasExportSelecionadas);
+                    setShowExportModal(false);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <i className="fa-solid fa-file-excel"></i>
+                  <span>Exportar Excel ({colunasExportSelecionadas.length} colunas)</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>,
         document.body
+      )}
+
+      {/* Modal de Relatório PDF */}
+      {showPdfModal && (
+        <ClaimsPdfReportModal
+          claims={sortedClaims}
+          colunas={COLUNAS_EXPORTACAO_SINISTROS.filter((c) => colunasExportSelecionadas.includes(c.chave))}
+          onClose={() => setShowPdfModal(false)}
+        />
       )}
     </div>
   );
