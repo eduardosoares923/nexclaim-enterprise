@@ -599,7 +599,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                     </td>
                     <td className="p-3.5">
                       <div className="text-[11px] font-semibold text-slate-800 max-w-[280px] truncate" title={fine.description}>{fine.description}</div>
-                      {fine.indicationStatus && (
+                      {fine.indicationStatus && !fine.duplicateOfAuto && (
                         <span className="inline-block mt-0.5 text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                           {fine.indicationStatus}
                         </span>
@@ -899,7 +899,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Condutor</span>{viewingFine.driverName}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data da Multa</span>{formatarDataHoraBr(viewingFine.infractionDate, viewingFine.infractionTime)}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Vencimento Indicação</span>{formatarDataBr(viewingFine.dueDate)}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Indicação do Condutor</span>{viewingFine.indicationStatus || '—'}</div>
+                {!viewingFine.duplicateOfAuto && (
+                  <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Indicação do Condutor</span>{viewingFine.indicationStatus || '—'}</div>
+                )}
               </div>
 
               {viewingFine.duplicateOfAuto && (
