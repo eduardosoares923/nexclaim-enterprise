@@ -8,6 +8,32 @@ import {
   exportarMultasParaExcel,
   LinhaMultaImportada,
 } from '../services/finesImport';
+import { Combobox } from '../components/Combobox';
+
+export const CATALOGO_INFRACOES: { descricao: string; valor: number; pontos: number }[] = [
+  { descricao: 'AVANÇAR O SINAL VERMELHO DO SEMAFORO - EXC HOUVER SINALIZ PERM LIVRE CONV A DIREITA FISC ELETRONICA', valor: 293.47, pontos: 7 },
+  { descricao: 'CONDUZIR O VEICULO COM EQUIPAMENTO OBRIGATORIO EM DESACORDO COM ESTAB PELO CONTRAN', valor: 195.23, pontos: 5 },
+  { descricao: 'ESTACIONAR O VEÍCULO NO PASSEIO', valor: 195.23, pontos: 5 },
+  { descricao: 'CONDUZIR O VEÍCULO COM A COR ALTERADA', valor: 195.23, pontos: 5 },
+  { descricao: 'CONDUZIR O VEÍCULO EM MAU ESTADO DE CONSERVAÇÃO, COMPROMETENDO A SEGURANÇA', valor: 195.23, pontos: 5 },
+  { descricao: 'CONDUZIR O VEICULO COM EQUIPAMENTO OBRIGATORIO INEFICIENTE/ INOPERANTE', valor: 195.23, pontos: 5 },
+  { descricao: 'CONDUZIR VEIC C/DEFEITO NO SIST DE ILUMICAÇÃO, SINALIZ OU LAMPADAS QUEIMADAS', valor: 130.16, pontos: 4 },
+  { descricao: 'DEIXA DE EFETUAR PAGAMENTO PELO USO DE RODOVIAS E VIAS URBANAS NA FORMA ESTABELECIDA', valor: 195.23, pontos: 5 },
+  { descricao: 'DEIXA O CONDUTOR DE USAR O CINTO SEGURANÇA', valor: 195.23, pontos: 5 },
+  { descricao: 'PARAR SOBRE FAIXA DE PEDESTRES NA MUDANÇA DE SINAL LUMINOSO', valor: 130.16, pontos: 4 },
+  { descricao: 'DEIXAR DE DESLOCAR C/ANTECENDENCIA VEIC P/ FAIXA DA ESQUERDA QDO FOR MANOBRAR', valor: 130.16, pontos: 4 },
+  { descricao: 'DIRIGIR VEICULO SEGURANDO O CELULAR', valor: 293.47, pontos: 7 },
+  { descricao: 'EM MOV DEIXA DE MANTER ACESA A LUZ BAIXA DE DIA EM ROD, PISTA SIMPL, SIT FORA PERIM URB, VEIC DESP DE LUZ ROBÔ', valor: 130.16, pontos: 4 },
+  { descricao: 'ESTACIONAR AO LADO OU SOBRE CANTEIRO CENTRAL/DIVISORES DE PISTA DE ROLAMENTO', valor: 195.23, pontos: 5 },
+  { descricao: 'ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZAÇÃO', valor: 130.16, pontos: 4 },
+  { descricao: 'ESTACIONAR NAS ESQUINAS E A MENOS DE 5M DO ALINHAMENTO DA VIA TRANSVERSAL', valor: 130.16, pontos: 4 },
+  { descricao: 'MULTA POR NÃO IDENTIFICAÇÃO DO CONDUTOR INFRATOR, IMPOSTA À PESSOA JURÍDICA (1ª)', valor: 260.32, pontos: 0 },
+  { descricao: 'MULTA POR NÃO IDENTIFICAÇÃO DO CONDUTOR INFRATOR, IMPOSTA À PESSOA JURÍDICA (2ª)', valor: 390.46, pontos: 0 },
+  { descricao: 'MULTA POR NÃO IDENTIFICAÇÃO DO CONDUTOR INFRATOR, IMPOSTA À PESSOA JURÍDICA (3ª)', valor: 586.94, pontos: 0 },
+  { descricao: 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%', valor: 130.16, pontos: 4 },
+  { descricao: 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM MAIS DE 20% ATÉ 50%', valor: 195.23, pontos: 5 },
+  { descricao: 'TRANSITAR NA FAIXA OU VIA EXCLUSIVA REGULAM. P/ TRANSP. PUBL. COLETIVO PASSAGEIROS', valor: 293.47, pontos: 7 },
+];
 
 interface FinesViewProps {
   fines: Fine[];
@@ -81,6 +107,17 @@ export const FinesView: React.FC<FinesViewProps> = ({
     setPoints(0);
     setDueDate('');
     setIsNic(false);
+  };
+
+  const handleSelecionarInfracao = (desc: string) => {
+    setDescription(desc);
+    const encontrada = CATALOGO_INFRACOES.find(
+      (i) => i.descricao.toUpperCase() === desc.toUpperCase()
+    );
+    if (encontrada) {
+      setAmount(encontrada.valor);
+      setPoints(encontrada.pontos);
+    }
   };
 
   const formatCurrency = (val: number) =>
@@ -456,21 +493,11 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Código da Infração</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: 745-5-0"
-                    value={infractionCode}
-                    onChange={(e) => setInfractionCode(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-mono"
-                  />
-                </div>
-                <div>
                   <label className="block font-bold text-slate-700 mb-1">Veículo (Placa) *</label>
                   <select
                     value={vehiclePlate}
                     onChange={(e) => setVehiclePlate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
                     required
                   >
                     <option value="">Selecione o Veículo</option>
@@ -481,23 +508,36 @@ export const FinesView: React.FC<FinesViewProps> = ({
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Condutor *</label>
+                  <select
+                    value={driverName}
+                    onChange={(e) => setDriverName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                    required
+                  >
+                    <option value="">Selecione o Condutor</option>
+                    {people.map((p) => (
+                      <option key={p.id} value={p.name}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Condutor *</label>
-                <select
-                  value={driverName}
-                  onChange={(e) => setDriverName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
-                  required
-                >
-                  <option value="">Selecione o Condutor</option>
-                  {people.map((p) => (
-                    <option key={p.id} value={p.name}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                <label className="block font-bold text-slate-700 mb-1">Descrição do Enquadramento *</label>
+                <Combobox
+                  value={description}
+                  onChange={handleSelecionarInfracao}
+                  options={CATALOGO_INFRACOES.map((inf) => ({
+                    value: inf.descricao,
+                    label: `${formatCurrency(inf.valor)} • ${inf.pontos} pts`,
+                  }))}
+                  placeholder="Selecione da lista de infrações ou digite..."
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                />
               </div>
 
               <div className="grid grid-cols-3 gap-2">
@@ -529,17 +569,6 @@ export const FinesView: React.FC<FinesViewProps> = ({
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Descrição do Enquadramento</label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ex: TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
-                />
               </div>
 
               {/* NIC Duplicada Checkbox */}
