@@ -78,7 +78,7 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
 
       <div className="space-y-3">
         {claims.map((c: any, i) => (
-          <div key={i} className="border border-slate-200 rounded-lg p-3 break-inside-avoid bg-white">
+          <div key={i} className="border border-slate-200 rounded-lg p-2.5 break-inside-avoid bg-white" style={{ breakInside: 'avoid' }}>
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
               <div>
                 <span className="font-bold text-slate-900 text-xs">{c.claimNumber || `Sinistro #${i + 1}`}</span>
@@ -99,20 +99,20 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
             </div>
 
             {colunasDetalhe.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-[10px] mb-2">
+              <div className="grid grid-cols-4 gap-1.5 text-[9px] mb-1.5">
                 {colunasDetalhe.map((col) => (
-                  <div key={col.chave} className="bg-slate-50 p-1.5 rounded border border-slate-100">
-                    <span className="text-slate-400 font-bold uppercase text-[8px] block">{col.rotulo}</span>
-                    <span className="text-slate-800 font-medium break-words">{formatarValor(c, col)}</span>
+                  <div key={col.chave} className="bg-slate-50 p-1 rounded border border-slate-100">
+                    <span className="text-slate-400 font-bold uppercase text-[7px] block leading-tight">{col.rotulo}</span>
+                    <span className="text-slate-800 font-medium break-words leading-tight">{formatarValor(c, col)}</span>
                   </div>
                 ))}
               </div>
             )}
 
             {temDescricao && c.description && (
-              <div className="bg-slate-50 p-2 rounded border border-slate-100 text-[10px]">
-                <span className="text-slate-400 font-bold uppercase text-[8px] block mb-0.5">Ocorrido / Descrição</span>
-                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{c.description}</p>
+              <div className="bg-slate-50 p-1.5 rounded border border-slate-100 text-[9px]">
+                <span className="text-slate-400 font-bold uppercase text-[7px] block mb-0.5">Ocorrido / Descrição</span>
+                <p className="text-slate-700 leading-snug whitespace-pre-wrap">{c.description}</p>
               </div>
             )}
           </div>
