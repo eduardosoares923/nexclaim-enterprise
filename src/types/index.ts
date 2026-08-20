@@ -130,6 +130,7 @@ export interface Fine {
   duplicateInfo?: string;
   chargeInstallments?: string;
   discountDate?: string;
+  duplicateOfAuto?: string;
 }
 
 export interface DocumentTemplate {

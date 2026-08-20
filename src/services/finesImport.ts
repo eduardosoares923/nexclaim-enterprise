@@ -149,6 +149,7 @@ export function exportarMultasParaExcel(fines: Fine[]) {
     STATUS: f.status,
     INDICADO: f.indicationStatus || '',
     DUPLICIDADE: f.duplicateInfo || '',
+    'MULTA ORIGINAL': f.duplicateOfAuto || '',
     'QUANTO COBRAR': f.chargeInstallments || '',
     'DATA DESCONTO': f.discountDate || '',
     OBS: f.notes || '',

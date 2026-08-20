@@ -80,7 +80,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
   const [points, setPoints] = useState<number>(0);
   const [dueDate, setDueDate] = useState('');
   const [infractionDate, setInfractionDate] = useState('');
+  const [infractionTime, setInfractionTime] = useState('');
   const [indicationStatus, setIndicationStatus] = useState('');
+  const [duplicateOfAuto, setDuplicateOfAuto] = useState('');
   const [isNic, setIsNic] = useState(false);
 
   useEffect(() => {
@@ -94,7 +96,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
       setPoints(editingFine.points || 0);
       setDueDate(editingFine.dueDate || '');
       setInfractionDate(editingFine.infractionDate || '');
+      setInfractionTime(editingFine.infractionTime || '');
       setIndicationStatus(editingFine.indicationStatus || '');
+      setDuplicateOfAuto(editingFine.duplicateOfAuto || '');
       setIsNic(editingFine.description?.includes('(COM NÃO INDICAÇÃO - NIC DUPLICADA)') || false);
     }
   }, [editingFine]);
@@ -111,7 +115,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
     setPoints(0);
     setDueDate('');
     setInfractionDate('');
+    setInfractionTime('');
     setIndicationStatus('');
+    setDuplicateOfAuto('');
     setIsNic(false);
   };
 
@@ -166,7 +172,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
         points: isNic ? 0 : points,
         dueDate,
         infractionDate,
+        infractionTime: infractionTime || undefined,
         indicationStatus: indicationStatus || undefined,
+        duplicateOfAuto: duplicateOfAuto || undefined,
       };
       onUpdateFine?.(editingFine.id, dadosAtualizados);
       handleCloseModal();
@@ -182,7 +190,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
         points: isNic ? 0 : points,
         dueDate,
         infractionDate,
+        infractionTime: infractionTime || undefined,
         indicationStatus: indicationStatus || undefined,
+        duplicateOfAuto: duplicateOfAuto || undefined,
         status: 'Pendente',
       };
 
@@ -386,7 +396,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                   <th className="p-3.5">Veículo / Condutor</th>
                   <th className="p-3.5">Código & Descrição</th>
                   <th className="p-3.5">Valor / Pontos</th>
-                  <th className="p-3.5">Vencimento</th>
+                  <th className="p-3.5">Venc. Indicação</th>
                   <th className="p-3.5">Status</th>
                   <th className="p-3.5 text-right">Ações</th>
                 </tr>
@@ -394,7 +404,15 @@ export const FinesView: React.FC<FinesViewProps> = ({
               <tbody className="divide-y divide-slate-100">
                 {filteredFines.map((fine) => (
                   <tr key={fine.id} className="hover:bg-amber-50/30 transition-colors">
-                    <td className="p-3.5 font-bold font-mono text-slate-900">{fine.infractionAuto}</td>
+                    <td className="p-3.5 font-bold font-mono text-slate-900">
+                      <div>{fine.infractionAuto}</div>
+                      {fine.duplicateOfAuto && (
+                        <div className="text-[9px] text-amber-600 font-semibold mt-0.5 font-sans flex items-center gap-1">
+                          <i className="fa-solid fa-clone text-[8px]"></i>
+                          <span>Duplicidade de {fine.duplicateOfAuto}</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3.5">
                       <div className="font-bold text-slate-900">{fine.vehiclePlate}</div>
                       <div className="text-[11px] text-slate-500">{fine.driverName}</div>
@@ -534,13 +552,22 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
                   <input
                     type="date"
                     value={infractionDate}
                     onChange={(e) => setInfractionDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Horário</label>
+                  <input
+                    type="time"
+                    value={infractionTime}
+                    onChange={(e) => setInfractionTime(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
                   />
                 </div>
@@ -574,6 +601,21 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 />
               </div>
 
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Multa Original (se esta for duplicidade de outra)
+                </label>
+                <Combobox
+                  value={duplicateOfAuto}
+                  onChange={setDuplicateOfAuto}
+                  placeholder="Selecione a multa original, se houver"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-mono text-xs"
+                  options={fines
+                    .filter((f) => f.id !== editingFine?.id)
+                    .map((f) => ({ value: f.infractionAuto, label: `${f.vehiclePlate} • ${f.driverName}` }))}
+                />
+              </div>
+
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Valor (R$)</label>
@@ -595,12 +637,12 @@ export const FinesView: React.FC<FinesViewProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Vencimento</label>
+                  <label className="block font-bold text-slate-700 mb-1">Vencimento da Indicação</label>
                   <input
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
                   />
                 </div>
               </div>
@@ -681,10 +723,17 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Auto de Infração</span>{viewingFine.infractionAuto}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Placa</span>{viewingFine.vehiclePlate}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Condutor</span>{viewingFine.driverName}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data da Multa</span>{viewingFine.infractionDate || '—'}</div>
+                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data da Multa</span>{viewingFine.infractionDate ? `${viewingFine.infractionDate}${viewingFine.infractionTime ? ` às ${viewingFine.infractionTime}` : ''}` : '—'}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Vencimento Indicação</span>{viewingFine.dueDate}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Indicação do Condutor</span>{viewingFine.indicationStatus || '—'}</div>
               </div>
+
+              {viewingFine.duplicateOfAuto && (
+                <div className="mb-4 p-2.5 bg-amber-50 rounded-lg border border-amber-200">
+                  <span className="text-amber-900 uppercase font-bold text-[10px] block">Duplicidade da Multa</span>
+                  <span className="font-mono font-bold text-xs text-amber-950">Auto Original: {viewingFine.duplicateOfAuto}</span>
+                </div>
+              )}
 
               <div className="mb-4">
                 <span className="text-slate-400 uppercase font-bold text-[10px] block mb-1">Descrição da Infração</span>
