@@ -379,6 +379,7 @@ export const App: React.FC = () => {
                   onUpdateFineStatus={(id, newStatus) =>
                     updateFineMutation.mutate({ id, data: { status: newStatus } })
                   }
+                  onUpdateFine={(id, data) => updateFineMutation.mutate({ id, data })}
                   onDeleteFine={(id) => deleteFineMutation.mutate(id)}
                 />
               }
