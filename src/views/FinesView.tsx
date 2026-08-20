@@ -568,42 +568,44 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 </div>
               </div>
 
-              {!duplicateOfAuto && (
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
-                    <input
-                      type="date"
-                      value={infractionDate}
-                      onChange={(e) => setInfractionDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Horário</label>
-                    <input
-                      type="time"
-                      value={infractionTime}
-                      onChange={(e) => setInfractionTime(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Indicação do Condutor</label>
-                    <select
-                      value={indicationStatus}
-                      onChange={(e) => setIndicationStatus(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                    >
-                      <option value="">Selecione</option>
-                      <option value="INDICADO">Indicado</option>
-                      <option value="NÃO INDICADO">Não Indicado</option>
-                      <option value="INDICADO/DOBRADO">Indicado/Dobrado</option>
-                      <option value="INDICADO/TRANS PINHO">Indicado/Trans Pinho</option>
-                    </select>
-                  </div>
+              <div className={duplicateOfAuto ? "grid grid-cols-1 gap-2" : "grid grid-cols-3 gap-2"}>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
+                  <input
+                    type="date"
+                    value={infractionDate}
+                    onChange={(e) => setInfractionDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                  />
                 </div>
-              )}
+                {!duplicateOfAuto && (
+                  <>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Horário</label>
+                      <input
+                        type="time"
+                        value={infractionTime}
+                        onChange={(e) => setInfractionTime(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Indicação do Condutor</label>
+                      <select
+                        value={indicationStatus}
+                        onChange={(e) => setIndicationStatus(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                      >
+                        <option value="">Selecione</option>
+                        <option value="INDICADO">Indicado</option>
+                        <option value="NÃO INDICADO">Não Indicado</option>
+                        <option value="INDICADO/DOBRADO">Indicado/Dobrado</option>
+                        <option value="INDICADO/TRANS PINHO">Indicado/Trans Pinho</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+              </div>
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Descrição do Enquadramento *</label>
@@ -670,18 +672,20 @@ export const FinesView: React.FC<FinesViewProps> = ({
               </div>
 
               {/* NIC Duplicada Checkbox */}
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="nicCheckbox"
-                  checked={isNic}
-                  onChange={(e) => setIsNic(e.target.checked)}
-                  className="w-4 h-4 text-amber-600 rounded cursor-pointer"
-                />
-                <label htmlFor="nicCheckbox" className="text-xs text-amber-950 font-bold cursor-pointer select-none">
-                  Não Indicação de Condutor (NIC - Valor em Dobro: {formatCurrency(amount * 2)})
-                </label>
-              </div>
+              {!duplicateOfAuto && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="nicCheckbox"
+                    checked={isNic}
+                    onChange={(e) => setIsNic(e.target.checked)}
+                    className="w-4 h-4 text-amber-600 rounded cursor-pointer"
+                  />
+                  <label htmlFor="nicCheckbox" className="text-xs text-amber-950 font-bold cursor-pointer select-none">
+                    Não Indicação de Condutor (NIC - Valor em Dobro: {formatCurrency(amount * 2)})
+                  </label>
+                </div>
+              )}
 
               <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button
