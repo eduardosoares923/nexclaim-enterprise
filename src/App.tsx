@@ -67,12 +67,13 @@ export const App: React.FC = () => {
   }, []);
 
   // React Query Firestore Data Hooks
-  const { data: claims = [], isLoading: loadingClaims } = useClaims();
-  const { data: fines = [], isLoading: loadingFines } = useFines();
-  const { data: terms = [], isLoading: loadingTerms } = useTerms();
-  const { data: vehicles = [], isLoading: loadingVehicles } = useVehicles();
-  const { data: people = [], isLoading: loadingPeople } = usePeople();
-  const { data: workOrders = [], isLoading: loadingWorkOrders } = useWorkOrders();
+  const loginConfirmado = !verificandoLogin && !!usuarioLogado;
+  const { data: claims = [], isLoading: loadingClaims } = useClaims(loginConfirmado);
+  const { data: fines = [], isLoading: loadingFines } = useFines(loginConfirmado);
+  const { data: terms = [], isLoading: loadingTerms } = useTerms(loginConfirmado);
+  const { data: vehicles = [], isLoading: loadingVehicles } = useVehicles(loginConfirmado);
+  const { data: people = [], isLoading: loadingPeople } = usePeople(loginConfirmado);
+  const { data: workOrders = [], isLoading: loadingWorkOrders } = useWorkOrders(loginConfirmado);
 
   // Mutations
   const createClaimMutation = useCreateClaim();

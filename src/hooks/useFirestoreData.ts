@@ -6,10 +6,11 @@ import { WorkOrder } from '../views/WorkOrdersView';
 // ==========================================
 // CLAIMS HOOKS
 // ==========================================
-export function useClaims() {
+export function useClaims(enabled: boolean = true) {
   return useQuery<Claim[]>({
     queryKey: ['claims'],
     queryFn: () => firebaseService.fetchClaims(),
+    enabled,
   });
 }
 
@@ -47,10 +48,11 @@ export function useDeleteClaim() {
 // ==========================================
 // FINES HOOKS
 // ==========================================
-export function useFines() {
+export function useFines(enabled: boolean = true) {
   return useQuery<Fine[]>({
     queryKey: ['fines'],
     queryFn: () => firebaseService.fetchFines(),
+    enabled,
   });
 }
 
@@ -88,10 +90,11 @@ export function useDeleteFine() {
 // ==========================================
 // TERMS HOOKS
 // ==========================================
-export function useTerms() {
+export function useTerms(enabled: boolean = true) {
   return useQuery<Term[]>({
     queryKey: ['terms'],
     queryFn: () => firebaseService.fetchTerms(),
+    enabled,
   });
 }
 
@@ -129,10 +132,11 @@ export function useDeleteTerm() {
 // ==========================================
 // VEHICLES HOOKS
 // ==========================================
-export function useVehicles() {
+export function useVehicles(enabled: boolean = true) {
   return useQuery<Vehicle[]>({
     queryKey: ['vehicles'],
     queryFn: () => firebaseService.fetchVehicles(),
+    enabled,
   });
 }
 
@@ -183,10 +187,11 @@ export function useDeleteVehicle() {
 // ==========================================
 // PEOPLE HOOKS
 // ==========================================
-export function usePeople() {
+export function usePeople(enabled: boolean = true) {
   return useQuery<Person[]>({
     queryKey: ['people'],
     queryFn: () => firebaseService.fetchPeople(),
+    enabled,
   });
 }
 
@@ -224,10 +229,11 @@ export function useDeletePerson() {
 // ==========================================
 // WORK ORDERS HOOKS (OS & ORÇAMENTOS)
 // ==========================================
-export function useWorkOrders() {
+export function useWorkOrders(enabled: boolean = true) {
   return useQuery<WorkOrder[]>({
     queryKey: ['workOrders'],
     queryFn: () => firebaseService.fetchWorkOrders(),
+    enabled,
   });
 }
 
