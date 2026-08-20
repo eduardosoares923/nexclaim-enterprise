@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Term, Claim, Person, Vehicle, DocumentTemplate } from '../types';
+import { formatarDataBr } from '../utils/dateUtils';
 
 interface TermsViewProps {
   terms: Term[];
@@ -215,7 +216,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
                     </span>
                     <span className="flex items-center gap-1.5">
                       <i className="fa-solid fa-calendar text-[10px] text-slate-400"></i>
-                      {term.date}
+                      {formatarDataBr(term.date)}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <i className="fa-solid fa-user-shield text-[10px] text-slate-400"></i>

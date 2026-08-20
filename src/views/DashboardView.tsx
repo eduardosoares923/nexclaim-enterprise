@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Claim, Fine, Term, Vehicle, Person, DocumentTemplate } from '../types';
+import { formatarDataBr } from '../utils/dateUtils';
 
 interface DashboardViewProps {
   claims: Claim[];
@@ -239,7 +240,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div key={t.id} className="p-4 hover:bg-slate-50 transition flex items-center justify-between text-xs">
                 <div className="min-w-0 flex-1 pr-2">
                   <div className="font-bold text-slate-900 truncate">{t.title}</div>
-                  <div className="text-[11px] text-slate-500">Condutor: {t.involvedPerson} • {t.date}</div>
+                  <div className="text-[11px] text-slate-500">Condutor: {t.involvedPerson} • {formatarDataBr(t.date)}</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 whitespace-nowrap">
                   {t.status}

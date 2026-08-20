@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Vehicle, Person, Claim } from '../types';
 import { extractTextFromPdf, extrairItensDoTexto, firebaseService } from '../services/firebase';
 import { SignaturePad } from '../components/SignaturePad';
+import { formatarDataBr } from '../utils/dateUtils';
 
 export const COMPANY_BRANDS: Record<string, {
   name: string;
@@ -456,7 +457,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   </div>
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="text-slate-400">Data:</span>
-                    <span>{order.date}</span>
+                    <span>{formatarDataBr(order.date)}</span>
                   </div>
                 </div>
               </div>
@@ -556,7 +557,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     <div className="text-right">
                       <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Detalhes de Serviço</span>
                       <p className="text-xs text-slate-600 mt-1">OS Nº <span className="font-black text-slate-900">{selectedOrder.orderNumber}</span></p>
-                      <p className="text-xs text-slate-600">Data <span className="font-bold text-slate-900">{selectedOrder.date}</span></p>
+                      <p className="text-xs text-slate-600">Data <span className="font-bold text-slate-900">{formatarDataBr(selectedOrder.date)}</span></p>
                     </div>
                   </div>
 
