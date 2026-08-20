@@ -79,6 +79,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
   const [amount, setAmount] = useState<number>(0);
   const [points, setPoints] = useState<number>(0);
   const [dueDate, setDueDate] = useState('');
+  const [infractionDate, setInfractionDate] = useState('');
+  const [indicationStatus, setIndicationStatus] = useState('');
   const [isNic, setIsNic] = useState(false);
 
   useEffect(() => {
@@ -91,6 +93,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
       setAmount(editingFine.amount || 0);
       setPoints(editingFine.points || 0);
       setDueDate(editingFine.dueDate || '');
+      setInfractionDate(editingFine.infractionDate || '');
+      setIndicationStatus(editingFine.indicationStatus || '');
       setIsNic(editingFine.description?.includes('(COM NÃO INDICAÇÃO - NIC DUPLICADA)') || false);
     }
   }, [editingFine]);
@@ -106,6 +110,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
     setAmount(0);
     setPoints(0);
     setDueDate('');
+    setInfractionDate('');
+    setIndicationStatus('');
     setIsNic(false);
   };
 
@@ -159,6 +165,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
         amount: finalAmount,
         points: isNic ? 0 : points,
         dueDate,
+        infractionDate,
+        indicationStatus: indicationStatus || undefined,
       };
       onUpdateFine?.(editingFine.id, dadosAtualizados);
       handleCloseModal();
@@ -173,6 +181,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
         amount: finalAmount,
         points: isNic ? 0 : points,
         dueDate,
+        infractionDate,
+        indicationStatus: indicationStatus || undefined,
         status: 'Pendente',
       };
 
@@ -390,8 +400,12 @@ export const FinesView: React.FC<FinesViewProps> = ({
                       <div className="text-[11px] text-slate-500">{fine.driverName}</div>
                     </td>
                     <td className="p-3.5">
-                      <span className="font-bold text-slate-800">{fine.infractionCode}</span>
-                      <div className="text-[10px] text-slate-500 max-w-[280px] truncate">{fine.description}</div>
+                      <div className="text-[11px] font-semibold text-slate-800 max-w-[280px] truncate" title={fine.description}>{fine.description}</div>
+                      {fine.indicationStatus && (
+                        <span className="inline-block mt-0.5 text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          {fine.indicationStatus}
+                        </span>
+                      )}
                     </td>
                     <td className="p-3.5 font-bold text-slate-900 whitespace-nowrap">
                       {formatCurrency(fine.amount)}
@@ -494,34 +508,54 @@ export const FinesView: React.FC<FinesViewProps> = ({
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Veículo (Placa) *</label>
-                  <select
+                  <Combobox
                     value={vehiclePlate}
-                    onChange={(e) => setVehiclePlate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                    required
-                  >
-                    <option value="">Selecione o Veículo</option>
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.plate}>
-                        {v.plate} ({v.prefix})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(v) => setVehiclePlate(v.toUpperCase())}
+                    placeholder="Selecione da lista ou digite a placa"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white uppercase font-mono text-xs"
+                    options={[...vehicles].sort((a, b) => a.plate.localeCompare(b.plate, 'pt-BR')).map((v) => ({
+                      value: v.plate,
+                      label: `Prefixo ${v.prefix}`,
+                    }))}
+                  />
                 </div>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Condutor *</label>
-                  <select
+                  <Combobox
                     value={driverName}
-                    onChange={(e) => setDriverName(e.target.value)}
+                    onChange={setDriverName}
+                    placeholder="Selecione da lista ou digite o nome"
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                    required
+                    options={[...people].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((p) => ({
+                      value: p.name,
+                      label: p.docNumber || '',
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
+                  <input
+                    type="date"
+                    value={infractionDate}
+                    onChange={(e) => setInfractionDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Indicação do Condutor</label>
+                  <select
+                    value={indicationStatus}
+                    onChange={(e) => setIndicationStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
                   >
-                    <option value="">Selecione o Condutor</option>
-                    {people.map((p) => (
-                      <option key={p.id} value={p.name}>
-                        {p.name}
-                      </option>
-                    ))}
+                    <option value="">Selecione</option>
+                    <option value="INDICADO">Indicado</option>
+                    <option value="NÃO INDICADO">Não Indicado</option>
+                    <option value="INDICADO/DOBRADO">Indicado/Dobrado</option>
+                    <option value="INDICADO/TRANS PINHO">Indicado/Trans Pinho</option>
                   </select>
                 </div>
               </div>
@@ -645,13 +679,11 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
               <div className="grid grid-cols-2 gap-4 text-xs mb-4">
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Auto de Infração</span>{viewingFine.infractionAuto}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Código</span>{viewingFine.infractionCode || '—'}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Placa</span>{viewingFine.vehiclePlate}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Condutor</span>{viewingFine.driverName}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data</span>{viewingFine.infractionDate || '—'}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Horário</span>{viewingFine.infractionTime || '—'}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Vencimento</span>{viewingFine.dueDate}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Local</span>{viewingFine.location || '—'}</div>
+                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data da Multa</span>{viewingFine.infractionDate || '—'}</div>
+                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Vencimento Indicação</span>{viewingFine.dueDate}</div>
+                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Indicação do Condutor</span>{viewingFine.indicationStatus || '—'}</div>
               </div>
 
               <div className="mb-4">
