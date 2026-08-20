@@ -52,10 +52,39 @@ function statusDaMulta(multaPaga: string): FineStatus {
   return 'Pendente';
 }
 
+function extrairAutoOriginal(textoDuplicidade: string): string | undefined {
+  if (!textoDuplicidade) return undefined;
+  const match = textoDuplicidade.match(/MULTA\s+([A-Z]{1,3}\d{6,})/i);
+  return match ? match[1].toUpperCase() : undefined;
+}
+
 export interface LinhaMultaImportada {
   fine: Omit<Fine, 'id'>;
   linhaOriginal: number;
 }
+
+export interface ColunaExportacaoMulta {
+  chave: string;
+  rotulo: string;
+  tipo?: 'moeda';
+}
+
+export const COLUNAS_EXPORTACAO_MULTAS: ColunaExportacaoMulta[] = [
+  { chave: 'infractionAuto', rotulo: 'Auto de Infração' },
+  { chave: 'vehiclePlate', rotulo: 'Placa' },
+  { chave: 'vehiclePrefix', rotulo: 'Prefixo' },
+  { chave: 'driverName', rotulo: 'Motorista' },
+  { chave: 'infractionDate', rotulo: 'Data da Multa' },
+  { chave: 'infractionTime', rotulo: 'Horário' },
+  { chave: 'description', rotulo: 'Descrição' },
+  { chave: 'amount', rotulo: 'Valor', tipo: 'moeda' },
+  { chave: 'points', rotulo: 'Pontos' },
+  { chave: 'dueDate', rotulo: 'Vencimento Indicação' },
+  { chave: 'status', rotulo: 'Status' },
+  { chave: 'indicationStatus', rotulo: 'Indicação' },
+  { chave: 'duplicateOfAuto', rotulo: 'Duplicidade De' },
+  { chave: 'notes', rotulo: 'Observações' },
+];
 
 export async function lerPlanilhaMultas(file: File): Promise<LinhaMultaImportada[]> {
   const arrayBuffer = await file.arrayBuffer();
@@ -103,6 +132,7 @@ export async function lerPlanilhaMultas(file: File): Promise<LinhaMultaImportada
 
     const rawPontos = paraTexto(pegar(linha, idx.pontos));
     const parsedPontos = parseInt(rawPontos) || 0;
+    const duplicidadeTexto = paraTexto(pegar(linha, idx.duplicidade));
 
     const fine: Omit<Fine, 'id'> = {
       infractionAuto: auto || `IMP-${l}`,
@@ -117,7 +147,8 @@ export async function lerPlanilhaMultas(file: File): Promise<LinhaMultaImportada
       infractionDate: paraData(pegar(linha, idx.data)),
       infractionTime: paraTexto(pegar(linha, idx.horario)) || undefined,
       indicationStatus: paraTexto(pegar(linha, idx.indicado)) || undefined,
-      duplicateInfo: paraTexto(pegar(linha, idx.duplicidade)) || undefined,
+      duplicateInfo: duplicidadeTexto || undefined,
+      duplicateOfAuto: extrairAutoOriginal(duplicidadeTexto),
       chargeInstallments: paraTexto(pegar(linha, idx.quantoCobrar)) || undefined,
       discountDate: paraData(pegar(linha, idx.dataDesconto)) || undefined,
       notes: paraTexto(pegar(linha, idx.obs)) || undefined,
@@ -129,31 +160,23 @@ export async function lerPlanilhaMultas(file: File): Promise<LinhaMultaImportada
   return resultado;
 }
 
-export function exportarMultasParaExcel(fines: Fine[]) {
+export function exportarMultasParaExcel(fines: Fine[], colunasSelecionadas?: string[]) {
   if (!fines || fines.length === 0) {
     alert('Nenhuma multa selecionada para exportação.');
     return;
   }
 
-  const linhas = fines.map((f: any) => ({
-    'AUTO DA INFRAÇÃO': f.infractionAuto,
-    PLACA: f.vehiclePlate,
-    PREFIXO: f.vehiclePrefix || '',
-    MOTORISTA: f.driverName,
-    'DATA DA MULTA': f.infractionDate || '',
-    HORARIO: f.infractionTime || '',
-    'TIPO DE MULTA': f.description,
-    VALOR: f.amount,
-    PONTOS: f.points,
-    'VENCIMENTO INDICAÇÃO': f.dueDate || '',
-    STATUS: f.status,
-    INDICADO: f.indicationStatus || '',
-    DUPLICIDADE: f.duplicateInfo || '',
-    'MULTA ORIGINAL': f.duplicateOfAuto || '',
-    'QUANTO COBRAR': f.chargeInstallments || '',
-    'DATA DESCONTO': f.discountDate || '',
-    OBS: f.notes || '',
-  }));
+  const cols = colunasSelecionadas && colunasSelecionadas.length > 0
+    ? COLUNAS_EXPORTACAO_MULTAS.filter((c) => colunasSelecionadas.includes(c.chave))
+    : COLUNAS_EXPORTACAO_MULTAS;
+
+  const linhas = fines.map((f: any) => {
+    const row: Record<string, any> = {};
+    cols.forEach((col) => {
+      row[col.rotulo] = f[col.chave] ?? '';
+    });
+    return row;
+  });
 
   const worksheet = XLSXStyle.utils.json_to_sheet(linhas);
   const headers = Object.keys(linhas[0] || {});
