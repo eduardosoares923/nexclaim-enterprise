@@ -125,6 +125,11 @@ export interface Fine {
   dueDate: string;
   status: FineStatus;
   notes?: string;
+  vehiclePrefix?: string;
+  indicationStatus?: string;
+  duplicateInfo?: string;
+  chargeInstallments?: string;
+  discountDate?: string;
 }
 
 export interface DocumentTemplate {

@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Fine, Vehicle, Person, FineStatus } from '../types';
+import { firebaseService } from '../services/firebase';
+import {
+  lerPlanilhaMultas,
+  exportarMultasParaExcel,
+  LinhaMultaImportada,
+} from '../services/finesImport';
 
 interface FinesViewProps {
   fines: Fine[];
@@ -23,13 +30,21 @@ export const FinesView: React.FC<FinesViewProps> = ({
   onDeleteFine,
   onOpenTermForFine,
 }) => {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showNewFineModal, setShowNewFineModal] = useState(false);
   const [editingFine, setEditingFine] = useState<Fine | null>(null);
   const [viewingFine, setViewingFine] = useState<Fine | null>(null);
 
-  // New fine form state
+  // Estados de Importação
+  const [linhasParaImportar, setLinhasParaImportar] = useState<LinhaMultaImportada[]>([]);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
+  const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Fine form state
   const [infractionAuto, setInfractionAuto] = useState('');
   const [infractionCode, setInfractionCode] = useState('');
   const [vehiclePlate, setVehiclePlate] = useState('');
@@ -129,8 +144,74 @@ export const FinesView: React.FC<FinesViewProps> = ({
     }
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const linhas = await lerPlanilhaMultas(file);
+      if (linhas.length === 0) {
+        alert('Nenhuma multa válida encontrada na planilha.');
+        return;
+      }
+      setLinhasParaImportar(linhas);
+      setShowImportModal(true);
+    } catch (err: any) {
+      console.error('Erro ao ler planilha de multas:', err);
+      alert(`Erro ao ler a planilha: ${err.message || err}`);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (linhasParaImportar.length === 0) return;
+
+    setIsImporting(true);
+    setImportProgress({ current: 0, total: linhasParaImportar.length });
+
+    const BATCH_SIZE = 50;
+    const total = linhasParaImportar.length;
+    let processados = 0;
+
+    try {
+      for (let i = 0; i < total; i += BATCH_SIZE) {
+        const lote = linhasParaImportar.slice(i, i + BATCH_SIZE);
+        await Promise.all(
+          lote.map((item) =>
+            firebaseService.saveFine(item.fine).catch((err) => {
+              console.error(`Erro ao salvar multa ${item.fine.infractionAuto}:`, err);
+            })
+          )
+        );
+        processados += lote.length;
+        setImportProgress({ current: Math.min(processados, total), total });
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['fines'] });
+      setShowImportModal(false);
+      setLinhasParaImportar([]);
+      alert(`Importação concluída com sucesso! ${total} multas processadas.`);
+    } catch (err: any) {
+      console.error('Erro durante a importação de multas:', err);
+      alert(`Erro durante a importação: ${err.message || err}`);
+    } finally {
+      setIsImporting(false);
+      setImportProgress(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Input de Arquivo Oculto */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx, .xls, .xlsm, .csv"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
         <div>
@@ -145,7 +226,25 @@ export const FinesView: React.FC<FinesViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2 border border-slate-300 transition active:scale-95 cursor-pointer shadow-2xs"
+            title="Importar multas a partir de planilha Excel (.xlsx)"
+          >
+            <i className="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>Importar (.xlsx)</span>
+          </button>
+
+          <button
+            onClick={() => exportarMultasParaExcel(filteredFines)}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2 border border-slate-300 transition active:scale-95 cursor-pointer shadow-2xs"
+            title="Exportar multas listadas para Excel (.xlsx)"
+          >
+            <i className="fa-solid fa-download text-slate-600"></i>
+            <span>Exportar (.xlsx)</span>
+          </button>
+
           <button
             onClick={() => {
               handleCloseModal();
@@ -546,6 +645,148 @@ export const FinesView: React.FC<FinesViewProps> = ({
               <p className="text-center text-[10px] text-slate-400 pt-6 mt-6 border-t border-slate-200">
                 JOÃO BATISTA DE SOUZA PINHO EPP - TRANS PINHO • Rua Florida, 116 – Nossa Chácara – Gravataí/RS
               </p>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de Pré-visualização da Importação de Multas */}
+      {showImportModal && createPortal(
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-file-excel text-emerald-600 text-lg"></i>
+                <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider">
+                  Importar Multas da Planilha
+                </h3>
+              </div>
+              {!isImporting && (
+                <button
+                  onClick={() => setShowImportModal(false)}
+                  className="text-slate-400 hover:text-slate-700 text-base cursor-pointer"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              )}
+            </div>
+
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                <span className="text-xs font-bold text-emerald-950">
+                  {linhasParaImportar.length} multas encontradas na planilha
+                </span>
+              </div>
+              <span className="text-[11px] text-emerald-700 font-medium">
+                Pronto para cadastrar no sistema
+              </span>
+            </div>
+
+            {/* Tabela de Amostra das primeiras 15 multas */}
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <div className="p-2.5 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center">
+                <span>Amostra das primeiras 15 multas da planilha:</span>
+                <span className="text-[10px] text-slate-400 font-normal">Total no arquivo: {linhasParaImportar.length}</span>
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                <table className="w-full text-left text-xs text-slate-600">
+                  <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px] sticky top-0">
+                    <tr>
+                      <th className="p-2">#</th>
+                      <th className="p-2">Auto</th>
+                      <th className="p-2">Placa</th>
+                      <th className="p-2">Motorista</th>
+                      <th className="p-2">Tipo / Infração</th>
+                      <th className="p-2">Valor</th>
+                      <th className="p-2">Pontos</th>
+                      <th className="p-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {linhasParaImportar.slice(0, 15).map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/60">
+                        <td className="p-2 font-mono text-[10px] text-slate-400">{idx + 1}</td>
+                        <td className="p-2 font-mono font-bold text-slate-800">{item.fine.infractionAuto}</td>
+                        <td className="p-2 font-bold text-slate-900">{item.fine.vehiclePlate}</td>
+                        <td className="p-2">{item.fine.driverName || '—'}</td>
+                        <td className="p-2 max-w-[200px] truncate" title={item.fine.description}>
+                          {item.fine.description}
+                        </td>
+                        <td className="p-2 font-bold text-slate-900 whitespace-nowrap">
+                          {formatCurrency(item.fine.amount)}
+                        </td>
+                        <td className="p-2 text-center">{item.fine.points}</td>
+                        <td className="p-2">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                              item.fine.status === 'Paga'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                                : 'bg-rose-50 text-rose-700 border-rose-300'
+                            }`}
+                          >
+                            {item.fine.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {linhasParaImportar.length > 15 && (
+                <div className="p-2 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-500 font-medium">
+                  ... e mais {linhasParaImportar.length - 15} multas que serão importadas.
+                </div>
+              )}
+            </div>
+
+            {/* Barra de Progresso durante a Importação */}
+            {isImporting && importProgress && (
+              <div className="space-y-1.5 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <div className="flex justify-between text-xs font-bold text-slate-700">
+                  <span>Gravando multas no banco de dados...</span>
+                  <span>
+                    {importProgress.current} de {importProgress.total} ({Math.round((importProgress.current / importProgress.total) * 100)}%)
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-emerald-600 h-2 rounded-full transition-all duration-150"
+                    style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {/* Rodapé / Ações */}
+            <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <button
+                type="button"
+                disabled={isImporting}
+                onClick={() => setShowImportModal(false)}
+                className="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={isImporting}
+                onClick={handleConfirmImport}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-2 rounded-lg shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              >
+                {isImporting ? (
+                  <>
+                    <i className="fa-solid fa-circle-notch fa-spin"></i>
+                    <span>Importando...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Confirmar Importação ({linhasParaImportar.length})</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>,
