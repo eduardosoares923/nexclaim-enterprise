@@ -13,6 +13,16 @@ function paraTexto(valor: any): string {
   return String(valor).trim();
 }
 
+function paraHorario(valor: any): string {
+  if (!valor) return '';
+  if (valor instanceof Date) {
+    return `${String(valor.getHours()).padStart(2, '0')}:${String(valor.getMinutes()).padStart(2, '0')}`;
+  }
+  const texto = String(valor).trim();
+  const match = texto.match(/(\d{1,2}):(\d{2})/);
+  return match ? `${match[1].padStart(2, '0')}:${match[2]}` : '';
+}
+
 function paraData(valor: any): string {
   if (!valor) return '';
   if (valor instanceof Date) return valor.toISOString().split('T')[0];
@@ -145,7 +155,7 @@ export async function lerPlanilhaMultas(file: File): Promise<LinhaMultaImportada
       dueDate: paraData(pegar(linha, idx.vencIndicacao)),
       status: statusDaMulta(paraTexto(pegar(linha, idx.multaPaga))),
       infractionDate: paraData(pegar(linha, idx.data)),
-      infractionTime: paraTexto(pegar(linha, idx.horario)) || undefined,
+      infractionTime: paraHorario(pegar(linha, idx.horario)) || undefined,
       indicationStatus: paraTexto(pegar(linha, idx.indicado)) || undefined,
       duplicateInfo: duplicidadeTexto || undefined,
       duplicateOfAuto: extrairAutoOriginal(duplicidadeTexto),

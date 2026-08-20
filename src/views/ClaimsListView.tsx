@@ -8,6 +8,7 @@ import { ClaimsPdfReportModal } from '../components/ClaimsPdfReportModal';
 import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
+import { formatarDataBr } from '../utils/dateUtils';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -21,12 +22,7 @@ interface ClaimsListViewProps {
   onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
 }
 
-function formatarData(iso: string): string {
-  if (!iso) return '—';
-  const [ano, mes, dia] = iso.split('-');
-  if (!ano || !mes || !dia) return iso;
-  return `${dia}/${mes}/${ano}`;
-}
+const formatarData = formatarDataBr;
 
 export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   claims,

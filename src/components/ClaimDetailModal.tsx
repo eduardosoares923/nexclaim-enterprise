@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Claim, Person, Vehicle, Term } from '../types';
+import { formatarDataHoraBr } from '../utils/dateUtils';
 
 interface ClaimDetailModalProps {
   claim: Claim;
@@ -153,7 +154,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                 <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
                   <span className="text-[10px] uppercase font-bold text-slate-400">Data & Hora</span>
                   <p className="text-xs font-bold text-slate-800 mt-1">
-                    {claim.date} às {claim.time}
+                    {formatarDataHoraBr(claim.date, claim.time)}
                   </p>
                 </div>
                 <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">

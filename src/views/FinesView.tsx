@@ -11,6 +11,7 @@ import {
 } from '../services/finesImport';
 import { Combobox } from '../components/Combobox';
 import { FinesPdfReportModal } from '../components/FinesPdfReportModal';
+import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
 
 export const CATALOGO_INFRACOES: { descricao: string; valor: number; pontos: number }[] = [
   { descricao: 'AVANÇAR O SINAL VERMELHO DO SEMAFORO - EXC HOUVER SINALIZ PERM LIVRE CONV A DIREITA FISC ELETRONICA', valor: 293.47, pontos: 7 },
@@ -608,7 +609,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                       {formatCurrency(fine.amount)}
                       <div className="text-[10px] text-amber-600 font-semibold">{fine.points} pontos</div>
                     </td>
-                    <td className="p-3.5 font-medium text-slate-700 whitespace-nowrap">{fine.dueDate}</td>
+                    <td className="p-3.5 font-medium text-slate-700 whitespace-nowrap">{formatarDataBr(fine.dueDate)}</td>
                     <td className="p-3.5">
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${
@@ -896,8 +897,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Auto de Infração</span>{viewingFine.infractionAuto}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Placa</span>{viewingFine.vehiclePlate}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Condutor</span>{viewingFine.driverName}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data da Multa</span>{viewingFine.infractionDate ? `${viewingFine.infractionDate}${viewingFine.infractionTime ? ` às ${viewingFine.infractionTime}` : ''}` : '—'}</div>
-                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Vencimento Indicação</span>{viewingFine.dueDate}</div>
+                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Data da Multa</span>{formatarDataHoraBr(viewingFine.infractionDate, viewingFine.infractionTime)}</div>
+                <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Vencimento Indicação</span>{formatarDataBr(viewingFine.dueDate)}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Indicação do Condutor</span>{viewingFine.indicationStatus || '—'}</div>
               </div>
 

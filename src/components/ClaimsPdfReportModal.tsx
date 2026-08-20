@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Claim } from '../types';
 import { ColunaExportacao } from '../services/claimsImport';
+import { formatarDataBr } from '../utils/dateUtils';
 
 interface Props {
   claims: Claim[];
@@ -20,6 +21,9 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
     if (col.tipo === 'moeda') {
       const n = typeof v === 'number' ? v : parseFloat(v);
       return isNaN(n) ? '—' : n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+    if (col.chave === 'date' || col.chave === 'eventDate' || col.chave === 'createdAt') {
+      return formatarDataBr(v);
     }
     return String(v);
   };
@@ -88,7 +92,7 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
               </div>
               <div className="flex items-center gap-2">
                 {mostrarData && c.date && (
-                  <span className="text-slate-500 text-[10px] font-medium">{c.date}</span>
+                  <span className="text-slate-500 text-[10px] font-medium">{formatarDataBr(c.date)}</span>
                 )}
                 {mostrarStatus && c.status && (
                   <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${corStatus(c.status)}`}>

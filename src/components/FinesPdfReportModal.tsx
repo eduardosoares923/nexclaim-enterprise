@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Fine } from '../types';
 import { ColunaExportacaoMulta } from '../services/finesImport';
+import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
 
 interface Props {
   fines: Fine[];
@@ -20,6 +21,9 @@ function ConteudoRelatorio({ fines, colunas }: { fines: Fine[]; colunas: ColunaE
     if (col.tipo === 'moeda') {
       const n = typeof v === 'number' ? v : parseFloat(v);
       return isNaN(n) ? '—' : n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+    if (col.chave === 'dueDate' || col.chave === 'discountDate' || col.chave === 'infractionDate') {
+      return formatarDataBr(v);
     }
     return String(v);
   };
@@ -97,7 +101,7 @@ function ConteudoRelatorio({ fines, colunas }: { fines: Fine[]; colunas: ColunaE
               <div className="flex items-center gap-2">
                 {mostrarData && f.infractionDate && (
                   <span className="text-slate-500 text-[10px] font-medium">
-                    {f.infractionDate}{f.infractionTime ? ` às ${f.infractionTime}` : ''}
+                    {formatarDataHoraBr(f.infractionDate, f.infractionTime)}
                   </span>
                 )}
                 {mostrarStatus && f.status && (
