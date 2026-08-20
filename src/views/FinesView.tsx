@@ -103,6 +103,16 @@ export const FinesView: React.FC<FinesViewProps> = ({
     }
   }, [editingFine]);
 
+  useEffect(() => {
+    if (duplicateOfAuto) {
+      const original = fines.find((f) => f.infractionAuto === duplicateOfAuto);
+      if (original) {
+        setVehiclePlate(original.vehiclePlate);
+        setDriverName(original.driverName);
+      }
+    }
+  }, [duplicateOfAuto, fines]);
+
   const handleCloseModal = () => {
     setShowNewFineModal(false);
     setEditingFine(null);
@@ -161,6 +171,10 @@ export const FinesView: React.FC<FinesViewProps> = ({
       ? (description.includes('(COM NÃO INDICAÇÃO - NIC DUPLICADA)') ? description : `${description} (COM NÃO INDICAÇÃO - NIC DUPLICADA)`)
       : description.replace(' (COM NÃO INDICAÇÃO - NIC DUPLICADA)', '');
 
+    const dadosLimpos = duplicateOfAuto
+      ? { points: 0, dueDate: '', infractionTime: undefined, indicationStatus: undefined }
+      : { points: isNic ? 0 : points, dueDate, infractionTime: infractionTime || undefined, indicationStatus: indicationStatus || undefined };
+
     if (editingFine) {
       const dadosAtualizados: Partial<Fine> = {
         infractionAuto,
@@ -169,12 +183,9 @@ export const FinesView: React.FC<FinesViewProps> = ({
         driverName,
         description: finalDescription,
         amount: finalAmount,
-        points: isNic ? 0 : points,
-        dueDate,
         infractionDate,
-        infractionTime: infractionTime || undefined,
-        indicationStatus: indicationStatus || undefined,
         duplicateOfAuto: duplicateOfAuto || undefined,
+        ...dadosLimpos,
       };
       onUpdateFine?.(editingFine.id, dadosAtualizados);
       handleCloseModal();
@@ -187,13 +198,10 @@ export const FinesView: React.FC<FinesViewProps> = ({
         driverName,
         description: finalDescription,
         amount: finalAmount,
-        points: isNic ? 0 : points,
-        dueDate,
         infractionDate,
-        infractionTime: infractionTime || undefined,
-        indicationStatus: indicationStatus || undefined,
         duplicateOfAuto: duplicateOfAuto || undefined,
         status: 'Pendente',
+        ...dadosLimpos,
       };
 
       onSaveFine(newFine);
@@ -552,40 +560,42 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
-                  <input
-                    type="date"
-                    value={infractionDate}
-                    onChange={(e) => setInfractionDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                  />
+              {!duplicateOfAuto && (
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
+                    <input
+                      type="date"
+                      value={infractionDate}
+                      onChange={(e) => setInfractionDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Horário</label>
+                    <input
+                      type="time"
+                      value={infractionTime}
+                      onChange={(e) => setInfractionTime(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Indicação do Condutor</label>
+                    <select
+                      value={indicationStatus}
+                      onChange={(e) => setIndicationStatus(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                    >
+                      <option value="">Selecione</option>
+                      <option value="INDICADO">Indicado</option>
+                      <option value="NÃO INDICADO">Não Indicado</option>
+                      <option value="INDICADO/DOBRADO">Indicado/Dobrado</option>
+                      <option value="INDICADO/TRANS PINHO">Indicado/Trans Pinho</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Horário</label>
-                  <input
-                    type="time"
-                    value={infractionTime}
-                    onChange={(e) => setInfractionTime(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Indicação do Condutor</label>
-                  <select
-                    value={indicationStatus}
-                    onChange={(e) => setIndicationStatus(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="INDICADO">Indicado</option>
-                    <option value="NÃO INDICADO">Não Indicado</option>
-                    <option value="INDICADO/DOBRADO">Indicado/Dobrado</option>
-                    <option value="INDICADO/TRANS PINHO">Indicado/Trans Pinho</option>
-                  </select>
-                </div>
-              </div>
+              )}
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Descrição do Enquadramento *</label>
@@ -616,7 +626,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className={duplicateOfAuto ? "grid grid-cols-1 gap-2" : "grid grid-cols-3 gap-2"}>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Valor (R$)</label>
                   <input
@@ -627,24 +637,28 @@ export const FinesView: React.FC<FinesViewProps> = ({
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-bold"
                   />
                 </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Pontos</label>
-                  <input
-                    type="number"
-                    value={points}
-                    onChange={(e) => setPoints(parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Vencimento da Indicação</label>
-                  <input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
-                  />
-                </div>
+                {!duplicateOfAuto && (
+                  <>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Pontos</label>
+                      <input
+                        type="number"
+                        value={points}
+                        onChange={(e) => setPoints(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Vencimento da Indicação</label>
+                      <input
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* NIC Duplicada Checkbox */}
