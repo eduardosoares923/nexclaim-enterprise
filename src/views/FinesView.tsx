@@ -415,10 +415,18 @@ export const FinesView: React.FC<FinesViewProps> = ({
                     <td className="p-3.5 font-bold font-mono text-slate-900">
                       <div>{fine.infractionAuto}</div>
                       {fine.duplicateOfAuto && (
-                        <div className="text-[9px] text-amber-600 font-semibold mt-0.5 font-sans flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const original = fines.find((f) => f.infractionAuto === fine.duplicateOfAuto);
+                            if (original) setViewingFine(original);
+                          }}
+                          className="text-[9px] text-amber-600 hover:text-amber-800 hover:underline font-semibold mt-0.5 font-sans flex items-center gap-1 cursor-pointer"
+                          title="Ver multa original"
+                        >
                           <i className="fa-solid fa-clone text-[8px]"></i>
                           <span>Duplicidade de {fine.duplicateOfAuto}</span>
-                        </div>
+                        </button>
                       )}
                     </td>
                     <td className="p-3.5">
@@ -743,7 +751,22 @@ export const FinesView: React.FC<FinesViewProps> = ({
               </div>
 
               {viewingFine.duplicateOfAuto && (
-                <div className="mb-4 p-2.5 bg-amber-50 rounded-lg border border-amber-200">
+                <div className="mb-4 p-2.5 bg-amber-50 rounded-lg border border-amber-200 print:hidden">
+                  <span className="text-amber-900 uppercase font-bold text-[10px] block">Duplicidade da Multa</span>
+                  <button
+                    onClick={() => {
+                      const original = fines.find((f) => f.infractionAuto === viewingFine.duplicateOfAuto);
+                      if (original) setViewingFine(original);
+                    }}
+                    className="font-mono font-bold text-xs text-amber-950 hover:text-amber-700 hover:underline cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>Auto Original: {viewingFine.duplicateOfAuto}</span>
+                    <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </button>
+                </div>
+              )}
+              {viewingFine.duplicateOfAuto && (
+                <div className="hidden print:block mb-4 p-2.5 bg-amber-50 rounded-lg border border-amber-200">
                   <span className="text-amber-900 uppercase font-bold text-[10px] block">Duplicidade da Multa</span>
                   <span className="font-mono font-bold text-xs text-amber-950">Auto Original: {viewingFine.duplicateOfAuto}</span>
                 </div>
