@@ -7,11 +7,16 @@ import admin from 'firebase-admin';
 let adminApp = null;
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    adminApp = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-    console.log('Firebase Admin SDK inicializado.');
+    if (admin.apps.length > 0) {
+      adminApp = admin.apps[0];
+      console.log('Firebase Admin SDK reaproveitado (já estava inicializado).');
+    } else {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      adminApp = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log('Firebase Admin SDK inicializado.');
+    }
   } else {
     console.warn('FIREBASE_SERVICE_ACCOUNT não configurado. Criação de usuários desativada.');
   }
@@ -344,39 +349,44 @@ const handleRequest = (req, res) => {
       }
 
       if (pathname === '/api/create-user' && method === 'POST') {
-        if (!adminApp) {
-          return sendError('Serviço de criação de usuários não está configurado no servidor.', 503);
-        }
-
-        const authHeader = req.headers['authorization'] || '';
-        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-        if (!token) {
-          return sendError('Token de autenticação ausente.', 401);
-        }
-
         try {
-          await admin.auth().verifyIdToken(token);
-        } catch (e) {
-          return sendError('Token de autenticação inválido.', 401);
-        }
+          if (!adminApp) {
+            return sendError('Serviço de criação de usuários não está configurado no servidor.', 503);
+          }
 
-        const { email, password, name } = body;
-        if (!email || !password || password.length < 6) {
-          return sendError('E-mail e senha (mínimo 6 caracteres) são obrigatórios.', 400);
-        }
+          const authHeader = req.headers['authorization'] || '';
+          const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+          if (!token) {
+            return sendError('Token de autenticação ausente.', 401);
+          }
 
-        try {
-          const novoUsuario = await admin.auth().createUser({
-            email,
-            password,
-            displayName: name || email,
-          });
-          return sendJson({ uid: novoUsuario.uid, email: novoUsuario.email }, 201);
-        } catch (e) {
-          let mensagem = 'Erro ao criar usuário.';
-          if (e.code === 'auth/email-already-exists') mensagem = 'Já existe um usuário com este e-mail.';
-          if (e.code === 'auth/invalid-email') mensagem = 'E-mail inválido.';
-          return sendError(mensagem, 400);
+          try {
+            await admin.auth().verifyIdToken(token);
+          } catch (e) {
+            return sendError('Token de autenticação inválido.', 401);
+          }
+
+          const { email, password, name } = body;
+          if (!email || !password || password.length < 6) {
+            return sendError('E-mail e senha (mínimo 6 caracteres) são obrigatórios.', 400);
+          }
+
+          try {
+            const novoUsuario = await admin.auth().createUser({
+              email,
+              password,
+              displayName: name || email,
+            });
+            return sendJson({ uid: novoUsuario.uid, email: novoUsuario.email }, 201);
+          } catch (e) {
+            let mensagem = 'Erro ao criar usuário.';
+            if (e.code === 'auth/email-already-exists') mensagem = 'Já existe um usuário com este e-mail.';
+            if (e.code === 'auth/invalid-email') mensagem = 'E-mail inválido.';
+            return sendError(mensagem, 400);
+          }
+        } catch (erroInesperado) {
+          console.error('Erro inesperado em /api/create-user:', erroInesperado);
+          return sendError('Erro inesperado no servidor ao criar usuário. Verifique os logs.', 500);
         }
       }
 
