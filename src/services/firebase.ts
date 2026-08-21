@@ -22,7 +22,7 @@ import {
 } from 'firebase/firestore';
 import { deleteDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle } from '../types';
+import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle, InfractionType } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
@@ -137,6 +137,45 @@ export const firebaseService = {
       await deleteDoc(doc(db, 'fines', id));
     } catch (e) {
       console.error('Firestore deleteFine error:', e);
+    }
+  },
+
+  // Sync Infraction Types
+  async fetchInfractionTypes(): Promise<InfractionType[]> {
+    try {
+      const snap = await getDocs(collection(db, 'infractionTypes'));
+      if (!snap.empty) {
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as InfractionType));
+      }
+    } catch (e) {
+      console.warn('Firestore fetchInfractionTypes fallback:', e);
+    }
+    return [];
+  },
+
+  async saveInfractionType(data: Omit<InfractionType, 'id'>): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'infractionTypes'), removeUndefinedFields(data));
+      return docRef.id;
+    } catch (e) {
+      console.error('Firestore saveInfractionType error:', e);
+      return `inf-${Date.now()}`;
+    }
+  },
+
+  async updateInfractionType(id: string, data: Partial<InfractionType>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'infractionTypes', id), removeUndefinedFields(data));
+    } catch (e) {
+      console.error('Firestore updateInfractionType error:', e);
+    }
+  },
+
+  async deleteInfractionType(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'infractionTypes', id));
+    } catch (e) {
+      console.error('Firestore deleteInfractionType error:', e);
     }
   },
 

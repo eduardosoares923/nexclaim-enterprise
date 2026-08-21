@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Fine, Vehicle, Person, FineStatus } from '../types';
+import { Fine, Vehicle, Person, FineStatus, InfractionType } from '../types';
 import { firebaseService } from '../services/firebase';
 import {
   lerPlanilhaMultas,
@@ -11,53 +11,37 @@ import {
 } from '../services/finesImport';
 import { Combobox } from '../components/Combobox';
 import { FinesPdfReportModal } from '../components/FinesPdfReportModal';
+import { InfractionCatalogModal } from '../components/InfractionCatalogModal';
 import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
-
-export const CATALOGO_INFRACOES: { descricao: string; valor: number; pontos: number }[] = [
-  { descricao: 'AVANÇAR O SINAL VERMELHO DO SEMAFORO - EXC HOUVER SINALIZ PERM LIVRE CONV A DIREITA FISC ELETRONICA', valor: 293.47, pontos: 7 },
-  { descricao: 'CONDUZIR O VEICULO COM EQUIPAMENTO OBRIGATORIO EM DESACORDO COM ESTAB PELO CONTRAN', valor: 195.23, pontos: 5 },
-  { descricao: 'ESTACIONAR O VEÍCULO NO PASSEIO', valor: 195.23, pontos: 5 },
-  { descricao: 'CONDUZIR O VEÍCULO COM A COR ALTERADA', valor: 195.23, pontos: 5 },
-  { descricao: 'CONDUZIR O VEÍCULO EM MAU ESTADO DE CONSERVAÇÃO, COMPROMETENDO A SEGURANÇA', valor: 195.23, pontos: 5 },
-  { descricao: 'CONDUZIR O VEICULO COM EQUIPAMENTO OBRIGATORIO INEFICIENTE/ INOPERANTE', valor: 195.23, pontos: 5 },
-  { descricao: 'CONDUZIR VEIC C/DEFEITO NO SIST DE ILUMICAÇÃO, SINALIZ OU LAMPADAS QUEIMADAS', valor: 130.16, pontos: 4 },
-  { descricao: 'DEIXA DE EFETUAR PAGAMENTO PELO USO DE RODOVIAS E VIAS URBANAS NA FORMA ESTABELECIDA', valor: 195.23, pontos: 5 },
-  { descricao: 'DEIXA O CONDUTOR DE USAR O CINTO SEGURANÇA', valor: 195.23, pontos: 5 },
-  { descricao: 'PARAR SOBRE FAIXA DE PEDESTRES NA MUDANÇA DE SINAL LUMINOSO', valor: 130.16, pontos: 4 },
-  { descricao: 'DEIXAR DE DESLOCAR C/ANTECENDENCIA VEIC P/ FAIXA DA ESQUERDA QDO FOR MANOBRAR', valor: 130.16, pontos: 4 },
-  { descricao: 'DIRIGIR VEICULO SEGURANDO O CELULAR', valor: 293.47, pontos: 7 },
-  { descricao: 'EM MOV DEIXA DE MANTER ACESA A LUZ BAIXA DE DIA EM ROD, PISTA SIMPL, SIT FORA PERIM URB, VEIC DESP DE LUZ ROBÔ', valor: 130.16, pontos: 4 },
-  { descricao: 'ESTACIONAR AO LADO OU SOBRE CANTEIRO CENTRAL/DIVISORES DE PISTA DE ROLAMENTO', valor: 195.23, pontos: 5 },
-  { descricao: 'ESTACIONAR EM LOCAL/HORARIO PROIBIDO ESPECIFICAMENTE PELA SINALIZAÇÃO', valor: 130.16, pontos: 4 },
-  { descricao: 'ESTACIONAR NAS ESQUINAS E A MENOS DE 5M DO ALINHAMENTO DA VIA TRANSVERSAL', valor: 130.16, pontos: 4 },
-  { descricao: 'MULTA POR NÃO IDENTIFICAÇÃO DO CONDUTOR INFRATOR, IMPOSTA À PESSOA JURÍDICA (1ª)', valor: 260.32, pontos: 0 },
-  { descricao: 'MULTA POR NÃO IDENTIFICAÇÃO DO CONDUTOR INFRATOR, IMPOSTA À PESSOA JURÍDICA (2ª)', valor: 390.46, pontos: 0 },
-  { descricao: 'MULTA POR NÃO IDENTIFICAÇÃO DO CONDUTOR INFRATOR, IMPOSTA À PESSOA JURÍDICA (3ª)', valor: 586.94, pontos: 0 },
-  { descricao: 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM ATE 20%', valor: 130.16, pontos: 4 },
-  { descricao: 'TRANSITAR EM VELOCIDADE SUPERIOR A MAXIMA PERMITIDA EM MAIS DE 20% ATÉ 50%', valor: 195.23, pontos: 5 },
-  { descricao: 'TRANSITAR NA FAIXA OU VIA EXCLUSIVA REGULAM. P/ TRANSP. PUBL. COLETIVO PASSAGEIROS', valor: 293.47, pontos: 7 },
-];
 
 interface FinesViewProps {
   fines: Fine[];
   vehicles: Vehicle[];
   people: Person[];
+  infractionTypes: InfractionType[];
   onSaveFine: (fine: Fine) => void;
   onUpdateFineStatus: (id: string, newStatus: FineStatus) => void;
   onUpdateFine?: (id: string, data: Partial<Fine>) => void;
   onDeleteFine?: (id: string) => void;
   onOpenTermForFine?: (fine: Fine) => void;
+  onSaveInfractionType?: (data: Omit<InfractionType, 'id'>) => void;
+  onUpdateInfractionType?: (id: string, data: Partial<InfractionType>) => void;
+  onDeleteInfractionType?: (id: string) => void;
 }
 
 export const FinesView: React.FC<FinesViewProps> = ({
   fines,
   vehicles,
   people,
+  infractionTypes,
   onSaveFine,
   onUpdateFineStatus,
   onUpdateFine,
   onDeleteFine,
   onOpenTermForFine,
+  onSaveInfractionType,
+  onUpdateInfractionType,
+  onDeleteInfractionType,
 }) => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -75,6 +59,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
   );
   const [showExportModal, setShowExportModal] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [showMoreActions, setShowMoreActions] = useState(false);
   const moreActionsRef = useRef<HTMLDivElement | null>(null);
 
@@ -169,12 +154,12 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
   const handleSelecionarInfracao = (desc: string) => {
     setDescription(desc);
-    const encontrada = CATALOGO_INFRACOES.find(
-      (i) => i.descricao.toUpperCase() === desc.toUpperCase()
+    const encontrada = infractionTypes.find(
+      (i) => i.description.toUpperCase() === desc.toUpperCase()
     );
     if (encontrada) {
-      setAmount(encontrada.valor);
-      setPoints(encontrada.pontos);
+      setAmount(encontrada.amount);
+      setPoints(encontrada.points);
     }
   };
 
@@ -413,6 +398,15 @@ export const FinesView: React.FC<FinesViewProps> = ({
           >
             <i className="fa-solid fa-file-excel text-emerald-600"></i>
             <span>Importar (.xlsx)</span>
+          </button>
+
+          <button
+            onClick={() => setShowCatalogModal(true)}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2 border border-slate-300 transition active:scale-95 cursor-pointer shadow-2xs"
+            title="Gerenciar catálogo de tipos de infração"
+          >
+            <i className="fa-solid fa-list-check text-amber-600"></i>
+            <span>Tipos de Infração</span>
           </button>
 
           <button
@@ -776,10 +770,12 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 <Combobox
                   value={description}
                   onChange={handleSelecionarInfracao}
-                  options={CATALOGO_INFRACOES.map((inf) => ({
-                    value: inf.descricao,
-                    label: `${formatCurrency(inf.valor)} • ${inf.pontos} pts`,
-                  }))}
+                  options={[...infractionTypes]
+                    .sort((a, b) => a.description.localeCompare(b.description, 'pt-BR'))
+                    .map((inf) => ({
+                      value: inf.description,
+                      label: `${formatCurrency(inf.amount)} • ${inf.points} pts`,
+                    }))}
                   placeholder="Selecione da lista de infrações ou digite..."
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs"
                 />
@@ -1219,6 +1215,17 @@ export const FinesView: React.FC<FinesViewProps> = ({
           fines={sortedFines}
           colunas={COLUNAS_EXPORTACAO_MULTAS.filter((c) => colunasExportSelecionadas.includes(c.chave))}
           onClose={() => setShowPdfModal(false)}
+        />
+      )}
+
+      {/* Modal do Catálogo de Tipos de Infração */}
+      {showCatalogModal && (
+        <InfractionCatalogModal
+          infractionTypes={infractionTypes}
+          onSave={(data) => onSaveInfractionType?.(data)}
+          onUpdate={(id, data) => onUpdateInfractionType?.(id, data)}
+          onDelete={(id) => onDeleteInfractionType?.(id)}
+          onClose={() => setShowCatalogModal(false)}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firebaseService } from '../services/firebase';
-import { Claim, Fine, Term, Vehicle, Person } from '../types';
+import { Claim, Fine, Term, Vehicle, Person, InfractionType } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 
 // ==========================================
@@ -83,6 +83,48 @@ export function useDeleteFine() {
     mutationFn: (id: string) => firebaseService.deleteFine(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fines'] });
+    },
+  });
+}
+
+// ==========================================
+// INFRACTION TYPES HOOKS
+// ==========================================
+export function useInfractionTypes(enabled: boolean = true) {
+  return useQuery<InfractionType[]>({
+    queryKey: ['infractionTypes'],
+    queryFn: () => firebaseService.fetchInfractionTypes(),
+    enabled,
+  });
+}
+
+export function useCreateInfractionType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<InfractionType, 'id'>) => firebaseService.saveInfractionType(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['infractionTypes'] });
+    },
+  });
+}
+
+export function useUpdateInfractionType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<InfractionType> }) =>
+      firebaseService.updateInfractionType(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['infractionTypes'] });
+    },
+  });
+}
+
+export function useDeleteInfractionType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => firebaseService.deleteInfractionType(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['infractionTypes'] });
     },
   });
 }

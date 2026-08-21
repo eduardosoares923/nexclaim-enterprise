@@ -65,6 +65,13 @@ export interface Person {
   notes?: string;
 }
 
+export interface InfractionType {
+  id: string;
+  description: string;
+  amount: number;
+  points: number;
+}
+
 export interface Claim {
   id: string;
   claimNumber: string;

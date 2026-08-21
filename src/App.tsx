@@ -22,6 +22,10 @@ import {
   useCreateFine,
   useUpdateFine,
   useDeleteFine,
+  useInfractionTypes,
+  useCreateInfractionType,
+  useUpdateInfractionType,
+  useDeleteInfractionType,
   useTerms,
   useCreateTerm,
   useUpdateTerm,
@@ -69,6 +73,7 @@ export const App: React.FC = () => {
   const loginConfirmado = !verificandoLogin && !!usuarioLogado;
   const { data: claims = [], isLoading: loadingClaims } = useClaims(loginConfirmado);
   const { data: fines = [], isLoading: loadingFines } = useFines(loginConfirmado);
+  const { data: infractionTypes = [] } = useInfractionTypes(loginConfirmado);
   const { data: terms = [], isLoading: loadingTerms } = useTerms(loginConfirmado);
   const { data: vehicles = [], isLoading: loadingVehicles } = useVehicles(loginConfirmado);
   const { data: people = [], isLoading: loadingPeople } = usePeople(loginConfirmado);
@@ -82,6 +87,10 @@ export const App: React.FC = () => {
   const createFineMutation = useCreateFine();
   const updateFineMutation = useUpdateFine();
   const deleteFineMutation = useDeleteFine();
+
+  const createInfractionTypeMutation = useCreateInfractionType();
+  const updateInfractionTypeMutation = useUpdateInfractionType();
+  const deleteInfractionTypeMutation = useDeleteInfractionType();
 
   const createTermMutation = useCreateTerm();
   const updateTermMutation = useUpdateTerm();
@@ -371,6 +380,7 @@ export const App: React.FC = () => {
                   fines={fines}
                   vehicles={vehicles}
                   people={people}
+                  infractionTypes={infractionTypes}
                   onSaveFine={(newFine) => {
                     const { id, ...data } = newFine;
                     createFineMutation.mutate(data);
@@ -380,6 +390,9 @@ export const App: React.FC = () => {
                   }
                   onUpdateFine={(id, data) => updateFineMutation.mutate({ id, data })}
                   onDeleteFine={(id) => deleteFineMutation.mutate(id)}
+                  onSaveInfractionType={(data) => createInfractionTypeMutation.mutate(data)}
+                  onUpdateInfractionType={(id, data) => updateInfractionTypeMutation.mutate({ id, data })}
+                  onDeleteInfractionType={(id) => deleteInfractionTypeMutation.mutate(id)}
                 />
               }
             />
