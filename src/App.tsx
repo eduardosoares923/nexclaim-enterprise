@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { User } from 'firebase/auth';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
@@ -9,8 +9,7 @@ import { TemplateEditorView } from './views/TemplateEditorView';
 import { TermsView } from './views/TermsView';
 import { ClaimsListView } from './views/ClaimsListView';
 import { FinesView } from './views/FinesView';
-import { PeopleView } from './views/PeopleView';
-import { VehiclesView } from './views/VehiclesView';
+import { FrotaCondutoresView } from './views/FrotaCondutoresView';
 import { WorkOrdersView } from './views/WorkOrdersView';
 import { DashboardView } from './views/DashboardView';
 import { observarAutenticacao, logout } from './services/firebase';
@@ -406,34 +405,28 @@ export const App: React.FC = () => {
               }
             />
             <Route
-              path="/frota"
+              path="/frota-condutores"
               element={
-                <VehiclesView
+                <FrotaCondutoresView
                   vehicles={vehicles}
                   people={people}
                   onSaveVehicle={(newV) => {
-                    console.log('[DIAG] onSaveVehicle recebido no App.tsx:', newV);
                     const { id, ...data } = newV;
-                    console.log('[DIAG] chamando createVehicleMutation.mutate com:', data);
                     createVehicleMutation.mutate(data);
                   }}
+                  onUpdateVehicle={(id, data) => updateVehicleMutation.mutate({ id, data })}
                   onDeleteVehicle={(id) => deleteVehicleMutation.mutate(id)}
-                />
-              }
-            />
-            <Route
-              path="/condutores"
-              element={
-                <PeopleView
-                  people={people}
                   onSavePerson={(newP) => {
                     const { id, ...data } = newP;
                     createPersonMutation.mutate(data);
                   }}
+                  onUpdatePerson={(id, data) => updatePersonMutation.mutate({ id, data })}
                   onDeletePerson={(id) => deletePersonMutation.mutate(id)}
                 />
               }
             />
+            <Route path="/frota" element={<Navigate to="/frota-condutores" replace />} />
+            <Route path="/condutores" element={<Navigate to="/frota-condutores" replace />} />
             <Route
               path="/os"
               element={

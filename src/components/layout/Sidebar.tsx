@@ -31,8 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { path: '/sinistros', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
     { path: '/multas', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
     { path: '/templates', label: 'Modelos de Documentos', icon: 'fa-sliders' },
-    { path: '/condutores', label: 'Condutores', icon: 'fa-users' },
-    { path: '/frota', label: 'Frota & Prefixos', icon: 'fa-truck-front' },
+    { path: '/frota-condutores', label: 'Frota & Condutores', icon: 'fa-users-gear' },
   ];
 
   return (

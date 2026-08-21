@@ -174,11 +174,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="font-bold text-slate-800 text-xs">OS Chapeação</span>
           </Link>
           <Link
-            to="/condutores"
+            to="/frota-condutores"
             className="p-3.5 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded-xl flex flex-col items-center text-center gap-2 transition"
           >
-            <i className="fa-solid fa-users text-amber-600 text-lg"></i>
-            <span className="font-bold text-slate-800 text-xs">Condutores</span>
+            <i className="fa-solid fa-users-gear text-amber-600 text-lg"></i>
+            <span className="font-bold text-slate-800 text-xs">Frota & Condutores</span>
           </Link>
           <Link
             to="/templates"
