@@ -342,6 +342,26 @@ export const FinesView: React.FC<FinesViewProps> = ({
               <div className="absolute z-30 top-full mt-1 right-0 w-72 bg-white border border-slate-200 rounded-lg shadow-lg py-1.5 animate-in fade-in zoom-in-95 duration-100">
                 <button
                   onClick={() => {
+                    fileInputRef.current?.click();
+                    setShowMoreActions(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-file-excel text-emerald-600"></i> Importar Planilha (.xlsx)
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowCatalogModal(true);
+                    setShowMoreActions(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer border-b border-slate-100 pb-2 mb-1"
+                >
+                  <i className="fa-solid fa-list-check text-amber-600"></i> Gerenciar Tipos de Infração
+                </button>
+
+                <button
+                  onClick={() => {
                     setShowPdfModal(true);
                     setShowMoreActions(false);
                   }}
@@ -390,24 +410,6 @@ export const FinesView: React.FC<FinesViewProps> = ({
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2 border border-slate-300 transition active:scale-95 cursor-pointer shadow-2xs"
-            title="Importar multas a partir de planilha Excel (.xlsx)"
-          >
-            <i className="fa-solid fa-file-excel text-emerald-600"></i>
-            <span>Importar (.xlsx)</span>
-          </button>
-
-          <button
-            onClick={() => setShowCatalogModal(true)}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2 border border-slate-300 transition active:scale-95 cursor-pointer shadow-2xs"
-            title="Gerenciar catálogo de tipos de infração"
-          >
-            <i className="fa-solid fa-list-check text-amber-600"></i>
-            <span>Tipos de Infração</span>
-          </button>
 
           <button
             onClick={() => setShowExportModal(true)}
