@@ -320,7 +320,7 @@ export const App: React.FC = () => {
           onLogout={logout}
         />
 
-        <main className="flex-1 overflow-y-auto p-6 relative">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 relative">
           <Routes>
             <Route
               path="/"

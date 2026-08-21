@@ -86,7 +86,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
+      <div className="bg-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <span className="badge bg-amber-500 text-slate-950 text-[10px] px-2.5 py-0.5 rounded font-black uppercase mb-1 inline-block">
             Módulo Administrativo (Requisitos 17 & 22)
@@ -98,7 +98,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
         </div>
         <button
           onClick={handleStartCreate}
-          className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm"
+          className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm self-start sm:self-auto cursor-pointer"
         >
           <i className="fa-solid fa-plus"></i> Criar Novo Modelo
         </button>
@@ -176,7 +176,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="form-label text-xs">Nome do Modelo *</label>
                   <input

@@ -47,8 +47,8 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
   const mostrarStatus = colunas.some((c) => c.chave === 'status');
 
   return (
-    <div className="p-8 bg-white text-black">
-      <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
+    <div className="p-4 sm:p-8 bg-white text-black">
+      <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-3">
           <img src="/legado/images/logo.png" alt="Trans Pinho" className="h-10 w-auto object-contain" />
           <div>
@@ -61,7 +61,7 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
           <span className="text-[10px] text-slate-400 uppercase font-bold block">Total de Sinistros</span>
           <span className="text-lg font-black text-slate-900">{claims.length}</span>
@@ -83,7 +83,7 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
       <div className="space-y-3">
         {claims.map((c: any, i) => (
           <div key={i} className="border border-slate-200 rounded-lg p-2.5 break-inside-avoid bg-white" style={{ breakInside: 'avoid' }}>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2 flex-wrap gap-1">
               <div>
                 <span className="font-bold text-slate-900 text-xs">{c.claimNumber || `Sinistro #${i + 1}`}</span>
                 {mostrarProtocolo && c.protocol && (
@@ -103,7 +103,7 @@ function ConteudoRelatorio({ claims, colunas }: { claims: Claim[]; colunas: Colu
             </div>
 
             {colunasDetalhe.length > 0 && (
-              <div className="grid grid-cols-4 gap-1.5 text-[9px] mb-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[9px] mb-1.5">
                 {colunasDetalhe.map((col) => (
                   <div key={col.chave} className="bg-slate-50 p-1 rounded border border-slate-100">
                     <span className="text-slate-400 font-bold uppercase text-[7px] block leading-tight">{col.rotulo}</span>
@@ -134,7 +134,7 @@ export const ClaimsPdfReportModal: React.FC<Props> = ({ claims, colunas, onClose
   return createPortal(
     <>
       {/* Modal de Pré-visualização na tela (oculto na impressão) */}
-      <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center px-4 py-8 overflow-y-auto print:hidden">
+      <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:hidden">
         <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-4 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2">

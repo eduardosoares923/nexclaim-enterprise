@@ -184,11 +184,11 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -200,7 +200,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
               Emitir Termo Oficial - {claim?.claimNumber || 'Novo Documento'}
             </h3>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg cursor-pointer">
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -223,7 +223,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="form-label text-xs">Modelo de Template *</label>
               <select
@@ -255,7 +255,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
           </div>
 
           {/* Campos de Datas Editáveis */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="form-label text-xs">Data de Vencimento</label>
               <input
@@ -282,7 +282,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
               <label className="font-bold text-xs text-slate-800 block">
                 Forma de Pagamento / Modalidade de Quitação:
               </label>
-              <div className="flex items-center gap-6 text-xs font-semibold text-slate-700">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-700">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"

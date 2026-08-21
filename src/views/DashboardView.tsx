@@ -32,7 +32,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/60 p-6 rounded-2xl shadow-sm text-white">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/60 p-4 sm:p-6 rounded-2xl shadow-sm text-white">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -120,7 +120,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Veículos & Prefixos */}
         <Link
-          to="/frota"
+          to="/frota-condutores"
           className="group bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover:border-amber-400 transition"
         >
           <div className="flex items-center justify-between">

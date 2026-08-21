@@ -247,7 +247,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded border border-amber-300 uppercase tracking-wider">
@@ -425,7 +425,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-600">
+                <table className="w-full min-w-[640px] text-left text-xs text-slate-600">
                   <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
                     <tr>
                       <th className="p-3.5">Placa & Prefixo</th>
@@ -624,7 +624,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-600">
+                <table className="w-full min-w-[640px] text-left text-xs text-slate-600">
                   <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
                     <tr>
                       <th className="p-3.5">Nome / Identificação</th>
@@ -734,8 +734,8 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
       {/* ==================================================================== */}
       {showVehicleModal &&
         createPortal(
-          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <i className="fa-solid fa-truck-front text-amber-500"></i>
@@ -750,7 +750,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
               </div>
 
               <form onSubmit={handleSaveVehicleSubmit} className="space-y-3 text-xs">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Placa *</label>
                     <input
@@ -786,7 +786,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Marca</label>
                     <input
@@ -818,7 +818,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">RENAVAM</label>
                     <input
@@ -841,7 +841,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Proprietário</label>
                     <input
@@ -908,8 +908,8 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
       {/* ==================================================================== */}
       {showPersonModal &&
         createPortal(
-          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-4 sm:p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <i className="fa-solid fa-user-plus text-amber-500"></i>
@@ -936,7 +936,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">CPF / CNPJ *</label>
                     <input
@@ -965,7 +965,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Telefone / WhatsApp</label>
                     <input

@@ -30,16 +30,16 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
   return createPortal(
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Modal Top Header */}
-        <div className="print:hidden p-5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800">
+        <div className="print:hidden p-4 sm:p-5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-base shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-base shadow-sm shrink-0">
               <i className="fa-solid fa-folder-closed"></i>
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-sm text-white tracking-tight">{claim.claimNumber}</h3>
                 <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] px-2 py-0.5 rounded font-bold uppercase">
                   {claim.protocol}
@@ -58,24 +58,24 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
             <button
               onClick={() => onOpenTermGenerator(claim)}
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition active:scale-95"
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer"
             >
               <i className="fa-solid fa-wand-magic-sparkles"></i>
               <span>Emitir Termo</span>
             </button>
             <button
               onClick={() => window.print()}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-1.5 border border-slate-700 transition"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-1.5 border border-slate-700 transition cursor-pointer"
             >
               <i className="fa-solid fa-print"></i>
               <span>Dossiê PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition"
+              className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition cursor-pointer"
             >
               <i className="fa-solid fa-xmark text-base"></i>
             </button>
@@ -83,7 +83,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="print:hidden flex border-b border-slate-200 bg-slate-50 px-6 text-xs font-bold gap-6">
+        <div className="print:hidden flex border-b border-slate-200 bg-slate-50 px-4 sm:px-6 text-xs font-bold gap-4 sm:gap-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('geral')}
             className={`py-3 border-b-2 transition ${
@@ -130,7 +130,7 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
         </div>
 
         {/* Modal Tab Content */}
-        <div className="trans-pinho-doc p-6 overflow-y-auto max-h-[65vh] space-y-6">
+        <div className="trans-pinho-doc p-4 sm:p-6 overflow-y-auto max-h-[65vh] space-y-6">
           {activeTab === 'geral' && (
             <div className="space-y-6">
               {/* Metrics Grid */}

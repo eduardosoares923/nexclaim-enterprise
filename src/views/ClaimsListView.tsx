@@ -328,7 +328,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-xs">
         <div>
           <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300 uppercase tracking-wider">
             Módulo Operacional • Trans Pinho
@@ -614,7 +614,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       ) : viewMode === 'table' ? (
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
+            <table className="w-full min-w-[760px] text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="p-3.5">Sinistro / Protocolo</th>
@@ -799,7 +799,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
       {/* Modal de Pré-visualização da Importação */}
       {showImportModal && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -824,7 +824,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     setAbasSelecionadas(new Set());
                     setResultadoDados(null);
                   }}
-                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
                 >
                   <i className="fa-solid fa-xmark text-base"></i>
                 </button>
@@ -832,7 +832,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4 text-xs">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[70vh] space-y-4 text-xs">
               {/* Seção Fixa Automática: Aba DADOS */}
               {resultadoDados && (
                 <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl space-y-1.5 shadow-2xs">
@@ -956,7 +956,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   </div>
                 ) : (
                   <div className="border border-slate-200 rounded-lg overflow-x-auto max-h-64">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full min-w-[700px] text-left text-xs">
                       <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase text-[10px] font-bold sticky top-0">
                         <tr>
                           <th className="p-2.5">Aba / Mês</th>
@@ -1040,7 +1040,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
       {/* Modal de Escolha de Colunas para Exportação */}
       {showExportModal && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -1066,7 +1066,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-4 text-xs">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[60vh] space-y-4 text-xs">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="text-slate-600 text-xs">
                   Marque as colunas que devem aparecer no relatório Excel:

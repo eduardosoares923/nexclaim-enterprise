@@ -147,7 +147,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -166,14 +166,14 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
           >
             <i className="fa-solid fa-xmark text-base"></i>
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[75vh] space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Tipo de Ocorrência */}
             <div>
@@ -232,7 +232,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             </div>
 
             {/* Prioridade & Status */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Prioridade
@@ -281,7 +281,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
             </div>
 
             {/* Data e Hora */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Data do Sinistro

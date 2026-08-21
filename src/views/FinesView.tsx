@@ -314,7 +314,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
       />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-xs">
         <div>
           <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded border border-amber-300 uppercase tracking-wider">
             Gestão de Trânsito • Trans Pinho
@@ -557,7 +557,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
           <div className="p-12 text-center text-xs text-slate-500">Nenhuma infração encontrada.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
+            <table className="w-full min-w-[700px] text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="p-3.5">Auto de Infração</th>
@@ -671,8 +671,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
       {/* New / Edit Fine Modal */}
       {(showNewFineModal || editingFine !== null) && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-file-invoice-dollar text-amber-500"></i>
@@ -699,7 +699,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Veículo (Placa) *</label>
                   <Combobox
@@ -728,7 +728,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 </div>
               </div>
 
-              <div className={duplicateOfAuto ? "grid grid-cols-1 gap-2" : "grid grid-cols-3 gap-2"}>
+              <div className={duplicateOfAuto ? "grid grid-cols-1 gap-2" : "grid grid-cols-1 sm:grid-cols-3 gap-2"}>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Data da Multa</label>
                   <input
@@ -798,7 +798,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 />
               </div>
 
-              <div className={duplicateOfAuto ? "grid grid-cols-1 gap-2" : "grid grid-cols-3 gap-2"}>
+              <div className={duplicateOfAuto ? "grid grid-cols-1 gap-2" : "grid grid-cols-1 sm:grid-cols-3 gap-2"}>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Valor (R$)</label>
                   <input
@@ -856,7 +856,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
       {/* Viewing / Printing Fine Modal */}
       {viewingFine && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center px-4 py-8 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-2xl w-full my-4 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 print:hidden">
               <div className="flex items-center gap-2">
@@ -876,7 +876,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
               </div>
             </div>
 
-            <div className="trans-pinho-doc p-8 overflow-y-auto print:p-0 print:overflow-visible font-serif text-slate-900">
+            <div className="trans-pinho-doc p-4 sm:p-8 overflow-y-auto print:p-0 print:overflow-visible font-serif text-slate-900">
               <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
                 <div>
                   <h1 className="text-base font-black uppercase">Auto de Infração de Trânsito</h1>
@@ -891,7 +891,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-xs mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Auto de Infração</span>{viewingFine.infractionAuto}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Placa</span>{viewingFine.vehiclePlate}</div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Condutor</span>{viewingFine.driverName}</div>
@@ -929,7 +929,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 <p className="text-xs leading-relaxed">{viewingFine.description}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-t border-slate-200 pt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-200 pt-3">
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Valor</span><span className="text-lg font-black">{formatCurrency(viewingFine.amount)}</span></div>
                 <div><span className="text-slate-400 uppercase font-bold text-[10px] block">Pontos na CNH</span><span className="text-lg font-black">{viewingFine.points}</span></div>
               </div>
@@ -952,8 +952,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
       {/* Modal de Pré-visualização da Importação de Multas */}
       {showImportModal && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full p-4 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-file-excel text-emerald-600 text-lg"></i>
@@ -971,7 +971,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
               )}
             </div>
 
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-circle-check text-emerald-600"></i>
                 <span className="text-xs font-bold text-emerald-950">
@@ -985,12 +985,12 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
             {/* Tabela de Amostra das primeiras 15 multas */}
             <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <div className="p-2.5 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center">
+              <div className="p-2.5 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center flex-wrap gap-1">
                 <span>Amostra das primeiras 15 multas da planilha:</span>
                 <span className="text-[10px] text-slate-400 font-normal">Total no arquivo: {linhasParaImportar.length}</span>
               </div>
-              <div className="max-h-72 overflow-y-auto">
-                <table className="w-full text-left text-xs text-slate-600">
+              <div className="max-h-72 overflow-x-auto overflow-y-auto">
+                <table className="w-full min-w-[640px] text-left text-xs text-slate-600">
                   <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px] sticky top-0">
                     <tr>
                       <th className="p-2">#</th>
@@ -1094,7 +1094,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
       {/* Modal de Escolha de Colunas para Exportação */}
       {showExportModal && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -1120,7 +1120,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-4 text-xs">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[60vh] space-y-4 text-xs">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="text-slate-600 text-xs">
                   Marque as colunas que devem aparecer no relatório:

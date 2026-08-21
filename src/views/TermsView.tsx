@@ -55,7 +55,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 p-6 rounded-2xl shadow-sm text-white">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 p-4 sm:p-6 rounded-2xl shadow-sm text-white">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -252,12 +252,12 @@ export const TermsView: React.FC<TermsViewProps> = ({
 
       {/* Document View / Print Modal */}
       {viewingTerm && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto print:static print:p-0 print:bg-white print:overflow-visible">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:p-0 print:bg-white print:overflow-visible">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden print:overflow-visible print:border-none print:shadow-none print:my-0 animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="print:hidden p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
+                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm shrink-0">
                   TP
                 </div>
                 <div>
@@ -270,13 +270,13 @@ export const TermsView: React.FC<TermsViewProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrint}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition"
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                 >
                   <i className="fa-solid fa-print"></i> Imprimir
                 </button>
                 <button
                   onClick={() => setViewingTerm(null)}
-                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
                 >
                   <i className="fa-solid fa-xmark text-base"></i>
                 </button>
@@ -284,7 +284,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
             </div>
 
             {/* Document Sheet (Standard Trans Pinho Format) */}
-            <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
+            <div className="trans-pinho-doc p-4 sm:p-8 md:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
               {/* Content Body */}
               <div className="text-xs sm:text-sm font-serif text-slate-900 leading-relaxed">
                 {(() => {

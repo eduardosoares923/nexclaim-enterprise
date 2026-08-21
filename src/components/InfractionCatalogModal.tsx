@@ -114,12 +114,12 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
     .sort((a, b) => a.description.localeCompare(b.description, 'pt-BR'));
 
   return createPortal(
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[90vh]">
         {/* Header */}
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
+            <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm shrink-0">
               <i className="fa-solid fa-list-check"></i>
             </div>
             <div>
@@ -140,7 +140,7 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 overflow-y-auto space-y-5 text-xs">
+        <div className="p-3 sm:p-5 overflow-y-auto space-y-4 sm:space-y-5 text-xs">
           {/* Botão de Importação Inicial quando vazio */}
           {infractionTypes.length === 0 && (
             <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -274,8 +274,8 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
                 Nenhum tipo de infração encontrado.
               </div>
             ) : (
-              <div className="max-h-72 overflow-y-auto">
-                <table className="w-full text-left text-xs text-slate-600">
+              <div className="max-h-72 overflow-x-auto overflow-y-auto">
+                <table className="w-full min-w-[520px] text-left text-xs text-slate-600">
                   <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px] sticky top-0">
                     <tr>
                       <th className="p-3">Descrição do Enquadramento</th>

@@ -501,12 +501,12 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
       {/* Modal View / Print OS */}
       {selectedOrder && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
             <div className="print:hidden p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm">
+                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm shrink-0">
                   OS
                 </div>
                 <div>
@@ -517,13 +517,13 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrintOrder}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition"
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                 >
                   <i className="fa-solid fa-print"></i> Imprimir OS
                 </button>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800"
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"
                 >
                   <i className="fa-solid fa-xmark text-base"></i>
                 </button>
@@ -541,10 +541,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               const totalPecas = itensPeca.reduce((acc, it) => acc + (it.total || 0), 0);
 
               return (
-                <div className="trans-pinho-doc p-8 sm:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-sans text-slate-900 leading-relaxed space-y-6">
+                <div className="trans-pinho-doc p-4 sm:p-8 md:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-sans text-slate-900 leading-relaxed space-y-6">
                   {/* 1. Faixa Superior e Cabeçalho */}
-                  <div className="-mx-8 sm:-mx-12 -mt-8 sm:-mt-12 mb-4 h-1.5 bg-blue-500 print:mx-0 print:mt-0" />
-                  <div className="flex items-start justify-between pb-4 border-b border-slate-200">
+                  <div className="-mx-4 sm:-mx-8 md:-mx-12 -mt-4 sm:-mt-8 md:-mt-12 mb-4 h-1.5 bg-blue-500 print:mx-0 print:mt-0" />
+                  <div className="flex flex-col sm:flex-row items-start justify-between pb-4 border-b border-slate-200 gap-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-base shrink-0">
                         {brand.initials}
@@ -627,28 +627,30 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   {itensServico.length > 0 && (
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1.5">Serviços & Peças</span>
-                      <table className="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
-                        <thead className="bg-slate-900 text-white">
-                          <tr>
-                            <th className="p-2">Tipo</th>
-                            <th className="p-2">Descrição</th>
-                            <th className="p-2 text-center">Qtd</th>
-                            <th className="p-2 text-right">V. Unit</th>
-                            <th className="p-2 text-right">V. Total</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 [&>tr:nth-child(even)]:bg-slate-50">
-                          {itensServico.map((it, idx) => (
-                            <tr key={idx}>
-                              <td className="p-2"><span className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700">{TIPO_SIGLA[it.type] || it.type}</span></td>
-                              <td className="p-2">{it.description || <span className="text-slate-400 italic">Sem descrição detalhada</span>}</td>
-                              <td className="p-2 text-center font-bold">{it.quantity}</td>
-                              <td className="p-2 text-right">{formatCurrency(it.unitPrice)}</td>
-                              <td className="p-2 text-right font-bold text-slate-900">{formatCurrency(it.total)}</td>
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[500px] text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+                          <thead className="bg-slate-900 text-white">
+                            <tr>
+                              <th className="p-2">Tipo</th>
+                              <th className="p-2">Descrição</th>
+                              <th className="p-2 text-center">Qtd</th>
+                              <th className="p-2 text-right">V. Unit</th>
+                              <th className="p-2 text-right">V. Total</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 [&>tr:nth-child(even)]:bg-slate-50">
+                            {itensServico.map((it, idx) => (
+                              <tr key={idx}>
+                                <td className="p-2"><span className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700">{TIPO_SIGLA[it.type] || it.type}</span></td>
+                                <td className="p-2">{it.description || <span className="text-slate-400 italic">Sem descrição detalhada</span>}</td>
+                                <td className="p-2 text-center font-bold">{it.quantity}</td>
+                                <td className="p-2 text-right">{formatCurrency(it.unitPrice)}</td>
+                                <td className="p-2 text-right font-bold text-slate-900">{formatCurrency(it.total)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
 
@@ -656,24 +658,26 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   {itensPeca.length > 0 && (
                     <div>
                       <span className="text-[10px] font-bold uppercase text-emerald-700 tracking-wider block mb-1.5">Peças & Materiais</span>
-                      <table className="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
-                        <thead className="bg-emerald-50 text-emerald-900 border-b border-emerald-200">
-                          <tr>
-                            <th className="p-2">Item</th>
-                            <th className="p-2 text-center">Und</th>
-                            <th className="p-2 text-right">Valor</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {itensPeca.map((it, idx) => (
-                            <tr key={idx}>
-                              <td className="p-2">{it.description || <span className="text-slate-400 italic">Sem descrição</span>}</td>
-                              <td className="p-2 text-center font-bold">{it.quantity}</td>
-                              <td className="p-2 text-right font-bold text-emerald-700">{formatCurrency(it.total)}</td>
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[360px] text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+                          <thead className="bg-emerald-50 text-emerald-900 border-b border-emerald-200">
+                            <tr>
+                              <th className="p-2">Item</th>
+                              <th className="p-2 text-center">Und</th>
+                              <th className="p-2 text-right">Valor</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {itensPeca.map((it, idx) => (
+                              <tr key={idx}>
+                                <td className="p-2">{it.description || <span className="text-slate-400 italic">Sem descrição</span>}</td>
+                                <td className="p-2 text-center font-bold">{it.quantity}</td>
+                                <td className="p-2 text-right font-bold text-emerald-700">{formatCurrency(it.total)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
 
@@ -739,8 +743,8 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
       {/* Modal Create / Edit OS */}
       {(showCreateModal || editingOrder !== null) && createPortal(
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center px-4 py-8 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 my-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-4 sm:p-6 space-y-4 my-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-wrench text-amber-500"></i>
@@ -748,7 +752,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   ? `Editar Ordem de Serviço ${editingOrder.orderNumber}`
                   : 'Nova Ordem de Serviço & Orçamento'}
               </h3>
-              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-700">
+              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <i className="fa-solid fa-xmark text-base"></i>
               </button>
             </div>
@@ -767,7 +771,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 >
                   {Object.entries(COMPANY_BRANDS).map(([key, brand]) => (
                     <option key={key} value={key}>
-                      {brand.name} {brand.subtitle ? `• ${brand.subtitle}` : ''}
+                       {brand.name} {brand.subtitle ? `• ${brand.subtitle}` : ''}
                     </option>
                   ))}
                 </select>
@@ -837,7 +841,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Veículo / Prefixo *</label>
                   <select
@@ -868,7 +872,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 </div>
               </div>
 
-              <div className={editingOrder ? 'grid grid-cols-2 gap-3' : ''}>
+              <div className={editingOrder ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : ''}>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Oficina / Prestador de Serviço</label>
                   <input
