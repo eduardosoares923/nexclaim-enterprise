@@ -248,7 +248,7 @@ function writeDb(data) {
   try { fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8'); } catch (err) {}
 }
 
-const handleRequest = (req, res) => {
+const handleRequest = async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
   const method = req.method;
@@ -265,7 +265,7 @@ const handleRequest = (req, res) => {
 
   let bodyStr = '';
   req.on('data', chunk => { bodyStr += chunk; });
-  req.on('end', () => {
+  req.on('end', async () => {
     let body = {};
     if (bodyStr) {
       try { body = JSON.parse(bodyStr); } catch (e) { }
