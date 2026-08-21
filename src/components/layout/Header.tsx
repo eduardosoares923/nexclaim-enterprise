@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RoleType } from '../../types';
 
 interface HeaderProps {
@@ -18,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenExcelImport,
   onLogout,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-20 shadow-xs">
       <div className="flex items-center gap-4 flex-1 max-w-md">
@@ -53,6 +56,13 @@ export const Header: React.FC<HeaderProps> = ({
             <option value="OPERADOR">OPERADOR</option>
             <option value="VISUALIZADOR">VISUALIZADOR</option>
           </select>
+          <button
+            onClick={() => navigate('/usuarios')}
+            className="text-slate-400 hover:text-slate-700 transition p-1.5 cursor-pointer ml-1 rounded hover:bg-slate-200/60"
+            title="Configurações e Usuários"
+          >
+            <i className="fa-solid fa-gear text-sm"></i>
+          </button>
         </div>
 
         <button

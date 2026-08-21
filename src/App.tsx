@@ -12,6 +12,7 @@ import { FinesView } from './views/FinesView';
 import { FrotaCondutoresView } from './views/FrotaCondutoresView';
 import { WorkOrdersView } from './views/WorkOrdersView';
 import { DashboardView } from './views/DashboardView';
+import { UsersView } from './views/UsersView';
 import { observarAutenticacao, logout } from './services/firebase';
 import {
   useClaims,
@@ -306,6 +307,7 @@ export const App: React.FC = () => {
         finesCount={fines.length}
         termsCount={terms.length}
         currentUser={currentUser}
+        onLogout={logout}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -454,6 +456,7 @@ export const App: React.FC = () => {
                 />
               }
             />
+            <Route path="/usuarios" element={<UsersView />} />
           </Routes>
         </main>
       </div>

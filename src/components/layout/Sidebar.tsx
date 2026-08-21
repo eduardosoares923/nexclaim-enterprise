@@ -1,11 +1,25 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   claimsCount: number;
   finesCount: number;
   termsCount: number;
   currentUser: { name: string; email: string; role: string; avatar: string };
+  onLogout?: () => void;
+}
+
+interface MenuItem {
+  path: string;
+  label: string;
+  icon: string;
+  badge?: number;
+  isNew?: boolean;
+}
+
+interface MenuGroup {
+  title: string;
+  items: MenuItem[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -13,30 +27,58 @@ export const Sidebar: React.FC<SidebarProps> = ({
   finesCount,
   termsCount,
   currentUser,
+  onLogout,
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileRef = useRef<HTMLDivElement | null>(null);
 
-  interface MenuItem {
-    path: string;
-    label: string;
-    icon: string;
-    badge?: number;
-    isNew?: boolean;
-  }
+  // Fecha o menu de perfil ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const menuItems: MenuItem[] = [
-    { path: '/', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
-    { path: '/termos', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: termsCount },
-    { path: '/os', label: 'Orçamentos & OS Chapeação', icon: 'fa-wrench' },
-    { path: '/sinistros', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
-    { path: '/multas', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
-    { path: '/templates', label: 'Modelos de Documentos', icon: 'fa-sliders' },
-    { path: '/frota-condutores', label: 'Frota & Condutores', icon: 'fa-users-gear' },
+  const menuGroups: MenuGroup[] = [
+    {
+      title: 'VISÃO GERAL',
+      items: [
+        { path: '/', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
+      ],
+    },
+    {
+      title: 'OPERACIONAL',
+      items: [
+        { path: '/sinistros', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
+        { path: '/multas', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
+        { path: '/os', label: 'Orçamentos & OS Chapeação', icon: 'fa-wrench' },
+      ],
+    },
+    {
+      title: 'DOCUMENTOS',
+      items: [
+        { path: '/termos', label: 'Emitir Termos Oficial', icon: 'fa-file-pen', badge: termsCount },
+        { path: '/templates', label: 'Modelos de Documentos', icon: 'fa-sliders' },
+      ],
+    },
+    {
+      title: 'CADASTROS',
+      items: [
+        { path: '/frota-condutores', label: 'Frota & Condutores', icon: 'fa-users-gear' },
+      ],
+    },
   ];
 
   return (
     <aside className="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col flex-shrink-0 z-30 select-none">
-      <div className="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
+      {/* Brand Header */}
+      <div className="h-16 flex items-center px-5 border-b border-slate-800 gap-3 shrink-0">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg">
           TP
         </div>
@@ -53,62 +95,108 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        <div className="px-3 mb-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-          Módulos Corporativos
-        </div>
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
+      {/* Navigation Groups */}
+      <nav className="flex-1 py-4 px-3 space-y-4 overflow-y-auto">
+        {menuGroups.map((group) => {
+          if (!group.items || group.items.length === 0) return null;
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
-                isActive
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <i
-                  className={`fa-solid ${item.icon} text-sm w-4 text-center ${
-                    isActive ? 'text-slate-950' : 'text-slate-400'
-                  }`}
-                ></i>
-                <span>{item.label}</span>
+            <div key={group.title}>
+              <div className="px-3 mb-1.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                {group.title}
               </div>
-              <div className="flex items-center gap-1.5">
-                {item.isNew && (
-                  <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    NOVO
-                  </span>
-                )}
-                {item.badge !== undefined && (
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      isActive ? 'bg-slate-950 text-white' : 'bg-slate-800 text-slate-300'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                        isActive
+                          ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <i
+                          className={`fa-solid ${item.icon} text-sm w-4 text-center ${
+                            isActive ? 'text-slate-950' : 'text-slate-400'
+                          }`}
+                        ></i>
+                        <span>{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {item.isNew && (
+                          <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            NOVO
+                          </span>
+                        )}
+                        {item.badge !== undefined && (
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              isActive ? 'bg-slate-950 text-white' : 'bg-slate-800 text-slate-300'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            </Link>
+            </div>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-slate-800 bg-slate-950/50">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-xs shadow-inner">
+      {/* Profile Footer with Popover Menu */}
+      <div className="p-4 border-t border-slate-800 bg-slate-950/50 relative shrink-0" ref={profileRef}>
+        {showProfileMenu && (
+          <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 text-slate-800 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <button
+              onClick={() => {
+                setShowProfileMenu(false);
+                navigate('/usuarios');
+              }}
+              className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-2.5 transition cursor-pointer"
+            >
+              <i className="fa-solid fa-users-gear text-amber-600 w-4 text-center"></i>
+              <span>Gerenciar Usuários</span>
+            </button>
+
+            {onLogout && (
+              <button
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  onLogout();
+                }}
+                className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 border-t border-slate-100 mt-1 pt-1.5 transition cursor-pointer"
+              >
+                <i className="fa-solid fa-right-from-bracket text-rose-600 w-4 text-center"></i>
+                <span>Sair</span>
+              </button>
+            )}
+          </div>
+        )}
+
+        <div
+          onClick={() => setShowProfileMenu((v) => !v)}
+          className="flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-slate-800/80 transition-colors cursor-pointer"
+          title="Opções do Usuário"
+        >
+          <div className="w-9 h-9 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-xs shadow-inner shrink-0">
             {currentUser.avatar}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
             <p className="text-[10px] text-amber-400 font-semibold truncate">{currentUser.role}</p>
           </div>
+          <i className="fa-solid fa-chevron-up text-[10px] text-slate-500 mr-1"></i>
         </div>
       </div>
     </aside>
   );
 };
+
+export default Sidebar;
