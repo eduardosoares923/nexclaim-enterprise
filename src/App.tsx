@@ -57,6 +57,7 @@ import {
 export const App: React.FC = () => {
   const navigate = useNavigate();
   const [currentRole, setCurrentRole] = useState<RoleType>('ADMINISTRADOR');
+  const [sidebarAberto, setSidebarAberto] = useState(false);
 
   // Firebase Auth State
   const [usuarioLogado, setUsuarioLogado] = useState<User | null>(null);
@@ -308,6 +309,8 @@ export const App: React.FC = () => {
         termsCount={terms.length}
         currentUser={currentUser}
         onLogout={logout}
+        isOpen={sidebarAberto}
+        onClose={() => setSidebarAberto(false)}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -318,6 +321,7 @@ export const App: React.FC = () => {
           onOpenNewClaim={() => navigate('/sinistros')}
           onOpenExcelImport={() => navigate('/multas')}
           onLogout={logout}
+          onOpenSidebar={() => setSidebarAberto(true)}
         />
 
         <main className="flex-1 overflow-y-auto p-3 sm:p-6 relative">
