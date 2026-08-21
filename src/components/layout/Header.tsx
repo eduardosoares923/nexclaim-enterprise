@@ -3,21 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { RoleType } from '../../types';
 
 interface HeaderProps {
-  currentRole: RoleType;
-  onRoleChange: (role: RoleType) => void;
   onOpenSearch: () => void;
   onOpenNewClaim: () => void;
-  onOpenExcelImport: () => void;
   onLogout?: () => void;
   onOpenSidebar?: () => void;
+  currentRole?: RoleType;
+  onRoleChange?: (role: RoleType) => void;
+  onOpenExcelImport?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  currentRole,
-  onRoleChange,
   onOpenSearch,
   onOpenNewClaim,
-  onOpenExcelImport,
   onLogout,
   onOpenSidebar,
 }) => {
@@ -45,37 +42,12 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200">
-          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-          <span className="text-[10px] font-black text-blue-900 uppercase tracking-wide">v2.6.0-BETA</span>
-        </div>
-
-        <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-          <span className="text-[10px] font-bold text-slate-500 uppercase px-2">Perfil:</span>
-          <select
-            value={currentRole}
-            onChange={(e) => onRoleChange(e.target.value as RoleType)}
-            className="bg-white border border-slate-200 rounded text-xs font-semibold px-2 py-1 text-slate-700 cursor-pointer"
-          >
-            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-            <option value="GESTOR">GESTOR</option>
-            <option value="OPERADOR">OPERADOR</option>
-            <option value="VISUALIZADOR">VISUALIZADOR</option>
-          </select>
-          <button
-            onClick={() => navigate('/usuarios')}
-            className="text-slate-400 hover:text-slate-700 transition p-1.5 cursor-pointer ml-1 rounded hover:bg-slate-200/60"
-            title="Configurações e Usuários"
-          >
-            <i className="fa-solid fa-gear text-sm"></i>
-          </button>
-        </div>
-
         <button
-          onClick={onOpenExcelImport}
-          className="hidden md:inline-flex btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg items-center gap-1.5 shadow-xs cursor-pointer"
+          onClick={() => navigate('/usuarios')}
+          className="text-slate-400 hover:text-slate-700 transition p-2 cursor-pointer rounded-lg hover:bg-slate-100"
+          title="Configurações e Usuários"
         >
-          <i className="fa-solid fa-file-excel text-xs"></i> Ler Planilha Excel (.xlsx)
+          <i className="fa-solid fa-gear text-base"></i>
         </button>
 
         <button
@@ -101,3 +73,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

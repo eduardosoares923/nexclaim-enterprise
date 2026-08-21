@@ -5,6 +5,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { Login } from './components/Login';
 import { TermGeneratorModal } from './components/TermGeneratorModal';
+import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { TemplateEditorView } from './views/TemplateEditorView';
 import { TermsView } from './views/TermsView';
 import { ClaimsListView } from './views/ClaimsListView';
@@ -58,6 +59,17 @@ export const App: React.FC = () => {
   const navigate = useNavigate();
   const [currentRole, setCurrentRole] = useState<RoleType>('ADMINISTRADOR');
   const [sidebarAberto, setSidebarAberto] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearchModal(true);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Firebase Auth State
   const [usuarioLogado, setUsuarioLogado] = useState<User | null>(null);
@@ -315,11 +327,8 @@ export const App: React.FC = () => {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header
-          currentRole={currentRole}
-          onRoleChange={setCurrentRole}
           onOpenSearch={() => setShowSearchModal(true)}
           onOpenNewClaim={() => navigate('/sinistros')}
-          onOpenExcelImport={() => navigate('/multas')}
           onLogout={logout}
           onOpenSidebar={() => setSidebarAberto(true)}
         />
@@ -473,6 +482,16 @@ export const App: React.FC = () => {
           templates={templates.filter((t) => t.isActive)}
           onClose={() => setShowTermGenModal(false)}
           onGenerateTerm={handleGenerateTerm}
+        />
+      )}
+
+      {showSearchModal && (
+        <GlobalSearchModal
+          claims={claims}
+          fines={fines}
+          vehicles={vehicles}
+          people={people}
+          onClose={() => setShowSearchModal(false)}
         />
       )}
     </div>
