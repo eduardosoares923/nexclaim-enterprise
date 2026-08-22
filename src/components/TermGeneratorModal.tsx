@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Claim, Person, Vehicle, DocumentTemplate, Term } from '../types';
+import { SignaturePad } from './SignaturePad';
 
 interface TermGeneratorModalProps {
   claim?: Claim;
@@ -51,6 +52,8 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   }
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templates[0]?.id || '');
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [selectedDriverName, setSelectedDriverName] = useState<string>(
     claim?.driverName || people[0]?.name || ''
   );
@@ -167,10 +170,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       date: new Date().toISOString().split('T')[0],
       responsible: 'Carlos Pinho',
       involvedPerson: selectedDriverName,
-      status: 'Assinado',
+      status: signatureDataUrl ? 'Assinado' : 'Gerado',
+      signatureDataUrl: signatureDataUrl || undefined,
       content: textContent,
       htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-8 bg-white border border-slate-300 rounded-lg max-w-2xl mx-auto shadow-sm">
         <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContent}</div>
+        ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura do Condutor</p></div>` : ''}
         <div class="trans-pinho-header text-center border-t-2 border-black pt-4 mt-6">
           <h2 class="font-black text-base uppercase tracking-tight">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
           <p class="text-xs">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
@@ -222,131 +227,185 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="form-label text-xs">Modelo de Template *</label>
-              <select
-                value={selectedTemplateId}
-                onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="form-select text-xs font-bold text-slate-900"
+        {/* Indicador de Progresso (3 Passos) */}
+        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+          {[1, 2, 3].map((n) => (
+            <React.Fragment key={n}>
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  step === n ? 'bg-amber-500 text-slate-950' : step > n ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
+                }`}
               >
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} ({t.category})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="form-label text-xs">Condutor Selecionado *</label>
-              <select
-                value={selectedDriverName}
-                onChange={(e) => setSelectedDriverName(e.target.value)}
-                className="form-select text-xs font-semibold"
-              >
-                {people.map((p) => (
-                  <option key={p.id} value={p.name}>
-                    {p.name} ({p.docNumber})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Campos de Datas Editáveis */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="form-label text-xs">Data de Vencimento</label>
-              <input
-                type="date"
-                value={dataVencimento}
-                onChange={(e) => setDataVencimento(e.target.value)}
-                className="form-input text-xs"
-              />
-            </div>
-            <div>
-              <label className="form-label text-xs">Data da Primeira Parcela</label>
-              <input
-                type="date"
-                value={dataPrimeiraParcela}
-                onChange={(e) => setDataPrimeiraParcela(e.target.value)}
-                className="form-input text-xs"
-              />
-            </div>
-          </div>
-
-          {/* Seleção de Modalidade (Cota Única vs Parcelado) */}
-          {(currentTemplate?.id === 'tmpl-multa-descontada' || currentTemplate?.name.includes('Valores Descontados')) && (
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
-              <label className="font-bold text-xs text-slate-800 block">
-                Forma de Pagamento / Modalidade de Quitação:
-              </label>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-700">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="formaPagamento"
-                    value="unica"
-                    checked={formaPagamento === 'unica'}
-                    onChange={() => setFormaPagamento('unica')}
-                    className="text-amber-500 focus:ring-amber-400"
-                  />
-                  <span>Cota Única (☑ Cota Única)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="formaPagamento"
-                    value="parcelado"
-                    checked={formaPagamento === 'parcelado'}
-                    onChange={() => setFormaPagamento('parcelado')}
-                    className="text-amber-500 focus:ring-amber-400"
-                  />
-                  <span>Parcelado (☑ Parcelado)</span>
-                </label>
+                {step > n ? <i className="fa-solid fa-check"></i> : n}
               </div>
+              {n < 3 && <div className={`flex-1 h-0.5 ${step > n ? 'bg-emerald-500' : 'bg-slate-200'}`} />}
+            </React.Fragment>
+          ))}
+        </div>
 
-              {formaPagamento === 'parcelado' && (
-                <div className="pt-2.5 border-t border-slate-200 flex items-center gap-3">
-                  <label className="form-label text-xs mb-0 whitespace-nowrap">
-                    Número de Parcelas:
-                  </label>
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          {/* Passo 1: Configuração do Documento e Condutor */}
+          {step === 1 && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="form-label text-xs">Modelo de Template *</label>
                   <select
-                    value={numeroParcelasEscolhido}
-                    onChange={(e) => setNumeroParcelasEscolhido(Number(e.target.value))}
-                    className="form-select text-xs font-bold w-36"
+                    value={selectedTemplateId}
+                    onChange={(e) => setSelectedTemplateId(e.target.value)}
+                    className="form-select text-xs font-bold text-slate-900"
                   >
-                    {Array.from({ length: 11 }, (_, i) => i + 2).map((n) => (
-                      <option key={n} value={n}>
-                        {n}x parcelas
+                    {templates.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} ({t.category})
                       </option>
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="form-label text-xs">Condutor Selecionado *</label>
+                  <select
+                    value={selectedDriverName}
+                    onChange={(e) => setSelectedDriverName(e.target.value)}
+                    className="form-select text-xs font-semibold"
+                  >
+                    {people.map((p) => (
+                      <option key={p.id} value={p.name}>
+                        {p.name} ({p.docNumber})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Campos de Datas Editáveis */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="form-label text-xs">Data de Vencimento</label>
+                  <input
+                    type="date"
+                    value={dataVencimento}
+                    onChange={(e) => setDataVencimento(e.target.value)}
+                    className="form-input text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="form-label text-xs">Data da Primeira Parcela</label>
+                  <input
+                    type="date"
+                    value={dataPrimeiraParcela}
+                    onChange={(e) => setDataPrimeiraParcela(e.target.value)}
+                    className="form-input text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Seleção de Modalidade (Cota Única vs Parcelado) */}
+              {(currentTemplate?.id === 'tmpl-multa-descontada' || currentTemplate?.name.includes('Valores Descontados')) && (
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+                  <label className="font-bold text-xs text-slate-800 block">
+                    Forma de Pagamento / Modalidade de Quitação:
+                  </label>
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-700">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="formaPagamento"
+                        value="unica"
+                        checked={formaPagamento === 'unica'}
+                        onChange={() => setFormaPagamento('unica')}
+                        className="text-amber-500 focus:ring-amber-400"
+                      />
+                      <span>Cota Única (☑ Cota Única)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="formaPagamento"
+                        value="parcelado"
+                        checked={formaPagamento === 'parcelado'}
+                        onChange={() => setFormaPagamento('parcelado')}
+                        className="text-amber-500 focus:ring-amber-400"
+                      />
+                      <span>Parcelado (☑ Parcelado)</span>
+                    </label>
+                  </div>
+
+                  {formaPagamento === 'parcelado' && (
+                    <div className="pt-2.5 border-t border-slate-200 flex items-center gap-3">
+                      <label className="form-label text-xs mb-0 whitespace-nowrap">
+                        Número de Parcelas:
+                      </label>
+                      <select
+                        value={numeroParcelasEscolhido}
+                        onChange={(e) => setNumeroParcelasEscolhido(Number(e.target.value))}
+                        className="form-select text-xs font-bold w-36"
+                      >
+                        {Array.from({ length: 11 }, (_, i) => i + 2).map((n) => (
+                          <option key={n} value={n}>
+                            {n}x parcelas
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
               )}
+            </>
+          )}
+
+          {/* Passo 2: Pré-visualização do Documento */}
+          {step === 2 && (
+            <div>
+              <label className="form-label text-xs">
+                Pré-visualização do Documento Preenchido com Variáveis (Editável antes de emitir):
+              </label>
+              <div className="p-4 bg-slate-50 border border-slate-300 rounded-lg font-mono text-[11px] whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">
+                {generateFilledContent()}
+              </div>
             </div>
           )}
 
-          <div>
-            <label className="form-label text-xs">
-              Pré-visualização do Documento Preenchido com Variáveis (Editável antes de emitir):
-            </label>
-            <div className="p-4 bg-slate-50 border border-slate-300 rounded-lg font-mono text-[11px] whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">
-              {generateFilledContent()}
+          {/* Passo 3: Assinatura do Condutor */}
+          {step === 3 && (
+            <div className="space-y-1.5">
+              <label className="form-label text-xs">
+                Assinatura do Condutor {selectedDriverName}:
+              </label>
+              <SignaturePad value={signatureDataUrl} onChange={(dataUrl) => setSignatureDataUrl(dataUrl)} />
+              <p className="text-[10px] text-slate-500">
+                Peça para o condutor assinar na tela antes de confirmar. Se pular esta etapa,
+                o termo fica com status "Gerado" (pendente de assinatura) em vez de "Assinado".
+              </p>
             </div>
-          </div>
+          )}
 
-          <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="btn btn-secondary text-xs px-4 py-2">
-              Cancelar
-            </button>
+          {/* Rodapé / Botões de Navegação */}
+          <div className="pt-3 border-t border-slate-200 flex justify-between gap-2">
             <button
-              type="submit"
-              className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2 shadow-sm"
+              type="button"
+              onClick={() => (step === 1 ? onClose() : setStep((s) => (s - 1) as 1 | 2 | 3))}
+              className="btn btn-secondary text-xs px-4 py-2"
             >
-              <i className="fa-solid fa-file-check mr-1"></i> Confirmar & Salvar Termo
+              {step === 1 ? 'Cancelar' : 'Voltar'}
             </button>
+            {step < 3 ? (
+              <button
+                type="button"
+                onClick={() => setStep((s) => (s + 1) as 1 | 2 | 3)}
+                className="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2 shadow-sm"
+              >
+                Próximo <i className="fa-solid fa-arrow-right ml-1"></i>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2 shadow-sm"
+              >
+                <i className="fa-solid fa-file-check mr-1"></i>
+                {signatureDataUrl ? 'Confirmar & Salvar Termo Assinado' : 'Salvar Sem Assinatura'}
+              </button>
+            )}
           </div>
         </form>
       </div>

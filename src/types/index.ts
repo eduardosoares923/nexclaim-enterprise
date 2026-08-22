@@ -173,6 +173,7 @@ export interface Term {
   responsible: string;
   involvedPerson: string;
   status: 'Rascunho' | 'Gerado' | 'Assinado' | 'Cancelado';
+  signatureDataUrl?: string;
   content?: string;
   htmlContent?: string;
   createdBy?: string;

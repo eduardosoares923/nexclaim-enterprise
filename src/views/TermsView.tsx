@@ -92,6 +92,32 @@ export const TermsView: React.FC<TermsViewProps> = ({
         )}
       </div>
 
+      {/* KPIs do módulo de Documentos */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total de Termos</span>
+          <p className="text-2xl font-black text-slate-900 mt-1">{terms.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assinados</span>
+          <p className="text-2xl font-black text-emerald-600 mt-1">
+            {terms.filter((t) => t.status === 'Assinado').length}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Aguardando Assinatura</span>
+          <p className="text-2xl font-black text-amber-600 mt-1">
+            {terms.filter((t) => t.status === 'Gerado').length}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Emitidos Este Mês</span>
+          <p className="text-2xl font-black text-blue-600 mt-1">
+            {terms.filter((t) => t.date && t.date.startsWith(new Date().toISOString().slice(0, 7))).length}
+          </p>
+        </div>
+      </div>
+
       {/* Quick Launch Template Cards */}
       {permissoes.podeCriar && (
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
@@ -219,6 +245,11 @@ export const TermsView: React.FC<TermsViewProps> = ({
                     >
                       {term.status}
                     </span>
+                    {term.status !== 'Assinado' && !term.signatureDataUrl && (
+                      <span className="px-2 py-0.5 rounded text-[9px] font-bold border bg-rose-50 text-rose-600 border-rose-200">
+                        <i className="fa-solid fa-signature mr-1"></i>Sem assinatura
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
@@ -366,6 +397,13 @@ export const TermsView: React.FC<TermsViewProps> = ({
                   });
                 })()}
               </div>
+
+              {viewingTerm.signatureDataUrl && (
+                <div className="text-center mt-8">
+                  <img src={viewingTerm.signatureDataUrl} alt="Assinatura" className="max-w-[220px] mx-auto border-b border-slate-900 pb-1" />
+                  <p className="text-[10px] text-slate-600 mt-1">Assinatura do Condutor</p>
+                </div>
+              )}
 
               {/* Official Trans Pinho Footer (Mover de cima para rodapé) */}
               <div className="text-center border-t-2 border-slate-900 pt-4 mt-8">
