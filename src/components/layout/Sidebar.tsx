@@ -128,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Groups */}
-        <nav className="flex-1 py-4 px-3 space-y-4 overflow-y-auto">
+        <nav className="flex-1 py-4 px-3 space-y-4 overflow-y-auto sidebar-scroll">
           {menuGroups.map((group) => {
             if (!group.items || group.items.length === 0) return null;
             return (
