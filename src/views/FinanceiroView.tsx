@@ -463,6 +463,27 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
             </button>
           )}
 
+          {permissoes.podeExclusaoEmMassa && financialEntries.length > 0 && (
+            <button
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `ATENÇÃO: isso vai excluir TODOS os ${financialEntries.length} lançamento(s) financeiro(s) do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`
+                  )
+                ) {
+                  if (window.confirm('Confirme mais uma vez: excluir TODOS os lançamentos financeiros agora?')) {
+                    financialEntries.forEach((entry) => onDeleteEntry(entry.id));
+                  }
+                }
+              }}
+              className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-2 transition cursor-pointer border border-rose-200"
+              title="Excluir todos os lançamentos financeiros"
+            >
+              <i className="fa-solid fa-triangle-exclamation"></i>
+              <span>Excluir Tudo ({financialEntries.length})</span>
+            </button>
+          )}
+
           {permissoes.podeCriar && (
             <button
               onClick={handleOpenCreateModal}
