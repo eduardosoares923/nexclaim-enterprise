@@ -414,6 +414,25 @@ const handleRequest = async (req, res) => {
         }
       }
 
+      if (pathname === '/api/bootstrap-owner' && method === 'POST') {
+        try {
+          if (!adminApp) return sendError('Serviço não configurado.', 503);
+
+          const { email, secret } = body;
+          if (!secret || !process.env.BOOTSTRAP_SECRET || secret !== process.env.BOOTSTRAP_SECRET) {
+            return sendError('Não autorizado.', 403);
+          }
+          if (!email) return sendError('E-mail é obrigatório.', 400);
+
+          const usuario = await admin.auth().getUserByEmail(email);
+          await admin.auth().setCustomUserClaims(usuario.uid, { role: 'PROPRIETARIO' });
+          return sendJson({ ok: true, message: `${email} agora é PROPRIETARIO.` }, 200);
+        } catch (erroInesperado) {
+          console.error('Erro inesperado em /api/bootstrap-owner:', erroInesperado);
+          return sendError('Erro ao promover usuário: ' + erroInesperado.message, 500);
+        }
+      }
+
       return sendError('Endpoint não encontrado.', 404);
     }
 
