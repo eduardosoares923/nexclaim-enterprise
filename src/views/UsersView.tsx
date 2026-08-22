@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { deleteDoc } from '@firebase/firestore';
 import { auth, db } from '../services/firebase';
@@ -358,154 +359,156 @@ export const UsersView: React.FC = () => {
       )}
 
       {/* Create / Edit Modal */}
-      {showModal && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
-          onClick={() => setShowModal(false)}
-        >
+      {showModal &&
+        createPortal(
           <div
-            className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+            onClick={() => setShowModal(false)}
           >
-            <div className="flex justify-between items-center border-b border-slate-200 pb-3 mb-4">
-              <div>
-                <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded uppercase">
-                  {editingUser ? 'Atualização Cadastral' : 'Novo Acesso Firebase'}
-                </span>
-                <h3 className="font-bold text-slate-900 text-base mt-1">
-                  {editingUser ? 'Editar Usuário' : 'Cadastrar Novo Usuário'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-700 text-lg cursor-pointer"
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-
-            {erroLogin && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs font-semibold flex items-center gap-2">
-                <i className="fa-solid fa-circle-exclamation text-rose-600"></i>
-                <span>{erroLogin}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleCriarUsuarioComLogin} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Nome Completo *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Carlos Eduardo Pinho"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 text-xs font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">E-mail Corporativo *</label>
-                <input
-                  type="email"
-                  required
-                  disabled={!!editingUser}
-                  placeholder="Ex: carlos@transpinho.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium ${
-                    editingUser ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-400/50'
-                  }`}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div
+              className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center border-b border-slate-200 pb-3 mb-4">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Perfil de Permissão *</label>
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as RoleType)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs font-semibold"
-                  >
-                    <option value="PROPRIETARIO">Proprietário</option>
-                    <option value="ADMINISTRADOR">Administrador</option>
-                    <option value="GESTOR">Gestor</option>
-                    <option value="OPERADOR">Operador</option>
-                    <option value="VISUALIZADOR">Visualizador</option>
-                  </select>
+                  <span className="badge bg-amber-100 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                    {editingUser ? 'Atualização Cadastral' : 'Novo Acesso Firebase'}
+                  </span>
+                  <h3 className="font-bold text-slate-900 text-base mt-1">
+                    {editingUser ? 'Editar Usuário' : 'Cadastrar Novo Usuário'}
+                  </h3>
                 </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-slate-400 hover:text-slate-700 text-lg cursor-pointer"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
 
+              {erroLogin && (
+                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs font-semibold flex items-center gap-2">
+                  <i className="fa-solid fa-circle-exclamation text-rose-600"></i>
+                  <span>{erroLogin}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleCriarUsuarioComLogin} className="space-y-3.5 text-xs">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Setor / Departamento</label>
+                  <label className="block font-bold text-slate-700 mb-1">Nome Completo *</label>
                   <input
                     type="text"
-                    placeholder="Ex: Gestão de Frotas"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Aviso na Edição */}
-              {editingUser && (
-                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-[11px] flex items-center gap-2">
-                  <i className="fa-solid fa-circle-info text-amber-600 shrink-0"></i>
-                  <span>A pessoa precisa sair e entrar de novo no sistema para o novo papel valer.</span>
-                </div>
-              )}
-
-              {/* Senha Inicial visível APENAS no modo de criação */}
-              {!editingUser && (
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Senha Inicial (mínimo 6 caracteres) *
-                  </label>
-                  <input
-                    type="password"
                     required
-                    placeholder="••••••••"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 text-xs"
+                    placeholder="Ex: Carlos Eduardo Pinho"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 text-xs font-medium"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Esta senha será usada pelo colaborador para entrar no sistema via Firebase Auth.
-                  </p>
                 </div>
-              )}
 
-              <div className="pt-4 border-t border-slate-200 flex justify-end gap-2">
-                <button
-                  type="button"
-                  disabled={criandoLogin}
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={criandoLogin}
-                  className="btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-5 py-2 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer disabled:opacity-50"
-                >
-                  {criandoLogin ? (
-                    <>
-                      <i className="fa-solid fa-circle-notch fa-spin text-xs"></i>
-                      <span>Criando Acesso...</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="fa-solid fa-check text-xs"></i>
-                      <span>{editingUser ? 'Salvar Alterações' : 'Criar Usuário & Login'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">E-mail Corporativo *</label>
+                  <input
+                    type="email"
+                    required
+                    disabled={!!editingUser}
+                    placeholder="Ex: carlos@transpinho.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium ${
+                      editingUser ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-400/50'
+                    }`}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Perfil de Permissão *</label>
+                    <select
+                      value={role}
+                      onChange={(e) => setRole(e.target.value as RoleType)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs font-semibold"
+                    >
+                      <option value="PROPRIETARIO">Proprietário</option>
+                      <option value="ADMINISTRADOR">Administrador</option>
+                      <option value="GESTOR">Gestor</option>
+                      <option value="OPERADOR">Operador</option>
+                      <option value="VISUALIZADOR">Visualizador</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Setor / Departamento</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Gestão de Frotas"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Aviso na Edição */}
+                {editingUser && (
+                  <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-[11px] flex items-center gap-2">
+                    <i className="fa-solid fa-circle-info text-amber-600 shrink-0"></i>
+                    <span>A pessoa precisa sair e entrar de novo no sistema para o novo papel valer.</span>
+                  </div>
+                )}
+
+                {/* Senha Inicial visível APENAS no modo de criação */}
+                {!editingUser && (
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Senha Inicial (mínimo 6 caracteres) *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 text-xs"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Esta senha será usada pelo colaborador para entrar no sistema via Firebase Auth.
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-slate-200 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={criandoLogin}
+                    onClick={() => setShowModal(false)}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={criandoLogin}
+                    className="btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-5 py-2 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer disabled:opacity-50"
+                  >
+                    {criandoLogin ? (
+                      <>
+                        <i className="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                        <span>Criando Acesso...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fa-solid fa-check text-xs"></i>
+                        <span>{editingUser ? 'Salvar Alterações' : 'Criar Usuário & Login'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
