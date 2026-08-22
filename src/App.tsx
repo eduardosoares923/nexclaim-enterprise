@@ -12,6 +12,7 @@ import { ClaimsListView } from './views/ClaimsListView';
 import { FinesView } from './views/FinesView';
 import { FrotaCondutoresView } from './views/FrotaCondutoresView';
 import { WorkOrdersView } from './views/WorkOrdersView';
+import { FinanceiroView } from './views/FinanceiroView';
 import { DashboardView } from './views/DashboardView';
 import { UsersView } from './views/UsersView';
 import { observarAutenticacao, logout } from './services/firebase';
@@ -44,6 +45,10 @@ import {
   useCreateWorkOrder,
   useUpdateWorkOrder,
   useDeleteWorkOrder,
+  useFinancialEntries,
+  useCreateFinancialEntry,
+  useUpdateFinancialEntry,
+  useDeleteFinancialEntry,
 } from './hooks/useFirestoreData';
 import {
   Claim,
@@ -104,6 +109,7 @@ export const App: React.FC = () => {
   const { data: vehicles = [], isLoading: loadingVehicles } = useVehicles(loginConfirmado);
   const { data: people = [], isLoading: loadingPeople } = usePeople(loginConfirmado);
   const { data: workOrders = [], isLoading: loadingWorkOrders } = useWorkOrders(loginConfirmado);
+  const { data: financialEntries = [], isLoading: loadingFinancialEntries } = useFinancialEntries(loginConfirmado);
 
   // Mutations
   const createClaimMutation = useCreateClaim();
@@ -133,6 +139,10 @@ export const App: React.FC = () => {
   const createWorkOrderMutation = useCreateWorkOrder();
   const updateWorkOrderMutation = useUpdateWorkOrder();
   const deleteWorkOrderMutation = useDeleteWorkOrder();
+
+  const createFinancialEntryMutation = useCreateFinancialEntry();
+  const updateFinancialEntryMutation = useUpdateFinancialEntry();
+  const deleteFinancialEntryMutation = useDeleteFinancialEntry();
 
   // Selected claim for term generation
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
@@ -493,6 +503,22 @@ export const App: React.FC = () => {
                   onSaveOrder={(data) => createWorkOrderMutation.mutate(data)}
                   onUpdateOrder={(id, data) => updateWorkOrderMutation.mutate({ id, data })}
                   onDeleteOrder={(id) => deleteWorkOrderMutation.mutate(id)}
+                  userRole={userRole}
+                  userEmail={userEmail}
+                />
+              }
+            />
+            <Route
+              path="/financeiro"
+              element={
+                <FinanceiroView
+                  financialEntries={financialEntries}
+                  claims={claims}
+                  fines={fines}
+                  people={people}
+                  onSaveEntry={(data) => createFinancialEntryMutation.mutateAsync(data)}
+                  onUpdateEntry={(id, data) => updateFinancialEntryMutation.mutate({ id, data })}
+                  onDeleteEntry={(id) => deleteFinancialEntryMutation.mutate(id)}
                   userRole={userRole}
                   userEmail={userEmail}
                 />

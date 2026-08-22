@@ -195,3 +195,24 @@ export interface AuditLog {
   detail: string;
   ip?: string;
 }
+
+export type FinancialEntryStatus = 'Pendente' | 'Em Desconto' | 'Quitado' | 'Cancelado';
+export type FinancialEntryOrigin = 'Sinistro' | 'Multa' | 'Outro';
+
+export interface FinancialEntry {
+  id: string;
+  driverName: string;
+  originType: FinancialEntryOrigin;
+  originId?: string; // id do Claim ou Fine relacionado, se houver
+  originLabel?: string; // ex: "SIN-2026-83" ou "MO98745698745", pra referência rápida
+  description: string;
+  direction: 'Cobrar' | 'Pagar'; // Cobrar = empresa recebe do condutor/terceiro; Pagar = empresa paga
+  totalAmount: number;
+  installmentsCount: number;
+  installmentValue: number;
+  paidInstallments: number;
+  firstDueDate?: string;
+  status: FinancialEntryStatus;
+  notes?: string;
+  createdBy?: string;
+}

@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   const [gruposAbertos, setGruposAbertos] = useState<Set<string>>(
-    new Set(['VISÃO GERAL', 'OPERACIONAL', 'DOCUMENTOS', 'CADASTROS'])
+    new Set(['VISÃO GERAL', 'OPERACIONAL', 'FINANCEIRO', 'DOCUMENTOS', 'CADASTROS'])
   );
 
   const alternarGrupo = (titulo: string) => {
@@ -77,6 +77,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { path: '/sinistros', label: 'Sinistros & Ocorrências', icon: 'fa-folder-closed', badge: claimsCount },
         { path: '/multas', label: 'Multas de Trânsito', icon: 'fa-file-invoice-dollar', badge: finesCount },
         { path: '/os', label: 'Orçamentos & OS Chapeação', icon: 'fa-wrench' },
+      ],
+    },
+    {
+      title: 'FINANCEIRO',
+      items: [
+        { path: '/financeiro', label: 'Financeiro', icon: 'fa-sack-dollar' },
       ],
     },
     {

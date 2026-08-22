@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firebaseService } from '../services/firebase';
-import { Claim, Fine, Term, Vehicle, Person, InfractionType } from '../types';
+import { Claim, Fine, Term, Vehicle, Person, InfractionType, FinancialEntry } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 
 // ==========================================
@@ -293,6 +293,48 @@ export function useDeleteWorkOrder() {
     mutationFn: (id: string) => firebaseService.deleteWorkOrder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+    },
+  });
+}
+
+// ==========================================
+// FINANCIAL ENTRIES HOOKS (MÓDULO FINANCEIRO)
+// ==========================================
+export function useFinancialEntries(enabled: boolean = true) {
+  return useQuery<FinancialEntry[]>({
+    queryKey: ['financialEntries'],
+    queryFn: () => firebaseService.fetchFinancialEntries(),
+    enabled,
+  });
+}
+
+export function useCreateFinancialEntry() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<FinancialEntry, 'id'>) => firebaseService.saveFinancialEntry(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financialEntries'] });
+    },
+  });
+}
+
+export function useUpdateFinancialEntry() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<FinancialEntry> }) =>
+      firebaseService.updateFinancialEntry(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financialEntries'] });
+    },
+  });
+}
+
+export function useDeleteFinancialEntry() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => firebaseService.deleteFinancialEntry(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financialEntries'] });
     },
   });
 }

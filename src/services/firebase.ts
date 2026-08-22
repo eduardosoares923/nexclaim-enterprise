@@ -22,7 +22,7 @@ import {
 } from 'firebase/firestore';
 import { deleteDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle, InfractionType } from '../types';
+import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle, InfractionType, FinancialEntry } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
@@ -342,6 +342,49 @@ export const firebaseService = {
       await deleteDoc(doc(db, 'workOrders', id));
     } catch (e) {
       console.error('Firestore deleteWorkOrder error:', e);
+      throw e;
+    }
+  },
+
+  // Sync Financial Entries (Módulo Financeiro)
+  async fetchFinancialEntries(): Promise<FinancialEntry[]> {
+    try {
+      const snap = await getDocs(collection(db, 'financialEntries'));
+      if (!snap.empty) {
+        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as FinancialEntry));
+      }
+      return [];
+    } catch (e) {
+      console.error('Firestore fetchFinancialEntries error:', e);
+      return [];
+    }
+  },
+
+  async saveFinancialEntry(data: Omit<FinancialEntry, 'id'>): Promise<string> {
+    try {
+      const dadosComCriador = { ...data, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'financialEntries'), removeUndefinedFields(dadosComCriador));
+      return docRef.id;
+    } catch (e) {
+      console.error('Firestore saveFinancialEntry error:', e);
+      throw e;
+    }
+  },
+
+  async updateFinancialEntry(id: string, data: Partial<FinancialEntry>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'financialEntries', id), removeUndefinedFields(data));
+    } catch (e) {
+      console.error('Firestore updateFinancialEntry error:', e);
+      throw e;
+    }
+  },
+
+  async deleteFinancialEntry(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'financialEntries', id));
+    } catch (e) {
+      console.error('Firestore deleteFinancialEntry error:', e);
       throw e;
     }
   },
