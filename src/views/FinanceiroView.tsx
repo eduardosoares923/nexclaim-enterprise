@@ -802,9 +802,6 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
                                   {permissoes.podeEditarOuExcluir(entry.createdBy) && entry.paidInstallments > 0 && (
                                     <div className="flex items-center gap-1 ml-1 pl-1.5 border-l border-slate-200">
-                                      <button type="button" onClick={() => handleDesfazerParcelas(entry, 1)} className="text-[10px] font-bold px-1.5 py-1 rounded border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer" title="Desfazer 1 parcela paga">-1</button>
-                                      <button type="button" onClick={() => handleDesfazerParcelas(entry, 5)} className="text-[10px] font-bold px-1.5 py-1 rounded border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer" title="Desfazer 5 parcelas pagas">-5</button>
-                                      <button type="button" onClick={() => handleDesfazerParcelas(entry, 10)} className="text-[10px] font-bold px-1.5 py-1 rounded border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer" title="Desfazer 10 parcelas pagas">-10</button>
                                       <button
                                         type="button"
                                         onClick={() => {
@@ -813,7 +810,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                                           if (n > 0) handleDesfazerParcelas(entry, n);
                                         }}
                                         className="text-[10px] font-bold px-1.5 py-1 rounded border border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer"
-                                        title="Desfazer outra quantidade"
+                                        title="Desfazer quantidade de parcelas pagas"
                                       >
                                         Outro
                                       </button>
