@@ -10,6 +10,7 @@ import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -42,6 +43,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -323,7 +325,13 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       alert('Nenhum sinistro precisa de correção, todos já estão com o tipo padronizado.');
       return;
     }
-    if (!window.confirm(`${paraCorrigir.length} sinistro(s) serão corrigidos para o formato padronizado (ex: "BATIDA FROTAL" vira "Batida Frontal"). Continuar?`)) return;
+    const ok = await confirmar({
+      title: 'Padronizar Tipos de Ocorrência',
+      message: `${paraCorrigir.length} sinistro(s) serão corrigidos para o formato padronizado (ex: "BATIDA FROTAL" vira "Batida Frontal"). Continuar?`,
+      confirmLabel: 'Padronizar',
+      danger: false,
+    });
+    if (!ok) return;
     for (const c of paraCorrigir) {
       await firebaseService.updateClaim(c.id, { occurrenceType: normalizarTipoOcorrencia(c.occurrenceType) });
     }
@@ -381,12 +389,14 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
                 {onDeleteClaim && sinistrosDaAbaDados.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          `Tem certeza que deseja excluir ${sinistrosDaAbaDados.length} sinistro(s) importado(s) da aba DADOS? Essa ação não pode ser desfeita.`
-                        )
-                      ) {
+                    onClick={async () => {
+                      const ok = await confirmar({
+                        title: 'Excluir Sinistros Importados',
+                        message: `Tem certeza que deseja excluir ${sinistrosDaAbaDados.length} sinistro(s) importado(s) da aba DADOS? Essa ação não pode ser desfeita.`,
+                        confirmLabel: 'Excluir Importados',
+                        danger: true,
+                      });
+                      if (ok) {
                         sinistrosDaAbaDados.forEach((c) => onDeleteClaim(c.id));
                       }
                       setShowMoreActions(false);
@@ -399,13 +409,21 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
                 {onDeleteClaim && claims.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          `ATENÇÃO: isso vai excluir TODOS os ${claims.length} sinistros do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`
-                        )
-                      ) {
-                        if (window.confirm('Confirme mais uma vez: excluir TODOS os sinistros agora?')) {
+                    onClick={async () => {
+                      const ok1 = await confirmar({
+                        title: 'Excluir Todos os Sinistros',
+                        message: `ATENÇÃO: isso vai excluir TODOS os ${claims.length} sinistros do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`,
+                        confirmLabel: 'Sim, continuar',
+                        danger: true,
+                      });
+                      if (ok1) {
+                        const ok2 = await confirmar({
+                          title: 'Confirmação Final',
+                          message: 'Confirme mais uma vez: excluir TODOS os sinistros agora?',
+                          confirmLabel: 'Excluir Tudo Definitivamente',
+                          danger: true,
+                        });
+                        if (ok2) {
                           claims.forEach((c) => onDeleteClaim(c.id));
                         }
                       }

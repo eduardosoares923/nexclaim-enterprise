@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Vehicle, Person, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface FrotaCondutoresViewProps {
   vehicles: Vehicle[];
@@ -29,6 +30,7 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
   userEmail,
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
   // Aba ativa
   const [abaTab, setAbaTab] = useState<'veiculos' | 'condutores'>('veiculos');
 
@@ -515,8 +517,14 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                             )}
                             {onDeleteVehicle && permissoes.podeEditarOuExcluir(v.createdBy) === true && (
                               <button
-                                onClick={() => {
-                                  if (window.confirm(`Tem certeza que deseja excluir o veículo ${v.plate} (${v.model})?`)) {
+                                onClick={async () => {
+                                  const ok = await confirmar({
+                                    title: 'Excluir Veículo',
+                                    message: `Tem certeza que deseja excluir o veículo ${v.plate} (${v.model})?`,
+                                    confirmLabel: 'Excluir Veículo',
+                                    danger: true,
+                                  });
+                                  if (ok) {
                                     onDeleteVehicle(v.id);
                                   }
                                 }}
@@ -718,8 +726,14 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                             )}
                             {onDeletePerson && permissoes.podeEditarOuExcluir(p.createdBy) === true && (
                               <button
-                                onClick={() => {
-                                  if (window.confirm(`Tem certeza que deseja excluir o cadastro de ${p.name}?`)) {
+                                onClick={async () => {
+                                  const ok = await confirmar({
+                                    title: 'Excluir Cadastro',
+                                    message: `Tem certeza que deseja excluir o cadastro de ${p.name}?`,
+                                    confirmLabel: 'Excluir Cadastro',
+                                    danger: true,
+                                  });
+                                  if (ok) {
                                     onDeletePerson(p.id);
                                   }
                                 }}

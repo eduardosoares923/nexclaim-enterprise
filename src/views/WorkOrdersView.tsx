@@ -5,6 +5,7 @@ import { extractTextFromPdf, extrairItensDoTexto, firebaseService } from '../ser
 import { SignaturePad } from '../components/SignaturePad';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 export const COMPANY_BRANDS: Record<string, {
   name: string;
@@ -97,6 +98,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   userEmail,
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
   const [selectedOrder, setSelectedOrder] = useState<WorkOrder | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null);
@@ -494,8 +496,14 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   </button>
                   {permissoes.podeEditarOuExcluir(order.createdBy) === true && (
                     <button
-                      onClick={() => {
-                        if (window.confirm(`Tem certeza que deseja excluir a Ordem de Serviço ${order.orderNumber}? Essa ação não pode ser desfeita.`)) {
+                      onClick={async () => {
+                        const ok = await confirmar({
+                          title: 'Excluir Ordem de Serviço',
+                          message: `Tem certeza que deseja excluir a Ordem de Serviço ${order.orderNumber}? Essa ação não pode ser desfeita.`,
+                          confirmLabel: 'Excluir OS',
+                          danger: true,
+                        });
+                        if (ok) {
                           onDeleteOrder(order.id);
                         }
                       }}

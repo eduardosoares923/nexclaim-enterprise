@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../types';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface TermsViewProps {
   terms: Term[];
@@ -27,6 +28,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
   userEmail,
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -255,8 +257,14 @@ export const TermsView: React.FC<TermsViewProps> = ({
                   </button>
                   {onDeleteTerm && permissoes.podeEditarOuExcluir(term.createdBy) === true && (
                     <button
-                      onClick={() => {
-                        if (window.confirm(`Tem certeza que deseja excluir o termo "${term.title}"?`)) {
+                      onClick={async () => {
+                        const ok = await confirmar({
+                          title: 'Excluir Termo',
+                          message: `Tem certeza que deseja excluir o termo "${term.title}"?`,
+                          confirmLabel: 'Excluir Termo',
+                          danger: true,
+                        });
+                        if (ok) {
                           onDeleteTerm(term.id);
                         }
                       }}

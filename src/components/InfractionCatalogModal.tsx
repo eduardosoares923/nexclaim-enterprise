@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { InfractionType } from '../types';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 export const CATALOGO_PADRAO_INICIAL: Omit<InfractionType, 'id'>[] = [
   { description: 'AVANÇAR O SINAL VERMELHO DO SEMAFORO - EXC HOUVER SINALIZ PERM LIVRE CONV A DIREITA FISC ELETRONICA', amount: 293.47, points: 7 },
@@ -42,6 +43,7 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
   onDelete,
   onClose,
 }) => {
+  const confirmar = useConfirm();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [description, setDescription] = useState('');
@@ -88,7 +90,13 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
   };
 
   const handleImportDefaultCatalog = async () => {
-    if (!window.confirm('Deseja importar os 22 tipos de infração do catálogo padrão da Trans Pinho para o Firestore?')) {
+    const ok = await confirmar({
+      title: 'Importar Catálogo Padrão',
+      message: 'Deseja importar os 22 tipos de infração do catálogo padrão da Trans Pinho para o Firestore?',
+      confirmLabel: 'Importar Catálogo',
+      danger: false,
+    });
+    if (!ok) {
       return;
     }
     try {
@@ -315,12 +323,14 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
                               <i className="fa-solid fa-pen-to-square text-xs"></i>
                             </button>
                             <button
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    `Tem certeza que deseja remover o tipo "${type.description}" do catálogo?`
-                                  )
-                                ) {
+                              onClick={async () => {
+                                const ok = await confirmar({
+                                  title: 'Excluir Tipo de Infração',
+                                  message: `Tem certeza que deseja remover o tipo "${type.description}" do catálogo?`,
+                                  confirmLabel: 'Excluir Tipo',
+                                  danger: true,
+                                });
+                                if (ok) {
                                   onDelete(type.id);
                                   if (editingId === type.id) handleCancelEdit();
                                 }

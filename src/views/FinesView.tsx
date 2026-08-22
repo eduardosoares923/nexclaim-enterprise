@@ -15,6 +15,7 @@ import { InfractionCatalogModal } from '../components/InfractionCatalogModal';
 import { TermGeneratorModal } from '../components/TermGeneratorModal';
 import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface FinesViewProps {
   fines: Fine[];
@@ -55,6 +56,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -409,12 +411,14 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
                 {onDeleteFine && multasImportadas.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          `Tem certeza que deseja excluir ${multasImportadas.length} multa(s) importada(s)? Essa ação não pode ser desfeita.`
-                        )
-                      ) {
+                    onClick={async () => {
+                      const ok = await confirmar({
+                        title: 'Excluir Multas Importadas',
+                        message: `Tem certeza que deseja excluir ${multasImportadas.length} multa(s) importada(s)? Essa ação não pode ser desfeita.`,
+                        confirmLabel: 'Excluir Importadas',
+                        danger: true,
+                      });
+                      if (ok) {
                         multasImportadas.forEach((f) => onDeleteFine(f.id));
                       }
                       setShowMoreActions(false);
@@ -427,13 +431,21 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
                 {onDeleteFine && fines.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          `ATENÇÃO: isso vai excluir TODAS as ${fines.length} multas do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`
-                        )
-                      ) {
-                        if (window.confirm('Confirme mais uma vez: excluir TODAS as multas agora?')) {
+                    onClick={async () => {
+                      const ok1 = await confirmar({
+                        title: 'Excluir Todas as Multas',
+                        message: `ATENÇÃO: isso vai excluir TODAS as ${fines.length} multas do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`,
+                        confirmLabel: 'Sim, continuar',
+                        danger: true,
+                      });
+                      if (ok1) {
+                        const ok2 = await confirmar({
+                          title: 'Confirmação Final',
+                          message: 'Confirme mais uma vez: excluir TODAS as multas agora?',
+                          confirmLabel: 'Excluir Tudo Definitivamente',
+                          danger: true,
+                        });
+                        if (ok2) {
                           fines.forEach((f) => onDeleteFine(f.id));
                         }
                       }

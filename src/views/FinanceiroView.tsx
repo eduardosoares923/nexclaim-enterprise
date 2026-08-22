@@ -4,6 +4,7 @@ import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine
 import { Combobox } from '../components/Combobox';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface FinanceiroViewProps {
   financialEntries: FinancialEntry[];
@@ -31,6 +32,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
   userEmail,
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
 
   // Estados de Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -139,12 +141,12 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       return;
     }
 
-    const confirmou = window.confirm(
-      `Foram encontrados ${candidatosAuto.total} registro(s) pendente(s):\n` +
-      `• ${candidatosAuto.claims.length} Sinistro(s)\n` +
-      `• ${candidatosAuto.fines.length} Multa(s)\n\n` +
-      `Deseja gerar os lançamentos financeiros automaticamente agora?`
-    );
+    const confirmou = await confirmar({
+      title: 'Gerar Lançamentos Automáticos',
+      message: `Foram encontrados ${candidatosAuto.total} registro(s) pendente(s):\n• ${candidatosAuto.claims.length} Sinistro(s)\n• ${candidatosAuto.fines.length} Multa(s)\n\nDeseja gerar os lançamentos financeiros automaticamente agora?`,
+      confirmLabel: 'Gerar Lançamentos',
+      danger: false,
+    });
 
     if (!confirmou) return;
 
@@ -465,13 +467,21 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
           {permissoes.podeExclusaoEmMassa && financialEntries.length > 0 && (
             <button
-              onClick={() => {
-                if (
-                  window.confirm(
-                    `ATENÇÃO: isso vai excluir TODOS os ${financialEntries.length} lançamento(s) financeiro(s) do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`
-                  )
-                ) {
-                  if (window.confirm('Confirme mais uma vez: excluir TODOS os lançamentos financeiros agora?')) {
+              onClick={async () => {
+                const ok1 = await confirmar({
+                  title: 'Excluir Todos os Lançamentos',
+                  message: `ATENÇÃO: isso vai excluir TODOS os ${financialEntries.length} lançamento(s) financeiro(s) do sistema, sem exceção. Essa ação não pode ser desfeita. Tem certeza?`,
+                  confirmLabel: 'Sim, continuar',
+                  danger: true,
+                });
+                if (ok1) {
+                  const ok2 = await confirmar({
+                    title: 'Confirmação Final',
+                    message: 'Confirme mais uma vez: excluir TODOS os lançamentos financeiros agora?',
+                    confirmLabel: 'Excluir Tudo Definitivamente',
+                    danger: true,
+                  });
+                  if (ok2) {
                     financialEntries.forEach((entry) => onDeleteEntry(entry.id));
                   }
                 }
@@ -854,8 +864,14 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                                   {permissoes.podeEditarOuExcluir(entry.createdBy) === true && (
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        if (window.confirm(`Tem certeza que deseja excluir o lançamento "${entry.description}"? Essa ação não pode ser desfeita.`)) {
+                                      onClick={async () => {
+                                        const ok = await confirmar({
+                                          title: 'Excluir Lançamento',
+                                          message: `Tem certeza que deseja excluir o lançamento "${entry.description}"? Essa ação não pode ser desfeita.`,
+                                          confirmLabel: 'Excluir Lançamento',
+                                          danger: true,
+                                        });
+                                        if (ok) {
                                           onDeleteEntry(entry.id);
                                         }
                                       }}

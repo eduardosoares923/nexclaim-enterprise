@@ -3,8 +3,10 @@ import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore'
 import { deleteDoc } from '@firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { User, RoleType } from '../types';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 export const UsersView: React.FC = () => {
+  const confirmar = useConfirm();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -184,7 +186,13 @@ export const UsersView: React.FC = () => {
       alert('Você não pode excluir o seu próprio usuário conectado.');
       return;
     }
-    if (window.confirm(`Tem certeza que deseja remover o usuário ${user.name} (${user.email})?`)) {
+    const ok = await confirmar({
+      title: 'Remover Usuário',
+      message: `Tem certeza que deseja remover o usuário ${user.name} (${user.email})?`,
+      confirmLabel: 'Remover Usuário',
+      danger: true,
+    });
+    if (ok) {
       try {
         await deleteDoc(doc(db, 'users', user.id));
         await carregarUsuarios();
