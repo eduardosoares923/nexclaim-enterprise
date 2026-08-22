@@ -9,6 +9,7 @@ interface TermGeneratorModalProps {
   templates: DocumentTemplate[];
   onClose: () => void;
   onGenerateTerm: (term: Term) => void;
+  origin?: 'sinistro' | 'multa';
 }
 
 export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
@@ -18,6 +19,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   templates,
   onClose,
   onGenerateTerm,
+  origin = 'sinistro',
 }) => {
   if (!claim) {
     return (
@@ -51,7 +53,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     );
   }
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templates[0]?.id || '');
+  const templatesFiltrados = templates.filter((t) =>
+    origin === 'multa' ? t.conditionRules?.hasFine === true : t.conditionRules?.hasFine !== true
+  );
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templatesFiltrados[0]?.id || '');
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [selectedDriverName, setSelectedDriverName] = useState<string>(
@@ -63,7 +68,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const [dataPrimeiraParcela, setDataPrimeiraParcela] = useState<string>('');
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
 
-  const currentTemplate = templates.find((t) => t.id === selectedTemplateId) || templates[0];
+  const currentTemplate = templatesFiltrados.find((t) => t.id === selectedTemplateId) || templatesFiltrados[0] || templates[0];
   const currentDriver = people.find((p) => p.name === selectedDriverName) || people[0];
   const currentVehicle = vehicles.find((v) => v.plate === claim?.vehiclePlate) || vehicles[0];
 
@@ -255,7 +260,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                     onChange={(e) => setSelectedTemplateId(e.target.value)}
                     className="form-select text-xs font-bold text-slate-900"
                   >
-                    {templates.map((t) => (
+                    {templatesFiltrados.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.name} ({t.category})
                       </option>

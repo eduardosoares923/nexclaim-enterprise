@@ -1299,6 +1299,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
       {/* Modal de Emissão de Termo a partir de Multa */}
       {fineParaTermo && onGenerateTerm && (
         <TermGeneratorModal
+          origin="multa"
           claim={construirClaimFalsoDaMulta(fineParaTermo)}
           people={people}
           vehicles={vehicles}
