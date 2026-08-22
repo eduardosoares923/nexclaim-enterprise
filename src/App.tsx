@@ -54,10 +54,11 @@ import {
   Vehicle,
   RoleType,
 } from './types';
+import { usePermissions } from './hooks/usePermissions';
 
 export const App: React.FC = () => {
   const navigate = useNavigate();
-  const [currentRole, setCurrentRole] = useState<RoleType>('ADMINISTRADOR');
+  const [papelReal, setPapelReal] = useState<RoleType | undefined>(undefined);
   const [sidebarAberto, setSidebarAberto] = useState(false);
 
   useEffect(() => {
@@ -78,7 +79,18 @@ export const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = observarAutenticacao((user) => {
       setUsuarioLogado(user);
-      setVerificandoLogin(false);
+      if (user) {
+        user.getIdTokenResult().then((res: any) => {
+          setPapelReal((res?.claims?.role as RoleType) || 'VISUALIZADOR');
+          setVerificandoLogin(false);
+        }).catch(() => {
+          setPapelReal('VISUALIZADOR');
+          setVerificandoLogin(false);
+        });
+      } else {
+        setPapelReal(undefined);
+        setVerificandoLogin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -305,11 +317,13 @@ export const App: React.FC = () => {
   const userEmail = usuarioLogado.email || 'carlos@transpinho.com';
   const userName = userEmail.split('@')[0];
   const userAvatar = (userEmail.charAt(0) || 'U').toUpperCase();
+  const userRole = papelReal || 'VISUALIZADOR';
+  const permissoes = usePermissions(userRole, userEmail);
 
   const currentUser = {
     name: userName,
     email: userEmail,
-    role: currentRole,
+    role: userRole,
     avatar: userAvatar,
   };
 
@@ -323,6 +337,7 @@ export const App: React.FC = () => {
         onLogout={logout}
         isOpen={sidebarAberto}
         onClose={() => setSidebarAberto(false)}
+        podeGerenciarUsuarios={permissoes.podeGerenciarUsuarios}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -331,6 +346,8 @@ export const App: React.FC = () => {
           onOpenNewClaim={() => navigate('/sinistros')}
           onLogout={logout}
           onOpenSidebar={() => setSidebarAberto(true)}
+          podeGerenciarUsuarios={permissoes.podeGerenciarUsuarios}
+          podeCriar={permissoes.podeCriar}
         />
 
         <main className="flex-1 overflow-y-auto p-3 sm:p-6 relative">
@@ -363,6 +380,8 @@ export const App: React.FC = () => {
                   templates={templates}
                   onSaveTemplate={handleSaveTemplate}
                   onToggleTemplateStatus={handleToggleTemplateStatus}
+                  userRole={userRole}
+                  userEmail={userEmail}
                 />
               }
             />
@@ -385,6 +404,8 @@ export const App: React.FC = () => {
                   }}
                   onDeleteClaim={(id) => deleteClaimMutation.mutate(id)}
                   onUpdateClaim={(id, data) => updateClaimMutation.mutate({ id, data })}
+                  userRole={userRole}
+                  userEmail={userEmail}
                 />
               }
             />
@@ -408,6 +429,8 @@ export const App: React.FC = () => {
                   onSaveInfractionType={(data) => createInfractionTypeMutation.mutate(data)}
                   onUpdateInfractionType={(id, data) => updateInfractionTypeMutation.mutate({ id, data })}
                   onDeleteInfractionType={(id) => deleteInfractionTypeMutation.mutate(id)}
+                  userRole={userRole}
+                  userEmail={userEmail}
                 />
               }
             />
@@ -429,6 +452,8 @@ export const App: React.FC = () => {
                     setShowTermGenModal(true);
                   }}
                   onDeleteTerm={(id) => deleteTermMutation.mutate(id)}
+                  userRole={userRole}
+                  userEmail={userEmail}
                 />
               }
             />
@@ -450,6 +475,8 @@ export const App: React.FC = () => {
                   }}
                   onUpdatePerson={(id, data) => updatePersonMutation.mutate({ id, data })}
                   onDeletePerson={(id) => deletePersonMutation.mutate(id)}
+                  userRole={userRole}
+                  userEmail={userEmail}
                 />
               }
             />
@@ -466,10 +493,29 @@ export const App: React.FC = () => {
                   onSaveOrder={(data) => createWorkOrderMutation.mutate(data)}
                   onUpdateOrder={(id, data) => updateWorkOrderMutation.mutate({ id, data })}
                   onDeleteOrder={(id) => deleteWorkOrderMutation.mutate(id)}
+                  userRole={userRole}
+                  userEmail={userEmail}
                 />
               }
             />
-            <Route path="/usuarios" element={<UsersView />} />
+            <Route
+              path="/usuarios"
+              element={
+                permissoes.podeGerenciarUsuarios ? (
+                  <UsersView />
+                ) : (
+                  <div className="p-8 text-center bg-white rounded-xl border border-slate-200 shadow-sm max-w-md mx-auto mt-12 space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl">
+                      <i className="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-base">Acesso Restrito ao Proprietário</h3>
+                    <p className="text-xs text-slate-500">
+                      Apenas o perfil PROPRIETÁRIO possui permissão para gerenciar usuários e permissões do sistema.
+                    </p>
+                  </div>
+                )
+              }
+            />
           </Routes>
         </main>
       </div>

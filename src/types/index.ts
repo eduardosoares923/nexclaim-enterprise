@@ -2,7 +2,7 @@
    NexClaim Enterprise - TypeScript Interfaces & Domain Schemas
    ========================================================================== */
 
-export type RoleType = 'ADMINISTRADOR' | 'GESTOR' | 'OPERADOR' | 'VISUALIZADOR';
+export type RoleType = 'PROPRIETARIO' | 'ADMINISTRADOR' | 'GESTOR' | 'OPERADOR' | 'VISUALIZADOR';
 
 export type ClaimStatus =
   | 'Novo'
@@ -37,6 +37,8 @@ export interface User {
   role: RoleType;
   avatar: string;
   department?: string;
+  authUid?: string;
+  createdBy?: string;
 }
 
 export interface Vehicle {
@@ -52,6 +54,7 @@ export interface Vehicle {
   owner?: string;
   defaultDriver?: string;
   status: 'Ativo' | 'Em Manutenção' | 'Inativo';
+  createdBy?: string;
 }
 
 export interface Person {
@@ -63,6 +66,7 @@ export interface Person {
   address: string;
   type: 'Condutor' | 'Proprietário' | 'Terceiro' | 'Testemunha' | 'Funcionário' | 'Responsável';
   notes?: string;
+  createdBy?: string;
 }
 
 export interface InfractionType {
@@ -70,6 +74,7 @@ export interface InfractionType {
   description: string;
   amount: number;
   points: number;
+  createdBy?: string;
 }
 
 export interface Claim {
@@ -114,6 +119,7 @@ export interface Claim {
   thirdPartyName?: string;
   occurrenceTime?: string;
   caseDetail?: string;
+  createdBy?: string;
 }
 
 export interface Fine {
@@ -138,6 +144,7 @@ export interface Fine {
   chargeInstallments?: string;
   discountDate?: string;
   duplicateOfAuto?: string;
+  createdBy?: string;
 }
 
 export interface DocumentTemplate {
@@ -152,6 +159,7 @@ export interface DocumentTemplate {
   isActive: boolean;
   content: string;
   availableVariables: string[];
+  createdBy?: string;
 }
 
 export interface Term {
@@ -166,6 +174,7 @@ export interface Term {
   status: 'Rascunho' | 'Gerado' | 'Assinado' | 'Cancelado';
   content?: string;
   htmlContent?: string;
+  createdBy?: string;
 }
 
 export interface TimelineEvent {

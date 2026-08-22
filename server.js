@@ -366,7 +366,7 @@ const handleRequest = async (req, res) => {
             return sendError('Token de autenticação inválido.', 401);
           }
 
-          const { email, password, name } = body;
+          const { email, password, name, role } = body;
           if (!email || !password || password.length < 6) {
             return sendError('E-mail e senha (mínimo 6 caracteres) são obrigatórios.', 400);
           }
@@ -377,6 +377,7 @@ const handleRequest = async (req, res) => {
               password,
               displayName: name || email,
             });
+            await admin.auth().setCustomUserClaims(novoUsuario.uid, { role: role || 'VISUALIZADOR' });
             return sendJson({ uid: novoUsuario.uid, email: novoUsuario.email }, 201);
           } catch (e) {
             let mensagem = 'Erro ao criar usuário.';
@@ -387,6 +388,29 @@ const handleRequest = async (req, res) => {
         } catch (erroInesperado) {
           console.error('Erro inesperado em /api/create-user:', erroInesperado);
           return sendError('Erro inesperado no servidor ao criar usuário. Verifique os logs.', 500);
+        }
+      }
+
+      if (pathname === '/api/set-user-role' && method === 'POST') {
+        try {
+          if (!adminApp) return sendError('Serviço não configurado.', 503);
+          const authHeader = req.headers['authorization'] || '';
+          const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+          if (!token) return sendError('Token ausente.', 401);
+
+          const decoded = await admin.auth().verifyIdToken(token);
+          if (decoded.role !== 'PROPRIETARIO') {
+            return sendError('Apenas o Proprietário pode alterar papéis de usuários.', 403);
+          }
+
+          const { uid, role } = body;
+          if (!uid || !role) return sendError('uid e role são obrigatórios.', 400);
+
+          await admin.auth().setCustomUserClaims(uid, { role });
+          return sendJson({ ok: true }, 200);
+        } catch (erroInesperado) {
+          console.error('Erro inesperado em /api/set-user-role:', erroInesperado);
+          return sendError('Erro inesperado no servidor.', 500);
         }
       }
 

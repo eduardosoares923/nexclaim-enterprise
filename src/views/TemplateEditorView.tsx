@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { DocumentTemplate } from '../types';
+import { DocumentTemplate, RoleType } from '../types';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
   onSaveTemplate: (template: DocumentTemplate) => void;
   onToggleTemplateStatus: (templateId: string) => void;
+  userRole?: RoleType;
+  userEmail?: string;
 }
 
 export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
   templates,
   onSaveTemplate,
   onToggleTemplateStatus,
+  userRole,
+  userEmail,
 }) => {
+  const permissoes = usePermissions(userRole, userEmail);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<DocumentTemplate>>({
@@ -96,12 +102,14 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
             Cadastre modelos de termos com variáveis dinâmicas e regras automáticas de recomendação.
           </p>
         </div>
-        <button
-          onClick={handleStartCreate}
-          className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm self-start sm:self-auto cursor-pointer"
-        >
-          <i className="fa-solid fa-plus"></i> Criar Novo Modelo
-        </button>
+        {permissoes.podeCriar && (
+          <button
+            onClick={handleStartCreate}
+            className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm self-start sm:self-auto cursor-pointer"
+          >
+            <i className="fa-solid fa-plus"></i> Criar Novo Modelo
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

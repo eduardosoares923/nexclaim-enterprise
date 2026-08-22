@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Claim, Person, Vehicle, Term, DocumentTemplate } from '../types';
+import { Claim, Person, Vehicle, Term, DocumentTemplate, RoleType } from '../types';
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
 import { ClaimsPdfReportModal } from '../components/ClaimsPdfReportModal';
@@ -9,6 +9,7 @@ import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, e
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 import { formatarDataBr } from '../utils/dateUtils';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -20,6 +21,8 @@ interface ClaimsListViewProps {
   onOpenTermGenerator: (claim: Claim) => void;
   onDeleteClaim?: (id: string) => void;
   onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
+  userRole?: RoleType;
+  userEmail?: string;
 }
 
 const formatarData = formatarDataBr;
@@ -34,8 +37,11 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   onOpenTermGenerator,
   onDeleteClaim,
   onUpdateClaim,
+  userRole,
+  userEmail,
 }) => {
   const queryClient = useQueryClient();
+  const permissoes = usePermissions(userRole, userEmail);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -373,7 +379,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   <i className="fa-solid fa-broom"></i> Corrigir Tipos de Ocorrência Duplicados
                 </button>
 
-                {onDeleteClaim && sinistrosDaAbaDados.length > 0 && (
+                {onDeleteClaim && sinistrosDaAbaDados.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
                     onClick={() => {
                       if (
@@ -391,7 +397,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   </button>
                 )}
 
-                {onDeleteClaim && claims.length > 0 && (
+                {onDeleteClaim && claims.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
                     onClick={() => {
                       if (
@@ -421,14 +427,16 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             accept=".xlsx, .xls"
             className="hidden"
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
-            title="Importar sinistros de planilha Excel com múltiplas abas"
-          >
-            <i className="fa-solid fa-file-import text-xs"></i>
-            <span>Importar (.xlsx)</span>
-          </button>
+          {permissoes.podeCriar && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+              title="Importar sinistros de planilha Excel com múltiplas abas"
+            >
+              <i className="fa-solid fa-file-import text-xs"></i>
+              <span>Importar (.xlsx)</span>
+            </button>
+          )}
 
           <button
             onClick={() => setShowExportModal(true)}
@@ -439,13 +447,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             <span>Exportar (.xlsx)</span>
           </button>
 
-          <button
-            onClick={() => setShowNewClaimModal(true)}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
-          >
-            <i className="fa-solid fa-plus text-xs"></i>
-            <span>Novo Sinistro</span>
-          </button>
+          {permissoes.podeCriar && (
+            <button
+              onClick={() => setShowNewClaimModal(true)}
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+            >
+              <i className="fa-solid fa-plus text-xs"></i>
+              <span>Novo Sinistro</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -661,13 +671,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     </td>
                     <td className="p-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setEditingClaim(claim)}
-                          className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200"
-                          title="Editar Sinistro"
-                        >
-                          <i className="fa-solid fa-pen-to-square text-xs"></i>
-                        </button>
+                        {permissoes.podeEditarOuExcluir(claim.createdBy) && (
+                          <button
+                            onClick={() => setEditingClaim(claim)}
+                            className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200"
+                            title="Editar Sinistro"
+                          >
+                            <i className="fa-solid fa-pen-to-square text-xs"></i>
+                          </button>
+                        )}
                         <button
                           onClick={() => setSelectedClaimDetail(claim)}
                           className="w-7 h-7 flex items-center justify-center bg-white hover:bg-slate-100 border border-slate-300 text-amber-600 rounded-lg transition"
@@ -682,7 +694,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                         >
                           <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
                         </button>
-                        {onDeleteClaim && (
+                        {onDeleteClaim && permissoes.podeEditarOuExcluir(claim.createdBy) === true && (
                           <button
                             onClick={() => onDeleteClaim(claim.id)}
                             className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition border border-rose-200"
@@ -735,12 +747,14 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5 flex-wrap">
-                <button
-                  onClick={() => setEditingClaim(claim)}
-                  className="flex-1 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-center transition border border-slate-200"
-                >
-                  <i className="fa-solid fa-pen-to-square mr-1"></i> Editar
-                </button>
+                {permissoes.podeEditarOuExcluir(claim.createdBy) && (
+                  <button
+                    onClick={() => setEditingClaim(claim)}
+                    className="flex-1 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-center transition border border-slate-200"
+                  >
+                    <i className="fa-solid fa-pen-to-square mr-1"></i> Editar
+                  </button>
+                )}
                 <button
                   onClick={() => setSelectedClaimDetail(claim)}
                   className="flex-1 py-1.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-center transition"
@@ -753,6 +767,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 >
                   Emitir Termo
                 </button>
+                {onDeleteClaim && permissoes.podeEditarOuExcluir(claim.createdBy) === true && (
+                  <button
+                    onClick={() => onDeleteClaim(claim.id)}
+                    className="py-1.5 px-2.5 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-center transition border border-rose-200"
+                    title="Excluir Sinistro"
+                  >
+                    <i className="fa-solid fa-trash-can"></i>
+                  </button>
+                )}
               </div>
             </div>
           ))}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Vehicle, Person, Claim } from '../types';
+import { Vehicle, Person, Claim, RoleType } from '../types';
 import { extractTextFromPdf, extrairItensDoTexto, firebaseService } from '../services/firebase';
 import { SignaturePad } from '../components/SignaturePad';
 import { formatarDataBr } from '../utils/dateUtils';
+import { usePermissions } from '../hooks/usePermissions';
 
 export const COMPANY_BRANDS: Record<string, {
   name: string;
@@ -69,6 +70,7 @@ export interface WorkOrder {
   clientDocument?: string;
   clientPhone?: string;
   clientEmail?: string;
+  createdBy?: string;
 }
 
 interface WorkOrdersViewProps {
@@ -79,6 +81,8 @@ interface WorkOrdersViewProps {
   onSaveOrder: (data: Omit<WorkOrder, 'id'>) => void;
   onUpdateOrder: (id: string, data: Partial<WorkOrder>) => void;
   onDeleteOrder: (id: string) => void;
+  userRole?: RoleType;
+  userEmail?: string;
 }
 
 export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
@@ -89,7 +93,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   onSaveOrder,
   onUpdateOrder,
   onDeleteOrder,
+  userRole,
+  userEmail,
 }) => {
+  const permissoes = usePermissions(userRole, userEmail);
   const [selectedOrder, setSelectedOrder] = useState<WorkOrder | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null);
@@ -396,16 +403,18 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setEditingOrder(null);
-            setShowCreateModal(true);
-          }}
-          className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition self-stretch sm:self-auto justify-center"
-        >
-          <i className="fa-solid fa-plus text-amber-400"></i>
-          <span>Nova Ordem de Serviço</span>
-        </button>
+        {permissoes.podeCriar && (
+          <button
+            onClick={() => {
+              setEditingOrder(null);
+              setShowCreateModal(true);
+            }}
+            className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition self-stretch sm:self-auto justify-center"
+          >
+            <i className="fa-solid fa-plus text-amber-400"></i>
+            <span>Nova Ordem de Serviço</span>
+          </button>
+        )}
       </div>
 
       {/* Grid of Work Orders */}
@@ -469,29 +478,33 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <button
-                    onClick={() => setEditingOrder(order)}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-200"
-                  >
-                    <i className="fa-solid fa-pen-to-square"></i> Editar
-                  </button>
+                  {permissoes.podeEditarOuExcluir(order.createdBy) && (
+                    <button
+                      onClick={() => setEditingOrder(order)}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-200"
+                    >
+                      <i className="fa-solid fa-pen-to-square"></i> Editar
+                    </button>
+                  )}
                   <button
                     onClick={() => setSelectedOrder(order)}
                     className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition"
                   >
                     <i className="fa-solid fa-eye"></i> Detalhes
                   </button>
-                  <button
-                    onClick={() => {
-                      if (window.confirm(`Tem certeza que deseja excluir a Ordem de Serviço ${order.orderNumber}? Essa ação não pode ser desfeita.`)) {
-                        onDeleteOrder(order.id);
-                      }
-                    }}
-                    className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-rose-200"
-                    title="Excluir Ordem de Serviço"
-                  >
-                    <i className="fa-solid fa-trash-can"></i>
-                  </button>
+                  {permissoes.podeEditarOuExcluir(order.createdBy) === true && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Tem certeza que deseja excluir a Ordem de Serviço ${order.orderNumber}? Essa ação não pode ser desfeita.`)) {
+                          onDeleteOrder(order.id);
+                        }
+                      }}
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-rose-200"
+                      title="Excluir Ordem de Serviço"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

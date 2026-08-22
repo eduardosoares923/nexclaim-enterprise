@@ -77,7 +77,8 @@ export const firebaseService = {
 
   async saveClaim(claimData: Omit<Claim, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'claims'), removeUndefinedFields(claimData));
+      const dadosComCriador = { ...claimData, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'claims'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveClaim error:', e);
@@ -116,7 +117,8 @@ export const firebaseService = {
 
   async saveFine(fineData: Omit<Fine, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'fines'), removeUndefinedFields(fineData));
+      const dadosComCriador = { ...fineData, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'fines'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveFine error:', e);
@@ -155,7 +157,8 @@ export const firebaseService = {
 
   async saveInfractionType(data: Omit<InfractionType, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'infractionTypes'), removeUndefinedFields(data));
+      const dadosComCriador = { ...data, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'infractionTypes'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveInfractionType error:', e);
@@ -194,7 +197,8 @@ export const firebaseService = {
 
   async saveTerm(termData: Omit<Term, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'terms'), removeUndefinedFields(termData));
+      const dadosComCriador = { ...termData, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'terms'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveTerm error:', e);
@@ -233,7 +237,8 @@ export const firebaseService = {
 
   async saveVehicle(vehicleData: Omit<Vehicle, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'vehicles'), removeUndefinedFields(vehicleData));
+      const dadosComCriador = { ...vehicleData, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'vehicles'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveVehicle error:', e);
@@ -272,7 +277,8 @@ export const firebaseService = {
 
   async savePerson(personData: Omit<Person, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'people'), removeUndefinedFields(personData));
+      const dadosComCriador = { ...personData, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'people'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore savePerson error:', e);
@@ -313,7 +319,8 @@ export const firebaseService = {
 
   async saveWorkOrder(data: Omit<WorkOrder, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'workOrders'), removeUndefinedFields(data));
+      const dadosComCriador = { ...data, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'workOrders'), removeUndefinedFields(dadosComCriador));
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveWorkOrder error:', e);

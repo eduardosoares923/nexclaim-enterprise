@@ -103,6 +103,7 @@ export const UsersView: React.FC = () => {
             email: email.trim().toLowerCase(),
             password: senha,
             name: name.trim(),
+            role,
           }),
         });
 
@@ -153,6 +154,18 @@ export const UsersView: React.FC = () => {
           avatar: avatarLetters,
           updatedAt: new Date().toISOString(),
         });
+
+        if (editingUser?.authUid) {
+          const idToken = await auth.currentUser?.getIdToken();
+          await fetch('/api/set-user-role', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+            },
+            body: JSON.stringify({ uid: editingUser.authUid, role }),
+          });
+        }
       }
 
       setShowModal(false);
@@ -183,6 +196,8 @@ export const UsersView: React.FC = () => {
 
   const getRoleBadge = (r: RoleType) => {
     switch (r) {
+      case 'PROPRIETARIO':
+        return 'bg-purple-100 text-purple-900 border-purple-300';
       case 'ADMINISTRADOR':
         return 'bg-amber-100 text-amber-900 border-amber-300';
       case 'GESTOR':
@@ -253,10 +268,11 @@ export const UsersView: React.FC = () => {
               className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
             >
               <option value="">Todos os Perfis</option>
-              <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-              <option value="GESTOR">GESTOR</option>
-              <option value="OPERADOR">OPERADOR</option>
-              <option value="VISUALIZADOR">VISUALIZADOR</option>
+              <option value="PROPRIETARIO">Proprietário</option>
+              <option value="ADMINISTRADOR">Administrador</option>
+              <option value="GESTOR">Gestor</option>
+              <option value="OPERADOR">Operador</option>
+              <option value="VISUALIZADOR">Visualizador</option>
             </select>
           </div>
         </div>
@@ -403,10 +419,11 @@ export const UsersView: React.FC = () => {
                     onChange={(e) => setRole(e.target.value as RoleType)}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-xs font-semibold"
                   >
-                    <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                    <option value="GESTOR">GESTOR</option>
-                    <option value="OPERADOR">OPERADOR</option>
-                    <option value="VISUALIZADOR">VISUALIZADOR</option>
+                    <option value="PROPRIETARIO">Proprietário</option>
+                    <option value="ADMINISTRADOR">Administrador</option>
+                    <option value="GESTOR">Gestor</option>
+                    <option value="OPERADOR">Operador</option>
+                    <option value="VISUALIZADOR">Visualizador</option>
                   </select>
                 </div>
 
@@ -421,6 +438,14 @@ export const UsersView: React.FC = () => {
                   />
                 </div>
               </div>
+
+              {/* Aviso na Edição */}
+              {editingUser && (
+                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-[11px] flex items-center gap-2">
+                  <i className="fa-solid fa-circle-info text-amber-600 shrink-0"></i>
+                  <span>A pessoa precisa sair e entrar de novo no sistema para o novo papel valer.</span>
+                </div>
+              )}
 
               {/* Senha Inicial visível APENAS no modo de criação */}
               {!editingUser && (

@@ -7,6 +7,8 @@ interface HeaderProps {
   onOpenNewClaim: () => void;
   onLogout?: () => void;
   onOpenSidebar?: () => void;
+  podeGerenciarUsuarios?: boolean;
+  podeCriar?: boolean;
   currentRole?: RoleType;
   onRoleChange?: (role: RoleType) => void;
   onOpenExcelImport?: () => void;
@@ -17,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNewClaim,
   onLogout,
   onOpenSidebar,
+  podeGerenciarUsuarios = false,
+  podeCriar = true,
 }) => {
   const navigate = useNavigate();
 
@@ -42,22 +46,26 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        <button
-          onClick={() => navigate('/usuarios')}
-          className="text-slate-400 hover:text-slate-700 transition p-2 cursor-pointer rounded-lg hover:bg-slate-100"
-          title="Configurações e Usuários"
-        >
-          <i className="fa-solid fa-gear text-base"></i>
-        </button>
+        {podeGerenciarUsuarios && (
+          <button
+            onClick={() => navigate('/usuarios')}
+            className="text-slate-400 hover:text-slate-700 transition p-2 cursor-pointer rounded-lg hover:bg-slate-100"
+            title="Configurações e Usuários"
+          >
+            <i className="fa-solid fa-gear text-base"></i>
+          </button>
+        )}
 
-        <button
-          onClick={onOpenNewClaim}
-          className="btn bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-2.5 sm:px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
-          title="Novo Sinistro"
-        >
-          <i className="fa-solid fa-plus text-xs text-amber-400"></i>
-          <span className="hidden sm:inline">Novo Sinistro</span>
-        </button>
+        {podeCriar && (
+          <button
+            onClick={onOpenNewClaim}
+            className="btn bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-2.5 sm:px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
+            title="Novo Sinistro"
+          >
+            <i className="fa-solid fa-plus text-xs text-amber-400"></i>
+            <span className="hidden sm:inline">Novo Sinistro</span>
+          </button>
+        )}
 
         {onLogout && (
           <button

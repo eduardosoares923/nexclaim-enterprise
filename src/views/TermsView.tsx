@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Term, Claim, Person, Vehicle, DocumentTemplate } from '../types';
+import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../types';
 import { formatarDataBr } from '../utils/dateUtils';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface TermsViewProps {
   terms: Term[];
@@ -10,6 +11,8 @@ interface TermsViewProps {
   templates: DocumentTemplate[];
   onOpenTermGenerator: (claim?: Claim, templateName?: string) => void;
   onDeleteTerm?: (id: string) => void;
+  userRole?: RoleType;
+  userEmail?: string;
 }
 
 export const TermsView: React.FC<TermsViewProps> = ({
@@ -20,7 +23,10 @@ export const TermsView: React.FC<TermsViewProps> = ({
   templates,
   onOpenTermGenerator,
   onDeleteTerm,
+  userRole,
+  userEmail,
 }) => {
+  const permissoes = usePermissions(userRole, userEmail);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -71,49 +77,53 @@ export const TermsView: React.FC<TermsViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => onOpenTermGenerator(claims[0])}
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl shadow-md transition"
-          >
-            <i className="fa-solid fa-wand-magic-sparkles"></i>
-            <span>Emitir Termo Inteligente</span>
-          </button>
-        </div>
+        {permissoes.podeCriar && (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onOpenTermGenerator(claims[0])}
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl shadow-md transition"
+            >
+              <i className="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Emitir Termo Inteligente</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Quick Launch Template Cards */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <i className="fa-solid fa-layer-group text-amber-500"></i>
-            Modelos Rápidos de Documentos
-          </h3>
-          <span className="text-[11px] text-slate-500 font-medium">Clique para emitir direto</span>
-        </div>
+      {permissoes.podeCriar && (
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <i className="fa-solid fa-layer-group text-amber-500"></i>
+              Modelos Rápidos de Documentos
+            </h3>
+            <span className="text-[11px] text-slate-500 font-medium">Clique para emitir direto</span>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {officialModels.map((m, idx) => (
-            <div
-              key={idx}
-              onClick={() => onOpenTermGenerator(claims[0], m.title)}
-              className="group p-3.5 bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400/80 rounded-xl cursor-pointer transition-all duration-150 flex items-start gap-3 shadow-2xs hover:shadow-xs"
-            >
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 flex items-center justify-center text-sm font-bold transition">
-                <i className={`fa-solid ${m.icon}`}></i>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {officialModels.map((m, idx) => (
+              <div
+                key={idx}
+                onClick={() => onOpenTermGenerator(claims[0], m.title)}
+                className="group p-3.5 bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400/80 rounded-xl cursor-pointer transition-all duration-150 flex items-start gap-3 shadow-2xs hover:shadow-xs"
+              >
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 flex items-center justify-center text-sm font-bold transition">
+                  <i className={`fa-solid ${m.icon}`}></i>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-slate-800 group-hover:text-amber-950 leading-snug truncate">
+                    {m.title}
+                  </h4>
+                  <span className="text-[10px] text-slate-400 group-hover:text-amber-700/80 font-medium">
+                    {m.category}
+                  </span>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-slate-800 group-hover:text-amber-950 leading-snug truncate">
-                  {m.title}
-                </h4>
-                <span className="text-[10px] text-slate-400 group-hover:text-amber-700/80 font-medium">
-                  {m.category}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
@@ -243,6 +253,19 @@ export const TermsView: React.FC<TermsViewProps> = ({
                     <i className="fa-solid fa-print text-amber-400"></i>
                     <span>Imprimir / PDF</span>
                   </button>
+                  {onDeleteTerm && permissoes.podeEditarOuExcluir(term.createdBy) === true && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Tem certeza que deseja excluir o termo "${term.title}"?`)) {
+                          onDeleteTerm(term.id);
+                        }
+                      }}
+                      className="btn bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs p-2 rounded-lg font-bold transition"
+                      title="Excluir Termo"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

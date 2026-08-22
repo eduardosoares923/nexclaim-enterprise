@@ -6,6 +6,7 @@ interface SidebarProps {
   finesCount: number;
   termsCount: number;
   currentUser: { name: string; email: string; role: string; avatar: string };
+  podeGerenciarUsuarios?: boolean;
   onLogout?: () => void;
   isOpen?: boolean;
   onClose?: () => void;
@@ -29,6 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   finesCount,
   termsCount,
   currentUser,
+  podeGerenciarUsuarios = false,
   onLogout,
   isOpen,
   onClose,
@@ -185,17 +187,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-slate-800 bg-slate-950/50 relative shrink-0" ref={profileRef}>
           {showProfileMenu && (
             <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 text-slate-800 z-50 animate-in fade-in zoom-in-95 duration-100">
-              <button
-                onClick={() => {
-                  setShowProfileMenu(false);
-                  onClose?.();
-                  navigate('/usuarios');
-                }}
-                className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-2.5 transition cursor-pointer"
-              >
-                <i className="fa-solid fa-users-gear text-amber-600 w-4 text-center"></i>
-                <span>Gerenciar Usuários</span>
-              </button>
+              {podeGerenciarUsuarios && (
+                <button
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    onClose?.();
+                    navigate('/usuarios');
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-2.5 transition cursor-pointer"
+                >
+                  <i className="fa-solid fa-users-gear text-amber-600 w-4 text-center"></i>
+                  <span>Gerenciar Usuários</span>
+                </button>
+              )}
 
               {onLogout && (
                 <button

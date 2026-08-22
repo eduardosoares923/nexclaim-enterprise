@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Vehicle, Person } from '../types';
+import { Vehicle, Person, RoleType } from '../types';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface FrotaCondutoresViewProps {
   vehicles: Vehicle[];
@@ -11,6 +12,8 @@ interface FrotaCondutoresViewProps {
   onSavePerson: (person: Person) => void;
   onUpdatePerson?: (id: string, data: Partial<Person>) => void;
   onDeletePerson?: (id: string) => void;
+  userRole?: RoleType;
+  userEmail?: string;
 }
 
 export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
@@ -22,7 +25,10 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
   onSavePerson,
   onUpdatePerson,
   onDeletePerson,
+  userRole,
+  userEmail,
 }) => {
+  const permissoes = usePermissions(userRole, userEmail);
   // Aba ativa
   const [abaTab, setAbaTab] = useState<'veiculos' | 'condutores'>('veiculos');
 
@@ -306,28 +312,30 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
           </div>
 
           {/* Botão de Ação de Cadastro */}
-          {abaTab === 'veiculos' ? (
-            <button
-              onClick={() => {
-                handleCloseVehicleModal();
-                setShowVehicleModal(true);
-              }}
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
-            >
-              <i className="fa-solid fa-plus text-xs"></i>
-              <span>Novo Veículo</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                handleClosePersonModal();
-                setShowPersonModal(true);
-              }}
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
-            >
-              <i className="fa-solid fa-user-plus text-xs"></i>
-              <span>Novo Condutor</span>
-            </button>
+          {permissoes.podeCriar && (
+            abaTab === 'veiculos' ? (
+              <button
+                onClick={() => {
+                  handleCloseVehicleModal();
+                  setShowVehicleModal(true);
+                }}
+                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+              >
+                <i className="fa-solid fa-plus text-xs"></i>
+                <span>Novo Veículo</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  handleClosePersonModal();
+                  setShowPersonModal(true);
+                }}
+                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+              >
+                <i className="fa-solid fa-user-plus text-xs"></i>
+                <span>Novo Condutor</span>
+              </button>
+            )
           )}
         </div>
       </div>
@@ -496,14 +504,16 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                         </td>
                         <td className="p-3.5 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => handleOpenEditVehicle(v)}
-                              className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200 cursor-pointer"
-                              title="Editar Veículo"
-                            >
-                              <i className="fa-solid fa-pen-to-square text-xs"></i>
-                            </button>
-                            {onDeleteVehicle && (
+                            {permissoes.podeEditarOuExcluir(v.createdBy) && (
+                              <button
+                                onClick={() => handleOpenEditVehicle(v)}
+                                className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200 cursor-pointer"
+                                title="Editar Veículo"
+                              >
+                                <i className="fa-solid fa-pen-to-square text-xs"></i>
+                              </button>
+                            )}
+                            {onDeleteVehicle && permissoes.podeEditarOuExcluir(v.createdBy) === true && (
                               <button
                                 onClick={() => {
                                   if (window.confirm(`Tem certeza que deseja excluir o veículo ${v.plate} (${v.model})?`)) {
@@ -697,14 +707,16 @@ export const FrotaCondutoresView: React.FC<FrotaCondutoresViewProps> = ({
                         </td>
                         <td className="p-3.5 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => handleOpenEditPerson(p)}
-                              className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200 cursor-pointer"
-                              title="Editar Cadastro"
-                            >
-                              <i className="fa-solid fa-pen-to-square text-xs"></i>
-                            </button>
-                            {onDeletePerson && (
+                            {permissoes.podeEditarOuExcluir(p.createdBy) && (
+                              <button
+                                onClick={() => handleOpenEditPerson(p)}
+                                className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200 cursor-pointer"
+                                title="Editar Cadastro"
+                              >
+                                <i className="fa-solid fa-pen-to-square text-xs"></i>
+                              </button>
+                            )}
+                            {onDeletePerson && permissoes.podeEditarOuExcluir(p.createdBy) === true && (
                               <button
                                 onClick={() => {
                                   if (window.confirm(`Tem certeza que deseja excluir o cadastro de ${p.name}?`)) {

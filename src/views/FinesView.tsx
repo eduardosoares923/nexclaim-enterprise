@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Fine, Vehicle, Person, FineStatus, InfractionType } from '../types';
+import { Fine, Vehicle, Person, FineStatus, InfractionType, RoleType } from '../types';
 import { firebaseService } from '../services/firebase';
 import {
   lerPlanilhaMultas,
@@ -13,6 +13,7 @@ import { Combobox } from '../components/Combobox';
 import { FinesPdfReportModal } from '../components/FinesPdfReportModal';
 import { InfractionCatalogModal } from '../components/InfractionCatalogModal';
 import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface FinesViewProps {
   fines: Fine[];
@@ -27,6 +28,8 @@ interface FinesViewProps {
   onSaveInfractionType?: (data: Omit<InfractionType, 'id'>) => void;
   onUpdateInfractionType?: (id: string, data: Partial<InfractionType>) => void;
   onDeleteInfractionType?: (id: string) => void;
+  userRole?: RoleType;
+  userEmail?: string;
 }
 
 export const FinesView: React.FC<FinesViewProps> = ({
@@ -42,8 +45,11 @@ export const FinesView: React.FC<FinesViewProps> = ({
   onSaveInfractionType,
   onUpdateInfractionType,
   onDeleteInfractionType,
+  userRole,
+  userEmail,
 }) => {
   const queryClient = useQueryClient();
+  const permissoes = usePermissions(userRole, userEmail);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -340,25 +346,29 @@ export const FinesView: React.FC<FinesViewProps> = ({
             </button>
             {showMoreActions && (
               <div className="absolute z-30 top-full mt-1 right-0 w-72 bg-white border border-slate-200 rounded-lg shadow-lg py-1.5 animate-in fade-in zoom-in-95 duration-100">
-                <button
-                  onClick={() => {
-                    fileInputRef.current?.click();
-                    setShowMoreActions(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
-                >
-                  <i className="fa-solid fa-file-excel text-emerald-600"></i> Importar Planilha (.xlsx)
-                </button>
+                {permissoes.podeCriar && (
+                  <button
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                      setShowMoreActions(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-file-excel text-emerald-600"></i> Importar Planilha (.xlsx)
+                  </button>
+                )}
 
-                <button
-                  onClick={() => {
-                    setShowCatalogModal(true);
-                    setShowMoreActions(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer border-b border-slate-100 pb-2 mb-1"
-                >
-                  <i className="fa-solid fa-list-check text-amber-600"></i> Gerenciar Tipos de Infração
-                </button>
+                {permissoes.podeCriar && (
+                  <button
+                    onClick={() => {
+                      setShowCatalogModal(true);
+                      setShowMoreActions(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer border-b border-slate-100 pb-2 mb-1"
+                  >
+                    <i className="fa-solid fa-list-check text-amber-600"></i> Gerenciar Tipos de Infração
+                  </button>
+                )}
 
                 <button
                   onClick={() => {
@@ -370,7 +380,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                   <i className="fa-solid fa-file-pdf text-rose-500"></i> Relatório de Multas em PDF (A4)
                 </button>
 
-                {onDeleteFine && multasImportadas.length > 0 && (
+                {onDeleteFine && multasImportadas.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
                     onClick={() => {
                       if (
@@ -388,7 +398,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
                   </button>
                 )}
 
-                {onDeleteFine && fines.length > 0 && (
+                {onDeleteFine && fines.length > 0 && permissoes.podeExclusaoEmMassa && (
                   <button
                     onClick={() => {
                       if (
@@ -420,16 +430,18 @@ export const FinesView: React.FC<FinesViewProps> = ({
             <span>Exportar</span>
           </button>
 
-          <button
-            onClick={() => {
-              handleCloseModal();
-              setShowNewFineModal(true);
-            }}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
-          >
-            <i className="fa-solid fa-plus text-xs"></i>
-            <span>Nova Infração / Multa</span>
-          </button>
+          {permissoes.podeCriar && (
+            <button
+              onClick={() => {
+                handleCloseModal();
+                setShowNewFineModal(true);
+              }}
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+            >
+              <i className="fa-solid fa-plus text-xs"></i>
+              <span>Nova Infração / Multa</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -627,31 +639,35 @@ export const FinesView: React.FC<FinesViewProps> = ({
                       >
                         <i className="fa-solid fa-file-lines"></i>
                       </button>
-                      <button
-                        onClick={() => setEditingFine(fine)}
-                        className="btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-2 py-1 rounded font-bold transition cursor-pointer"
-                        title="Editar Multa"
-                      >
-                        <i className="fa-solid fa-pen-to-square"></i>
-                      </button>
-                      {fine.status === 'Pendente' ? (
+                      {permissoes.podeEditarOuExcluir(fine.createdBy) && (
                         <button
-                          onClick={() => onUpdateFineStatus(fine.id, 'Paga')}
-                          className="btn bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] px-2.5 py-1 rounded font-bold shadow-2xs transition cursor-pointer"
-                          title="Marcar como Paga"
+                          onClick={() => setEditingFine(fine)}
+                          className="btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-2 py-1 rounded font-bold transition cursor-pointer"
+                          title="Editar Multa"
                         >
-                          <i className="fa-solid fa-check mr-1"></i> Pagar
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => onUpdateFineStatus(fine.id, 'Pendente')}
-                          className="btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-2.5 py-1 rounded font-bold transition cursor-pointer"
-                          title="Reabrir como Pendente"
-                        >
-                          Reabrir
+                          <i className="fa-solid fa-pen-to-square"></i>
                         </button>
                       )}
-                      {onDeleteFine && (
+                      {permissoes.podeEditarOuExcluir(fine.createdBy) && (
+                        fine.status === 'Pendente' ? (
+                          <button
+                            onClick={() => onUpdateFineStatus(fine.id, 'Paga')}
+                            className="btn bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] px-2.5 py-1 rounded font-bold shadow-2xs transition cursor-pointer"
+                            title="Marcar como Paga"
+                          >
+                            <i className="fa-solid fa-check mr-1"></i> Pagar
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => onUpdateFineStatus(fine.id, 'Pendente')}
+                            className="btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-2.5 py-1 rounded font-bold transition cursor-pointer"
+                            title="Reabrir como Pendente"
+                          >
+                            Reabrir
+                          </button>
+                        )
+                      )}
+                      {onDeleteFine && permissoes.podeEditarOuExcluir(fine.createdBy) === true && (
                         <button
                           onClick={() => onDeleteFine(fine.id)}
                           className="btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] px-2 py-1 rounded font-bold transition border border-rose-200 cursor-pointer"
