@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine, Person, RoleType } from '../types';
+import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine, Term, Person, RoleType } from '../types';
 import { Combobox } from '../components/Combobox';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
@@ -9,6 +9,7 @@ interface FinanceiroViewProps {
   financialEntries: FinancialEntry[];
   claims: Claim[];
   fines: Fine[];
+  terms?: Term[];
   people: Person[];
   onSaveEntry: (data: Omit<FinancialEntry, 'id'>) => void;
   onUpdateEntry: (id: string, data: Partial<FinancialEntry>) => void;
@@ -21,6 +22,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
   financialEntries = [],
   claims = [],
   fines = [],
+  terms = [],
   people = [],
   onSaveEntry,
   onUpdateEntry,
@@ -107,8 +109,12 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       financialEntries.filter((e) => e.originId).map((e) => e.originId)
     );
 
+    const claimsComTermo = new Set(terms.filter((t) => t.claimId).map((t) => t.claimId));
+    const finesComTermo = new Set(terms.filter((t) => t.fineId).map((t) => t.fineId));
+
     const claimsCandidatos = claims.filter((c) => {
       if (existingOriginIds.has(c.id)) return false;
+      if (!claimsComTermo.has(c.id)) return false;
       const valor = c.totalValue || c.approvedCost || c.estimatedCost || 0;
       const direction = c.paymentDirection || 'Cobrar';
       return valor > 0 && (direction === 'Cobrar' || direction === 'Pagar');
@@ -116,6 +122,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
     const finesCandidatos = fines.filter((f) => {
       if (existingOriginIds.has(f.id)) return false;
+      if (!finesComTermo.has(f.id)) return false;
       return f.status === 'Pendente' && (f.amount || 0) > 0;
     });
 
@@ -124,7 +131,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       fines: finesCandidatos,
       total: claimsCandidatos.length + finesCandidatos.length,
     };
-  }, [financialEntries, claims, fines]);
+  }, [financialEntries, claims, fines, terms]);
 
   const handleGerarAutomatico = async () => {
     if (candidatosAuto.total === 0) {
@@ -275,6 +282,19 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
     });
   };
 
+  const handleDesfazerParcelas = (entry: FinancialEntry, quantidade: number) => {
+    const novoPago = Math.max(entry.paidInstallments - quantidade, 0);
+    if (novoPago === entry.paidInstallments) return;
+
+    const newStatus: FinancialEntryStatus =
+      novoPago === 0 ? 'Pendente' : 'Em Desconto';
+
+    onUpdateEntry(entry.id, {
+      paidInstallments: novoPago,
+      status: newStatus,
+    });
+  };
+
   // ============================================================================
   // MODAL: CRIAR / EDITAR
   // ============================================================================
@@ -314,7 +334,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
     e.preventDefault();
     const instCount = Math.max(1, Number(formInstallmentsCount) || 1);
     const total = Math.max(0, Number(formTotalAmount) || 0);
-    const instValue = total / instCount;
+    const instValue = instCount > 0 ? total / instCount : 0;
     const paid = Math.min(instCount, Math.max(0, Number(formPaidInstallments) || 0));
 
     let finalStatus = formStatus;
@@ -324,12 +344,15 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       finalStatus = 'Em Desconto';
     }
 
+    const driver = formDriver ? formDriver.toUpperCase().trim() : 'NÃO INFORMADO';
+    const desc = formDescription ? formDescription.trim() : 'Lançamento Avulso';
+
     if (editingEntry) {
       onUpdateEntry(editingEntry.id, {
-        driverName: formDriver.toUpperCase().trim(),
+        driverName: driver,
         originType: formOriginType,
         originLabel: formOriginLabel.trim() || undefined,
-        description: formDescription.trim(),
+        description: desc,
         direction: formDirection,
         totalAmount: total,
         installmentsCount: instCount,
@@ -341,10 +364,10 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       });
     } else {
       onSaveEntry({
-        driverName: formDriver.toUpperCase().trim(),
+        driverName: driver,
         originType: formOriginType,
         originLabel: formOriginLabel.trim() || undefined,
-        description: formDescription.trim(),
+        description: desc,
         direction: formDirection,
         totalAmount: total,
         installmentsCount: instCount,
@@ -777,6 +800,26 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                                     </button>
                                   )}
 
+                                  {permissoes.podeEditarOuExcluir(entry.createdBy) && entry.paidInstallments > 0 && (
+                                    <div className="flex items-center gap-1 ml-1 pl-1.5 border-l border-slate-200">
+                                      <button type="button" onClick={() => handleDesfazerParcelas(entry, 1)} className="text-[10px] font-bold px-1.5 py-1 rounded border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer" title="Desfazer 1 parcela paga">-1</button>
+                                      <button type="button" onClick={() => handleDesfazerParcelas(entry, 5)} className="text-[10px] font-bold px-1.5 py-1 rounded border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer" title="Desfazer 5 parcelas pagas">-5</button>
+                                      <button type="button" onClick={() => handleDesfazerParcelas(entry, 10)} className="text-[10px] font-bold px-1.5 py-1 rounded border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer" title="Desfazer 10 parcelas pagas">-10</button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const valor = window.prompt('Quantas parcelas desfazer?', '1');
+                                          const n = parseInt(valor || '0');
+                                          if (n > 0) handleDesfazerParcelas(entry, n);
+                                        }}
+                                        className="text-[10px] font-bold px-1.5 py-1 rounded border border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                        title="Desfazer outra quantidade"
+                                      >
+                                        Outro
+                                      </button>
+                                    </div>
+                                  )}
+
                                   {/* Editar */}
                                   {permissoes.podeEditarOuExcluir(entry.createdBy) && (
                                     <button
@@ -842,7 +885,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
               <form onSubmit={handleSaveModalSubmit} className="space-y-3 text-xs">
                 {/* Condutor */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Condutor / Responsável *</label>
+                  <label className="block font-bold text-slate-700 mb-1">Condutor / Responsável</label>
                   <Combobox
                     value={formDriver}
                     onChange={setFormDriver}
@@ -854,11 +897,10 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
                 {/* Descrição */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Descrição do Lançamento *</label>
+                  <label className="block font-bold text-slate-700 mb-1">Descrição do Lançamento</label>
                   <input
                     type="text"
-                    required
-                    placeholder="Ex: Desconto de franquia, avaria de pneu, acordo extrajudicial..."
+                    placeholder="Descreva o motivo do lançamento"
                     value={formDescription}
                     onChange={(e) => setFormDescription(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-slate-900"
@@ -880,7 +922,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Direção Financeira *</label>
+                    <label className="block font-bold text-slate-700 mb-1">Direção Financeira</label>
                     <select
                       value={formDirection}
                       onChange={(e) => setFormDirection(e.target.value as 'Cobrar' | 'Pagar')}
@@ -895,12 +937,11 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                 {/* Valor Total e Parcelas */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Valor Total (R$) *</label>
+                    <label className="block font-bold text-slate-700 mb-1">Valor Total (R$)</label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
-                      required
                       value={formTotalAmount || ''}
                       onChange={(e) => setFormTotalAmount(parseFloat(e.target.value) || 0)}
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-black text-slate-900"
@@ -912,7 +953,6 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                       type="number"
                       min="1"
                       max="60"
-                      required
                       value={formInstallmentsCount}
                       onChange={(e) => setFormInstallmentsCount(parseInt(e.target.value, 10) || 1)}
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-bold text-slate-900"
@@ -971,7 +1011,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                     <label className="block font-bold text-slate-700 mb-1">Rótulo / Protocolo (Opcional)</label>
                     <input
                       type="text"
-                      placeholder="Ex: PARC-2026-01"
+                      placeholder="Opcional"
                       value={formOriginLabel}
                       onChange={(e) => setFormOriginLabel(e.target.value)}
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-slate-900 font-mono"

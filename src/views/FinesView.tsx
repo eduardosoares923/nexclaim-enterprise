@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Fine, Vehicle, Person, FineStatus, InfractionType, RoleType } from '../types';
+import { Fine, Vehicle, Person, FineStatus, InfractionType, RoleType, Claim, DocumentTemplate, Term } from '../types';
 import { firebaseService } from '../services/firebase';
 import {
   lerPlanilhaMultas,
@@ -12,6 +12,7 @@ import {
 import { Combobox } from '../components/Combobox';
 import { FinesPdfReportModal } from '../components/FinesPdfReportModal';
 import { InfractionCatalogModal } from '../components/InfractionCatalogModal';
+import { TermGeneratorModal } from '../components/TermGeneratorModal';
 import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 
@@ -20,6 +21,8 @@ interface FinesViewProps {
   vehicles: Vehicle[];
   people: Person[];
   infractionTypes: InfractionType[];
+  templates?: DocumentTemplate[];
+  onGenerateTerm?: (term: Term) => void;
   onSaveFine: (fine: Fine) => void;
   onUpdateFineStatus: (id: string, newStatus: FineStatus) => void;
   onUpdateFine?: (id: string, data: Partial<Fine>) => void;
@@ -37,6 +40,8 @@ export const FinesView: React.FC<FinesViewProps> = ({
   vehicles,
   people,
   infractionTypes,
+  templates = [],
+  onGenerateTerm,
   onSaveFine,
   onUpdateFineStatus,
   onUpdateFine,
@@ -58,6 +63,28 @@ export const FinesView: React.FC<FinesViewProps> = ({
   const [showNewFineModal, setShowNewFineModal] = useState(false);
   const [editingFine, setEditingFine] = useState<Fine | null>(null);
   const [viewingFine, setViewingFine] = useState<Fine | null>(null);
+  const [fineParaTermo, setFineParaTermo] = useState<Fine | null>(null);
+
+  const construirClaimFalsoDaMulta = (fine: Fine): Claim => ({
+    id: fine.id,
+    claimNumber: fine.infractionAuto,
+    protocol: fine.infractionAuto,
+    occurrenceType: fine.description,
+    date: fine.infractionDate || '',
+    time: fine.infractionTime || '',
+    location: '',
+    city: '',
+    state: '',
+    vehiclePlate: fine.vehiclePlate,
+    driverName: fine.driverName,
+    priority: 'Média',
+    status: 'Novo',
+    estimatedCost: fine.amount,
+    insurer: '',
+    policyNumber: '',
+    boNumber: '',
+    description: fine.description,
+  });
 
   // Estados de Exportação e Mais Ações
   const [colunasExportSelecionadas, setColunasExportSelecionadas] = useState<string[]>(
@@ -632,6 +659,16 @@ export const FinesView: React.FC<FinesViewProps> = ({
                       </span>
                     </td>
                     <td className="p-3.5 text-right space-x-1.5 whitespace-nowrap">
+                      {onGenerateTerm && (
+                        <button
+                          onClick={() => setFineParaTermo(fine)}
+                          className="btn bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] px-2 py-1 rounded font-bold transition border border-amber-200 cursor-pointer"
+                          title="Emitir Termo de Responsabilidade"
+                        >
+                          <i className="fa-solid fa-file-signature text-amber-600 mr-1"></i>
+                          <span>Termo</span>
+                        </button>
+                      )}
                       <button
                         onClick={() => setViewingFine(fine)}
                         className="btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-2 py-1 rounded font-bold transition cursor-pointer"
@@ -1244,6 +1281,22 @@ export const FinesView: React.FC<FinesViewProps> = ({
           onUpdate={(id, data) => onUpdateInfractionType?.(id, data)}
           onDelete={(id) => onDeleteInfractionType?.(id)}
           onClose={() => setShowCatalogModal(false)}
+        />
+      )}
+
+      {/* Modal de Emissão de Termo a partir de Multa */}
+      {fineParaTermo && onGenerateTerm && (
+        <TermGeneratorModal
+          claim={construirClaimFalsoDaMulta(fineParaTermo)}
+          people={people}
+          vehicles={vehicles}
+          templates={templates}
+          onClose={() => setFineParaTermo(null)}
+          onGenerateTerm={(termoGerado) => {
+            const { claimId, ...resto } = termoGerado as any;
+            onGenerateTerm({ ...resto, fineId: fineParaTermo.id } as Term);
+            setFineParaTermo(null);
+          }}
         />
       )}
     </div>

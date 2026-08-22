@@ -427,6 +427,8 @@ export const App: React.FC = () => {
                   vehicles={vehicles}
                   people={people}
                   infractionTypes={infractionTypes}
+                  templates={templates}
+                  onGenerateTerm={(term) => createTermMutation.mutate(term as any)}
                   onSaveFine={(newFine) => {
                     const { id, ...data } = newFine;
                     createFineMutation.mutate(data);
@@ -515,6 +517,7 @@ export const App: React.FC = () => {
                   financialEntries={financialEntries}
                   claims={claims}
                   fines={fines}
+                  terms={terms}
                   people={people}
                   onSaveEntry={(data) => createFinancialEntryMutation.mutateAsync(data)}
                   onUpdateEntry={(id, data) => updateFinancialEntryMutation.mutate({ id, data })}

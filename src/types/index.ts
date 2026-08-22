@@ -165,6 +165,7 @@ export interface DocumentTemplate {
 export interface Term {
   id: string;
   claimId?: string;
+  fineId?: string;
   templateId?: string;
   title: string;
   type: string;
