@@ -24,6 +24,7 @@ interface FinesViewProps {
   infractionTypes: InfractionType[];
   templates?: DocumentTemplate[];
   onGenerateTerm?: (term: Term) => void;
+  onUpdatePerson?: (id: string, data: Partial<Person>) => void;
   onSaveFine: (fine: Fine) => void;
   onUpdateFineStatus: (id: string, newStatus: FineStatus) => void;
   onUpdateFine?: (id: string, data: Partial<Fine>) => void;
@@ -43,6 +44,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
   infractionTypes,
   templates = [],
   onGenerateTerm,
+  onUpdatePerson,
   onSaveFine,
   onUpdateFineStatus,
   onUpdateFine,
@@ -1305,6 +1307,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
           vehicles={vehicles}
           templates={templates}
           onClose={() => setFineParaTermo(null)}
+          onUpdatePerson={onUpdatePerson}
           onGenerateTerm={(termoGerado) => {
             const { claimId, id, ...resto } = termoGerado as any;
             onGenerateTerm({ ...resto, fineId: fineParaTermo.id } as Term);

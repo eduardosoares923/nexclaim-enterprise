@@ -10,6 +10,7 @@ interface TermGeneratorModalProps {
   templates: DocumentTemplate[];
   onClose: () => void;
   onGenerateTerm: (term: Term) => void;
+  onUpdatePerson?: (id: string, data: Partial<Person>) => void;
   origin?: 'sinistro' | 'multa';
 }
 
@@ -20,6 +21,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   templates,
   onClose,
   onGenerateTerm,
+  onUpdatePerson,
   origin = 'sinistro',
 }) => {
   if (!claim) {
@@ -60,6 +62,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templatesFiltrados[0]?.id || '');
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [cpfManual, setCpfManual] = useState<string>('');
   const [selectedDriverName, setSelectedDriverName] = useState<string>(
     claim?.driverName || people[0]?.name || ''
   );
@@ -110,7 +113,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   // Dynamic Variable Replacement Engine (All Official Templates)
   const generateFilledContent = () => {
     const rawContent = currentTemplate?.content || '';
-    const driverCpf = currentDriver?.docNumber || '031.997.250-07';
+    const driverCpf = currentDriver?.docNumber || cpfManual;
     const vehiclePlate = claim?.vehiclePlate || currentVehicle?.plate || 'IZF4E82';
     const vehiclePrefix = currentVehicle?.prefix || '24127';
     const vehicleModel = claim?.vehicleModel || currentVehicle?.model || 'MARCOPOLO/VOLARE W9C ON';
@@ -164,6 +167,14 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentDriver?.docNumber && !cpfManual.trim()) {
+      alert('Este condutor não tem CPF cadastrado. Preencha o campo "CPF do Condutor" no Passo 1 antes de continuar.');
+      setStep(1);
+      return;
+    }
+    if (!currentDriver?.docNumber && cpfManual.trim() && onUpdatePerson && currentDriver?.id) {
+      onUpdatePerson(currentDriver.id, { docNumber: cpfManual.trim() });
+    }
     const textContent = generateFilledContent();
     const textContentDestacado = textContent
       .replace(/☑/g, '<span style="color:#059669;font-weight:900;">☑</span>')
@@ -286,6 +297,25 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                     }))}
                   />
                 </div>
+                {!currentDriver?.docNumber && (
+                  <div>
+                    <label className="form-label text-xs text-rose-600">
+                      <i className="fa-solid fa-triangle-exclamation mr-1"></i>
+                      CPF do Condutor (não cadastrado) *
+                    </label>
+                    <input
+                      type="text"
+                      value={cpfManual}
+                      onChange={(e) => setCpfManual(e.target.value)}
+                      placeholder="000.000.000-00"
+                      className="form-input text-xs border-rose-300"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Esse condutor não tem CPF no cadastro. O CPF digitado aqui será
+                      salvo no cadastro dele pra não precisar digitar de novo.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Campo de Data de Pagamento (único, usado nos dois modelos que precisam de data) */}

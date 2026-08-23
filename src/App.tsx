@@ -502,6 +502,7 @@ export const App: React.FC = () => {
                   people={people}
                   infractionTypes={infractionTypes}
                   templates={templates}
+                  onUpdatePerson={(id, data) => updatePersonMutation.mutate({ id, data })}
                   onGenerateTerm={(term) => {
                     const { id, ...termData } = term as any;
                     createTermMutation.mutate(termData, {
@@ -653,6 +654,7 @@ export const App: React.FC = () => {
           templates={templates.filter((t) => t.isActive)}
           onClose={() => setShowTermGenModal(false)}
           onGenerateTerm={handleGenerateTerm}
+          onUpdatePerson={(id, data) => updatePersonMutation.mutate({ id, data })}
         />
       )}
 
