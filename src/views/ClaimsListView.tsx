@@ -339,6 +339,26 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     alert(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`);
   };
 
+  const corrigirStatusNovo = async () => {
+    const paraCorrigir = claims.filter((c) => c.status === 'Novo');
+    if (paraCorrigir.length === 0) {
+      alert('Nenhum sinistro está com o status "Novo".');
+      return;
+    }
+    const ok = await confirmar({
+      title: 'Corrigir Status "Novo"',
+      message: `${paraCorrigir.length} sinistro(s) serão atualizados de "Novo" para "Em análise". Continuar?`,
+      confirmLabel: 'Corrigir',
+      danger: false,
+    });
+    if (!ok) return;
+    for (const c of paraCorrigir) {
+      await firebaseService.updateClaim(c.id, { status: 'Em análise' });
+    }
+    queryClient.invalidateQueries({ queryKey: ['claims'] });
+    alert(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -385,6 +405,16 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   className="w-full text-left px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 flex items-center gap-2 cursor-pointer"
                 >
                   <i className="fa-solid fa-broom"></i> Corrigir Tipos de Ocorrência Duplicados
+                </button>
+
+                <button
+                  onClick={() => {
+                    corrigirStatusNovo();
+                    setShowMoreActions(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-broom"></i> Corrigir Status "Novo" para "Em Análise"
                 </button>
 
                 {onDeleteClaim && sinistrosDaAbaDados.length > 0 && permissoes.podeExclusaoEmMassa && (

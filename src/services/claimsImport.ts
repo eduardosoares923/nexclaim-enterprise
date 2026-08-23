@@ -114,7 +114,7 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       if (!placa && !motorista && !ocorrido && !data) continue;
 
       const situacaoRaw = NORMALIZAR(pegar(linha, idx.situacao));
-      const status: ClaimStatus = MAPA_STATUS[situacaoRaw] || 'Novo';
+      const status: ClaimStatus = MAPA_STATUS[situacaoRaw] || 'Em análise';
 
       const descricaoPartes = [paraTexto(ocorrido), paraTexto(pegar(linha, idx.observacao))].filter(Boolean);
 
@@ -236,7 +236,7 @@ export async function lerAbaDados(file: File): Promise<ResultadoAbaDados | null>
           ? 'Em análise'
           : situacaoNorm.includes('RESOLVID')
           ? 'Resolvido'
-          : 'Novo');
+          : 'Em análise');
 
       const vitima = paraTexto(pegar(linha, idx.vitima));
       const claim: Omit<Claim, 'id'> = {
