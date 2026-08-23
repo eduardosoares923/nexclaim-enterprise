@@ -91,6 +91,7 @@ export const firebaseService = {
       await updateDoc(doc(db, 'claims', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateClaim error:', e);
+      throw e;
     }
   },
 
@@ -131,6 +132,7 @@ export const firebaseService = {
       await updateDoc(doc(db, 'fines', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateFine error:', e);
+      throw e;
     }
   },
 
@@ -171,6 +173,7 @@ export const firebaseService = {
       await updateDoc(doc(db, 'infractionTypes', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateInfractionType error:', e);
+      throw e;
     }
   },
 
@@ -252,6 +255,7 @@ export const firebaseService = {
       await updateDoc(doc(db, 'vehicles', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateVehicle error:', e);
+      throw e;
     }
   },
 
@@ -292,6 +296,7 @@ export const firebaseService = {
       await updateDoc(doc(db, 'people', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updatePerson error:', e);
+      throw e;
     }
   },
 
