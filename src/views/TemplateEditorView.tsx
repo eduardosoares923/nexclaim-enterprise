@@ -91,6 +91,35 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
     setIsEditing(false);
   };
 
+  const handleTabNaTextarea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== 'Tab') return;
+    e.preventDefault();
+
+    const textarea = e.currentTarget;
+    const { selectionStart, selectionEnd, value } = textarea;
+    const inicioLinha = value.lastIndexOf('\n', selectionStart - 1) + 1;
+
+    if (e.shiftKey) {
+      // Shift+Tab: remove até 2 espaços do início da linha
+      const linhaAtual = value.slice(inicioLinha, selectionStart);
+      const espacosARemover = linhaAtual.match(/^ {1,2}/)?.[0].length || 0;
+      if (espacosARemover > 0) {
+        const novoValor = value.slice(0, inicioLinha) + value.slice(inicioLinha + espacosARemover);
+        setEditForm({ ...editForm, content: novoValor });
+        requestAnimationFrame(() => {
+          textarea.selectionStart = textarea.selectionEnd = selectionStart - espacosARemover;
+        });
+      }
+    } else {
+      // Tab: adiciona 2 espaços no início da linha
+      const novoValor = value.slice(0, inicioLinha) + '  ' + value.slice(inicioLinha);
+      setEditForm({ ...editForm, content: novoValor });
+      requestAnimationFrame(() => {
+        textarea.selectionStart = textarea.selectionEnd = selectionEnd + 2;
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -240,6 +269,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                     rows={18}
                     value={editForm.content}
                     onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                    onKeyDown={handleTabNaTextarea}
                     className="form-textarea font-mono text-[11px] leading-6 min-h-[380px]"
                     required
                   />
