@@ -174,6 +174,8 @@ export interface Term {
   involvedPerson: string;
   status: 'Rascunho' | 'Gerado' | 'Assinado' | 'Cancelado';
   signatureDataUrl?: string;
+  paymentMode?: 'unica' | 'parcelado';
+  installmentsCount?: number;
   content?: string;
   htmlContent?: string;
   createdBy?: string;

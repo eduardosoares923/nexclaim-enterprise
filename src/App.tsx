@@ -313,6 +313,7 @@ export const App: React.FC = () => {
         if (!fine) return;
         const total = fine.amount || 0;
         if (total <= 0) return;
+        const numParcelas = term.installmentsCount && term.installmentsCount > 0 ? term.installmentsCount : 1;
         await createFinancialEntryMutation.mutateAsync({
           driverName: fine.driverName || 'Condutor Não Informado',
           originType: 'Multa',
@@ -321,8 +322,8 @@ export const App: React.FC = () => {
           description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${fine.description || 'Infração de Trânsito'}`,
           direction: 'Cobrar',
           totalAmount: total,
-          installmentsCount: 1,
-          installmentValue: total,
+          installmentsCount: numParcelas,
+          installmentValue: Math.round((total / numParcelas) * 100) / 100,
           paidInstallments: 0,
           firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
           status: 'Pendente',

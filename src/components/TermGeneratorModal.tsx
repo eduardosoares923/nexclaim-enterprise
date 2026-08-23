@@ -165,6 +165,9 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const textContent = generateFilledContent();
+    const textContentDestacado = textContent
+      .replace(/☑/g, '<span style="color:#059669;font-weight:900;">☑</span>')
+      .replace(/☐([^\n]*)/g, '<span style="color:#94a3b8;">☐$1</span>');
 
     const newTerm: Term = {
       id: `trm-${Date.now()}`,
@@ -177,9 +180,11 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       involvedPerson: selectedDriverName,
       status: signatureDataUrl ? 'Assinado' : 'Gerado',
       signatureDataUrl: signatureDataUrl || undefined,
+      paymentMode: formaPagamento,
+      installmentsCount: formaPagamento === 'parcelado' ? numeroParcelasEscolhido : 1,
       content: textContent,
       htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-8 bg-white border border-slate-300 rounded-lg max-w-2xl mx-auto shadow-sm">
-        <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContent}</div>
+        <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContentDestacado}</div>
         ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura do Condutor</p></div>` : ''}
         <div class="trans-pinho-header text-center border-t-2 border-black pt-4 mt-6">
           <h2 class="font-black text-base uppercase tracking-tight">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
