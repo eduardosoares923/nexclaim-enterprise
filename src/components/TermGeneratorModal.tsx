@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Claim, Person, Vehicle, DocumentTemplate, Term } from '../types';
 import { SignaturePad } from './SignaturePad';
+import { Combobox } from './Combobox';
 
 interface TermGeneratorModalProps {
   claim?: Claim;
@@ -269,17 +270,16 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                 </div>
                 <div>
                   <label className="form-label text-xs">Condutor Selecionado *</label>
-                  <select
+                  <Combobox
                     value={selectedDriverName}
-                    onChange={(e) => setSelectedDriverName(e.target.value)}
-                    className="form-select text-xs font-semibold"
-                  >
-                    {people.map((p) => (
-                      <option key={p.id} value={p.name}>
-                        {p.name} ({p.docNumber})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setSelectedDriverName}
+                    placeholder="Selecione da lista ou digite o nome"
+                    className="form-input text-xs font-semibold"
+                    options={[...people].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((p) => ({
+                      value: p.name,
+                      label: p.docNumber || '',
+                    }))}
+                  />
                 </div>
               </div>
 
