@@ -489,8 +489,11 @@ export const App: React.FC = () => {
                   infractionTypes={infractionTypes}
                   templates={templates}
                   onGenerateTerm={(term) => {
-                    createTermMutation.mutate(term as any);
-                    gerarLancamentoAutomaticoParaTermo(term);
+                    const { id, ...termData } = term as any;
+                    createTermMutation.mutate(termData, {
+                      onSuccess: () => gerarLancamentoAutomaticoParaTermo(term),
+                      onError: (err: any) => alert(`Não foi possível salvar o termo: ${err?.message || err}`),
+                    });
                   }}
                   onSaveFine={(newFine) => {
                     const { id, ...data } = newFine;

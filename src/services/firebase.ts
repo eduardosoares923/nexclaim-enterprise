@@ -67,7 +67,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'claims'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Claim));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as Claim));
       }
     } catch (e) {
       console.warn('Firestore fetchClaims fallback:', e);
@@ -107,7 +107,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'fines'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Fine));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as Fine));
       }
     } catch (e) {
       console.warn('Firestore fetchFines fallback:', e);
@@ -147,7 +147,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'infractionTypes'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as InfractionType));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as InfractionType));
       }
     } catch (e) {
       console.warn('Firestore fetchInfractionTypes fallback:', e);
@@ -187,7 +187,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'terms'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Term));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as Term));
       }
     } catch (e) {
       console.warn('Firestore fetchTerms fallback:', e);
@@ -228,7 +228,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'vehicles'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Vehicle));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as Vehicle));
       }
     } catch (e) {
       console.warn('Firestore fetchVehicles fallback:', e);
@@ -268,7 +268,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'people'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as Person));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as Person));
       }
     } catch (e) {
       console.warn('Firestore fetchPeople fallback:', e);
@@ -309,7 +309,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'workOrders'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as WorkOrder));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as WorkOrder));
       }
       return [];
     } catch (e) {
@@ -352,7 +352,7 @@ export const firebaseService = {
     try {
       const snap = await getDocs(collection(db, 'financialEntries'));
       if (!snap.empty) {
-        return snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as FinancialEntry));
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as FinancialEntry));
       }
       return [];
     } catch (e) {

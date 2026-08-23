@@ -1306,7 +1306,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
           templates={templates}
           onClose={() => setFineParaTermo(null)}
           onGenerateTerm={(termoGerado) => {
-            const { claimId, ...resto } = termoGerado as any;
+            const { claimId, id, ...resto } = termoGerado as any;
             onGenerateTerm({ ...resto, fineId: fineParaTermo.id } as Term);
             setFineParaTermo(null);
           }}
