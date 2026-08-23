@@ -4,7 +4,8 @@ import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../typ
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
-import { DocumentPreview } from '../components/DocumentPreview';
+import { BlocosPreview } from '../components/BlocosPreview';
+import { garantirBlocos } from '../utils/documentoBlocos';
 
 interface TermsViewProps {
   terms: Term[];
@@ -409,7 +410,10 @@ export const TermsView: React.FC<TermsViewProps> = ({
               </div>
 
               {/* Content Body */}
-              <DocumentPreview content={viewingTerm.content || ''} signatureDataUrl={viewingTerm.signatureDataUrl} />
+              <BlocosPreview
+                blocos={garantirBlocos({ content: viewingTerm.content || '' })}
+                signatureDataUrl={viewingTerm.signatureDataUrl}
+              />
             </div>
           </div>
         </div>

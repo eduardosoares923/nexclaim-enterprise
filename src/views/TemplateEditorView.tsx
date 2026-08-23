@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { DocumentTemplate, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
-import { DocumentPreview } from '../components/DocumentPreview';
+import { BlocosPreview } from '../components/BlocosPreview';
+import { garantirBlocos } from '../utils/documentoBlocos';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -280,7 +281,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                     Pré-visualização ao Vivo
                   </label>
                   <div className="border border-slate-200 rounded-lg bg-white p-4 min-h-[380px] max-h-[420px] overflow-y-auto trans-pinho-doc">
-                    <DocumentPreview content={editForm.content || ''} />
+                    <BlocosPreview blocos={garantirBlocos({ blocos: editForm.blocos, content: editForm.content || '' })} />
                   </div>
                 </div>
               </div>
@@ -321,7 +322,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                   Pré-visualização do Modelo com Variáveis
                 </label>
                 <div className="border border-slate-200 rounded-lg bg-white p-6 max-h-[500px] overflow-y-auto trans-pinho-doc">
-                  <DocumentPreview content={selectedTemplate.content || ''} />
+                  <BlocosPreview blocos={garantirBlocos(selectedTemplate)} />
                 </div>
               </div>
             </div>
