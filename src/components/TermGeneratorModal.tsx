@@ -65,8 +65,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   );
   const [formaPagamento, setFormaPagamento] = useState<'unica' | 'parcelado'>('parcelado');
   const [numeroParcelasEscolhido, setNumeroParcelasEscolhido] = useState<number>(2);
-  const [dataVencimento, setDataVencimento] = useState<string>('');
-  const [dataPrimeiraParcela, setDataPrimeiraParcela] = useState<string>('');
+  const [dataPagamento, setDataPagamento] = useState<string>('');
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
 
   const currentTemplate = templatesFiltrados.find((t) => t.id === selectedTemplateId) || templatesFiltrados[0] || templates[0];
@@ -141,10 +140,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       .replace(/\{\{valor_total_extenso\}\}/g, costExtenso)
       .replace(/\{\{opcao_cota_unica\}\}/g, formaPagamento === 'unica' ? '☑' : '☐')
       .replace(/\{\{opcao_parcelado\}\}/g, formaPagamento === 'parcelado' ? '☑' : '☐')
-      .replace(/\{\{data_vencimento\}\}/g, formatarData(dataVencimento) || '07/08/2026')
+      .replace(/\{\{data_vencimento\}\}/g, formatarData(dataPagamento) || '07/08/2026')
       .replace(/\{\{numero_parcelas\}\}/g, String(parcelas))
       .replace(/\{\{valor_parcela\}\}/g, valorParcelaFormatted)
-      .replace(/\{\{data_primeira_parcela\}\}/g, formatarData(dataPrimeiraParcela) || '07/08/2026')
+      .replace(/\{\{data_primeira_parcela\}\}/g, formatarData(dataPagamento) || '07/08/2026')
       .replace(/\{\{dia_assinatura\}\}/g, diaAssinatura)
       .replace(/\{\{mes_assinatura\}\}/g, mesAssinatura)
       .replace(/\{\{numero_ocorrencia\}\}/g, claim?.protocol || claim?.claimNumber || '2026 0713 3731 277')
@@ -283,27 +282,21 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                 </div>
               </div>
 
-              {/* Campos de Datas Editáveis */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="form-label text-xs">Data de Vencimento</label>
-                  <input
-                    type="date"
-                    value={dataVencimento}
-                    onChange={(e) => setDataVencimento(e.target.value)}
-                    className="form-input text-xs"
-                  />
+              {/* Campo de Data de Pagamento (único, usado nos dois modelos que precisam de data) */}
+              {(currentTemplate?.availableVariables?.includes('{{data_vencimento}}') ||
+                currentTemplate?.availableVariables?.includes('{{data_primeira_parcela}}')) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="form-label text-xs">Data do Pagamento</label>
+                    <input
+                      type="date"
+                      value={dataPagamento}
+                      onChange={(e) => setDataPagamento(e.target.value)}
+                      className="form-input text-xs"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="form-label text-xs">Data da Primeira Parcela</label>
-                  <input
-                    type="date"
-                    value={dataPrimeiraParcela}
-                    onChange={(e) => setDataPrimeiraParcela(e.target.value)}
-                    className="form-input text-xs"
-                  />
-                </div>
-              </div>
+              )}
 
               {/* Seleção de Modalidade (Cota Única vs Parcelado) */}
               {(currentTemplate?.id === 'tmpl-multa-descontada' || currentTemplate?.name.includes('Valores Descontados')) && (
