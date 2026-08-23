@@ -403,7 +403,7 @@ export const firebaseService = {
       return await getDownloadURL(fileRef);
     } catch (e) {
       console.error('Firebase Storage Upload error:', e);
-      return '';
+      throw e;
     }
   }
 };

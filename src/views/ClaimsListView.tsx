@@ -853,7 +853,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       {/* Detail Modal */}
       {selectedClaimDetail && (
         <ClaimDetailModal
-          claim={selectedClaimDetail}
+          claim={claims.find((c) => c.id === selectedClaimDetail.id) || selectedClaimDetail}
           people={people}
           vehicles={vehicles}
           terms={terms}
@@ -861,6 +861,12 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           onOpenTermGenerator={(claim) => {
             setSelectedClaimDetail(null);
             onOpenTermGenerator(claim);
+          }}
+          onUpdateClaim={(id, data) => {
+            if (onUpdateClaim) {
+              onUpdateClaim(id, data);
+            }
+            setSelectedClaimDetail((prev) => (prev && prev.id === id ? { ...prev, ...data } : prev));
           }}
         />
       )}
