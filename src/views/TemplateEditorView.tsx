@@ -316,9 +316,12 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
               </div>
 
               <div>
-                <span className="font-bold text-slate-700 block mb-1">Pré-visualização do Modelo com Variáveis:</span>
-                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 font-mono text-[11px] whitespace-pre-wrap leading-relaxed">
-                  {selectedTemplate.content}
+                <label className="form-label text-xs flex items-center gap-1.5 mb-1.5">
+                  <i className="fa-solid fa-eye text-amber-500"></i>
+                  Pré-visualização do Modelo com Variáveis
+                </label>
+                <div className="border border-slate-200 rounded-lg bg-white p-6 max-h-[500px] overflow-y-auto trans-pinho-doc">
+                  <DocumentPreview content={selectedTemplate.content || ''} />
                 </div>
               </div>
             </div>
