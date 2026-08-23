@@ -212,16 +212,21 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
               </div>
 
               <div>
-                <label className="form-label text-xs mb-1 block">Variáveis Disponíveis (Clique para Inserir):</label>
-                <div className="flex flex-wrap gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                <label className="form-label text-xs mb-1.5 block flex items-center gap-1.5">
+                  <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                  Variáveis Disponíveis
+                  <span className="text-slate-400 font-normal normal-case">— clique pra inserir no cursor</span>
+                </label>
+                <div className="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl">
                   {editForm.availableVariables?.map((v) => (
                     <button
                       key={v}
                       type="button"
                       onClick={() => handleInsertVariable(v)}
-                      className="px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-mono text-[10px] font-bold border border-amber-300"
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-amber-800 font-mono text-[10px] font-bold border border-amber-200 hover:border-amber-400 shadow-2xs transition cursor-pointer flex items-center gap-1"
                     >
-                      + {v}
+                      <i className="fa-solid fa-plus text-[8px]"></i>
+                      {v}
                     </button>
                   ))}
                 </div>
@@ -230,10 +235,10 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
               <div>
                 <label className="form-label text-xs">Conteúdo do Modelo (com variáveis {'{{variavel}}'}) *</label>
                 <textarea
-                  rows={10}
+                  rows={18}
                   value={editForm.content}
                   onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                  className="form-textarea font-mono text-xs p-3 bg-slate-50 border-slate-300"
+                  className="form-textarea font-mono text-[11px] leading-6 min-h-[320px]"
                   required
                 />
               </div>
