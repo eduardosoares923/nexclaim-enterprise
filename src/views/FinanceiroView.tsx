@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine, Term, Person, RoleType } from '../types';
 import { Combobox } from '../components/Combobox';
 import { formatarDataBr, limparDescricaoMulta } from '../utils/dateUtils';
+import { exportarFinanceiroParaExcel, lerPlanilhaFinanceiro } from '../services/financeiroImport';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
 
@@ -63,6 +64,31 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
   // Estado de confirmação do gerador automático
   const [isGeneratingAuto, setIsGeneratingAuto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportarPlanilha = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const linhas = await lerPlanilhaFinanceiro(file);
+      if (linhas.length === 0) {
+        alert('Nenhum lançamento válido encontrado na planilha.');
+        return;
+      }
+      const ok = await confirmar({
+        title: 'Importar Lançamentos',
+        message: `${linhas.length} lançamento(s) serão importados da planilha. Continuar?`,
+        confirmLabel: 'Importar',
+      });
+      if (ok) {
+        linhas.forEach((l) => onSaveEntry(l));
+      }
+    } catch (err: any) {
+      alert(`Não foi possível importar a planilha: ${err?.message || err}`);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
@@ -452,6 +478,35 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          {permissoes.podeCriar && (
+            <>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImportarPlanilha}
+                accept=".xlsx, .xls"
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition cursor-pointer"
+                title="Importar lançamentos de planilha Excel"
+              >
+                <i className="fa-solid fa-file-import text-xs"></i>
+                <span>Importar (.xlsx)</span>
+              </button>
+            </>
+          )}
+
+          <button
+            onClick={() => exportarFinanceiroParaExcel(filteredEntries)}
+            className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition cursor-pointer"
+            title="Exportar lançamentos filtrados para Excel"
+          >
+            <i className="fa-solid fa-file-export text-xs"></i>
+            <span>Exportar (.xlsx)</span>
+          </button>
+
           {permissoes.podeCriar && (
             <button
               onClick={handleGerarAutomatico}
