@@ -64,6 +64,17 @@ export const FinesView: React.FC<FinesViewProps> = ({
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [sortBy, setSortBy] = useState<'data-desc' | 'data-asc' | 'nome' | 'placa'>('data-desc');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>(
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'table'
+  );
+  const jaAjustouViewMode = useRef(false);
+  useEffect(() => {
+    if (jaAjustouViewMode.current) return;
+    jaAjustouViewMode.current = true;
+    if (window.innerWidth < 768) {
+      setViewMode('grid');
+    }
+  }, []);
   const [showNewFineModal, setShowNewFineModal] = useState(false);
   const [editingFine, setEditingFine] = useState<Fine | null>(null);
   const [viewingFine, setViewingFine] = useState<Fine | null>(null);
@@ -601,14 +612,34 @@ export const FinesView: React.FC<FinesViewProps> = ({
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between flex-wrap gap-2">
           <h3 className="font-bold text-slate-900 text-sm">Registros de Autos de Infração</h3>
-          <span className="text-xs text-slate-500">{sortedFines.length} multa(s) listada(s)</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-500">{sortedFines.length} multa(s) listada(s)</span>
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                  viewMode === 'table' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <i className="fa-solid fa-list text-xs"></i> Tabela
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                  viewMode === 'grid' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <i className="fa-solid fa-grip text-xs"></i> Cards
+              </button>
+            </div>
+          </div>
         </div>
 
         {sortedFines.length === 0 ? (
           <div className="p-12 text-center text-xs text-slate-500">Nenhuma infração encontrada.</div>
-        ) : (
+        ) : viewMode === 'table' ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
@@ -732,6 +763,119 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {sortedFines.map((fine) => (
+              <div
+                key={fine.id}
+                className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs hover:shadow-md transition space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold font-mono text-slate-900 text-sm">{fine.infractionAuto}</span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${
+                        fine.status === 'Paga'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          : fine.status === 'Pendente'
+                          ? 'bg-rose-50 text-rose-700 border-rose-300'
+                          : 'bg-slate-100 text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      {fine.status}
+                    </span>
+                  </div>
+                  {fine.duplicateOfAuto && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const original = fines.find((f) => f.infractionAuto === fine.duplicateOfAuto);
+                        if (original) setViewingFine(original);
+                      }}
+                      className="text-[9px] text-amber-600 hover:text-amber-800 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <i className="fa-solid fa-clone text-[8px]"></i>
+                      <span>Duplicidade de {fine.duplicateOfAuto}</span>
+                    </button>
+                  )}
+                  <h4 className="text-xs font-semibold text-slate-800 leading-snug" title={fine.description}>
+                    {fine.description}
+                  </h4>
+                  {fine.indicationStatus && !fine.duplicateOfAuto && (
+                    <span className="inline-block text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                      {fine.indicationStatus}
+                    </span>
+                  )}
+                  <div className="text-xs text-slate-500 space-y-0.5 pt-1 border-t border-slate-100">
+                    <p><strong>Placa:</strong> {fine.vehiclePlate}</p>
+                    <p><strong>Condutor:</strong> {fine.driverName}</p>
+                    <p>
+                      <strong>Valor:</strong>{' '}
+                      <span className="font-bold text-slate-900">{formatCurrency(fine.amount)}</span>
+                      {' • '}
+                      <span className="text-amber-600 font-semibold">{fine.points} pontos</span>
+                    </p>
+                    <p><strong>Venc. Indicação:</strong> {formatarDataBr(fine.dueDate)}</p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5 flex-wrap">
+                  {onGenerateTerm && (
+                    <button
+                      onClick={() => setFineParaTermo(fine)}
+                      className="flex-1 py-1.5 text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-center transition border border-amber-200 cursor-pointer"
+                    >
+                      <i className="fa-solid fa-file-signature mr-1"></i> Termo
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setViewingFine(fine)}
+                    className="py-1.5 px-2.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-center transition cursor-pointer"
+                    title="Ver / Imprimir Auto de Infração"
+                  >
+                    <i className="fa-solid fa-file-lines"></i>
+                  </button>
+                  {permissoes.podeEditarOuExcluir(fine.createdBy) && (
+                    <button
+                      onClick={() => setEditingFine(fine)}
+                      className="py-1.5 px-2.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-center transition cursor-pointer"
+                      title="Editar Multa"
+                    >
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </button>
+                  )}
+                  {permissoes.podeEditarOuExcluir(fine.createdBy) && (
+                    fine.status === 'Pendente' ? (
+                      <button
+                        onClick={() => onUpdateFineStatus(fine.id, 'Paga')}
+                        className="py-1.5 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-center transition cursor-pointer"
+                        title="Marcar como Paga"
+                      >
+                        <i className="fa-solid fa-check"></i>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onUpdateFineStatus(fine.id, 'Pendente')}
+                        className="py-1.5 px-2.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-center transition cursor-pointer"
+                        title="Reabrir como Pendente"
+                      >
+                        <i className="fa-solid fa-rotate-left"></i>
+                      </button>
+                    )
+                  )}
+                  {onDeleteFine && permissoes.podeEditarOuExcluir(fine.createdBy) === true && (
+                    <button
+                      onClick={() => onDeleteFine(fine.id)}
+                      className="py-1.5 px-2.5 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-center transition border border-rose-200 cursor-pointer"
+                      title="Excluir Multa"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
