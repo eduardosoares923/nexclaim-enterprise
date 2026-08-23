@@ -211,6 +211,7 @@ export const firebaseService = {
       await updateDoc(doc(db, 'terms', id), removeUndefinedFields(data));
     } catch (e) {
       console.error('Firestore updateTerm error:', e);
+      throw e;
     }
   },
 

@@ -528,11 +528,20 @@ export const App: React.FC = () => {
                   }}
                   onDeleteTerm={(id) => deleteTermMutation.mutate(id)}
                   onUpdateTerm={(id, data) => {
-                    updateTermMutation.mutate({ id, data });
-                    const termoOriginal = terms.find((t) => t.id === id);
-                    if (termoOriginal) {
-                      gerarLancamentoAutomaticoParaTermo({ ...termoOriginal, ...data });
-                    }
+                    updateTermMutation.mutate(
+                      { id, data },
+                      {
+                        onSuccess: () => {
+                          const termoOriginal = terms.find((t) => t.id === id);
+                          if (termoOriginal) {
+                            gerarLancamentoAutomaticoParaTermo({ ...termoOriginal, ...data });
+                          }
+                        },
+                        onError: (err: any) => {
+                          alert(`Não foi possível salvar a assinatura: ${err?.message || err}`);
+                        },
+                      }
+                    );
                   }}
                   userRole={userRole}
                   userEmail={userEmail}
