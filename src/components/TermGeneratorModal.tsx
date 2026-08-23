@@ -182,6 +182,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       signatureDataUrl: signatureDataUrl || undefined,
       paymentMode: formaPagamento,
       installmentsCount: formaPagamento === 'parcelado' ? numeroParcelasEscolhido : 1,
+      paymentDate: dataPagamento || undefined,
       content: textContent,
       htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-8 bg-white border border-slate-300 rounded-lg max-w-2xl mx-auto shadow-sm">
         <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContentDestacado}</div>

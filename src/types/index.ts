@@ -176,6 +176,7 @@ export interface Term {
   signatureDataUrl?: string;
   paymentMode?: 'unica' | 'parcelado';
   installmentsCount?: number;
+  paymentDate?: string;
   content?: string;
   htmlContent?: string;
   createdBy?: string;

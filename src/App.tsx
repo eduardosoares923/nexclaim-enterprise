@@ -326,7 +326,7 @@ export const App: React.FC = () => {
           installmentsCount: numParcelas,
           installmentValue: Math.round((total / numParcelas) * 100) / 100,
           paidInstallments: 0,
-          firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
+          firstDueDate: term.paymentDate || fine.dueDate || new Date().toISOString().split('T')[0],
           status: 'Pendente',
           notes: `Placa: ${fine.vehiclePlate}`,
         });

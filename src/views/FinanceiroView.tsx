@@ -180,6 +180,8 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       // 2. Gera para Fines
       for (const fine of candidatosAuto.fines) {
         const total = fine.amount || 0;
+        const termoDaMulta = terms.find((t) => t.fineId === fine.id && t.status === 'Assinado');
+        const numParcelas = termoDaMulta?.installmentsCount || 1;
         await onSaveEntry({
           driverName: fine.driverName || 'Condutor Não Informado',
           originType: 'Multa',
@@ -189,10 +191,10 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           originDetail: limparDescricaoMulta(fine.description),
           direction: 'Cobrar',
           totalAmount: total,
-          installmentsCount: 1,
-          installmentValue: total,
+          installmentsCount: numParcelas,
+          installmentValue: Math.round((total / numParcelas) * 100) / 100,
           paidInstallments: 0,
-          firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
+          firstDueDate: termoDaMulta?.paymentDate || fine.dueDate || new Date().toISOString().split('T')[0],
           status: 'Pendente',
           notes: `Placa: ${fine.vehiclePlate}`,
         });
