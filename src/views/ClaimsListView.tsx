@@ -495,6 +495,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             <span>Exportar (.xlsx)</span>
           </button>
 
+          <button
+            onClick={() => setShowPdfModal(true)}
+            className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition active:scale-95 cursor-pointer"
+            title="Gerar relatório de sinistros em PDF (A4)"
+          >
+            <i className="fa-solid fa-file-pdf text-xs text-rose-500"></i>
+            <span>Exportar (PDF)</span>
+          </button>
+
           {permissoes.podeCriar && (
             <button
               onClick={() => setShowNewClaimModal(true)}
