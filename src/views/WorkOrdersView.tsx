@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Vehicle, Person, Claim, RoleType } from '../types';
 import { extractTextFromPdf, extrairItensDoTexto, firebaseService } from '../services/firebase';
 import { SignaturePad } from '../components/SignaturePad';
+import { Combobox } from '../components/Combobox';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
@@ -110,7 +111,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   const [newClientPhone, setNewClientPhone] = useState<string>('');
   const [newClientEmail, setNewClientEmail] = useState<string>('');
   const [newPlate, setNewPlate] = useState(vehicles[0]?.plate || 'JCO8C10');
-  const [newDriver, setNewDriver] = useState(people[0]?.name || 'ANDREIA MERCEDES ROCHA DE ARAUJO');
+  const [newDriver, setNewDriver] = useState(people[0]?.name || '');
   const [newWorkshop, setNewWorkshop] = useState('Oficina Central Trans Pinho Gravataí');
   const [newStatus, setNewStatus] = useState<WorkOrder['status']>('Orçamento');
   const [newPaymentPhone, setNewPaymentPhone] = useState<string>('');
@@ -862,35 +863,18 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Veículo / Prefixo *</label>
-                  <select
-                    value={newPlate}
-                    onChange={(e) => setNewPlate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-semibold text-slate-900"
-                  >
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.plate}>
-                        {v.plate} • Prefixo {v.prefix} ({v.model})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Condutor *</label>
-                  <select
-                    value={newDriver}
-                    onChange={(e) => setNewDriver(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white font-semibold text-slate-900"
-                  >
-                    {people.map((p) => (
-                      <option key={p.id} value={p.name}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Veículo / Prefixo *</label>
+                <Combobox
+                  value={newPlate}
+                  onChange={setNewPlate}
+                  placeholder="Selecione da lista ou digite a placa"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 uppercase font-mono font-semibold text-slate-900"
+                  options={[...vehicles].sort((a, b) => a.plate.localeCompare(b.plate, 'pt-BR')).map((v) => ({
+                    value: v.plate,
+                    label: `Prefixo ${v.prefix} (${v.model})`,
+                  }))}
+                />
               </div>
 
               <div className={editingOrder ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : ''}>
