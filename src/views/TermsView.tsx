@@ -4,7 +4,6 @@ import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../typ
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
-import { SignaturePad } from '../components/SignaturePad';
 
 interface TermsViewProps {
   terms: Term[];
@@ -37,8 +36,6 @@ export const TermsView: React.FC<TermsViewProps> = ({
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [viewingTerm, setViewingTerm] = useState<Term | null>(null);
-  const [assinandoTerm, setAssinandoTerm] = useState<Term | null>(null);
-  const [assinaturaTemp, setAssinaturaTemp] = useState<string | null>(null);
 
   // Template Quick-Launch cards (5 Modelos Oficiais Trans Pinho)
   const officialModels = [
@@ -277,9 +274,15 @@ export const TermsView: React.FC<TermsViewProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                   {onUpdateTerm && term.status !== 'Assinado' && (
                     <button
-                      onClick={() => {
-                        setAssinaturaTemp(null);
-                        setAssinandoTerm(term);
+                      onClick={async () => {
+                        const ok = await confirmar({
+                          title: 'Confirmar Assinatura',
+                          message: `Confirmar que "${term.involvedPerson}" assinou o termo "${term.title}"?`,
+                          confirmLabel: 'Marcar como Assinado',
+                        });
+                        if (ok) {
+                          onUpdateTerm(term.id, { status: 'Assinado' });
+                        }
                       }}
                       className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow-2xs transition"
                     >
@@ -438,50 +441,6 @@ export const TermsView: React.FC<TermsViewProps> = ({
             </div>
           </div>
         </div>
-      )}
-
-      {assinandoTerm && createPortal(
-        <div
-          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
-          onClick={() => setAssinandoTerm(null)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
-              <i className="fa-solid fa-signature text-amber-500"></i>
-              Assinatura de {assinandoTerm.involvedPerson}
-            </h3>
-            <SignaturePad value={assinaturaTemp} onChange={setAssinaturaTemp} />
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-              <button
-                onClick={() => setAssinandoTerm(null)}
-                className="btn btn-secondary text-xs px-4 py-2"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  if (!assinaturaTemp) {
-                    alert('Peça para o condutor desenhar a assinatura antes de confirmar.');
-                    return;
-                  }
-                  onUpdateTerm?.(assinandoTerm.id, {
-                    status: 'Assinado',
-                    signatureDataUrl: assinaturaTemp,
-                  });
-                  setAssinandoTerm(null);
-                }}
-                className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2 shadow-sm"
-              >
-                <i className="fa-solid fa-check mr-1"></i>
-                Confirmar Assinatura
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
       )}
     </div>
   );
