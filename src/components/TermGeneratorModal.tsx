@@ -221,7 +221,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
         <div className="flex justify-between items-center border-b border-slate-200 pb-3">
           <div>
             <span className="badge bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded font-black uppercase">
-              Gerador Automático Baseado em Templates (Requisitos 13 - 20)
+              Gerador Automático Baseado em Templates
             </span>
             <h3 className="font-bold text-slate-900 text-base mt-0.5">
               Emitir Termo Oficial - {claim?.claimNumber || 'Novo Documento'}
@@ -250,17 +250,26 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
         )}
 
         {/* Indicador de Progresso (3 Passos) */}
-        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
-          {[1, 2, 3].map((n) => (
+        <div className="flex items-center gap-2">
+          {[
+            { n: 1, label: 'Dados' },
+            { n: 2, label: 'Revisão' },
+            { n: 3, label: 'Assinatura' },
+          ].map(({ n, label }) => (
             <React.Fragment key={n}>
-              <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                  step === n ? 'bg-amber-500 text-slate-950' : step > n ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
-                }`}
-              >
-                {step > n ? <i className="fa-solid fa-check"></i> : n}
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition ${
+                    step === n ? 'bg-amber-500 text-slate-950 ring-4 ring-amber-100' : step > n ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {step > n ? <i className="fa-solid fa-check"></i> : n}
+                </div>
+                <span className={`text-[9px] font-bold uppercase ${step === n ? 'text-amber-600' : 'text-slate-400'}`}>
+                  {label}
+                </span>
               </div>
-              {n < 3 && <div className={`flex-1 h-0.5 ${step > n ? 'bg-emerald-500' : 'bg-slate-200'}`} />}
+              {n < 3 && <div className={`flex-1 h-0.5 mb-4 ${step > n ? 'bg-emerald-500' : 'bg-slate-200'}`} />}
             </React.Fragment>
           ))}
         </div>

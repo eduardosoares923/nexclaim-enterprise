@@ -97,27 +97,47 @@ export const TermsView: React.FC<TermsViewProps> = ({
 
       {/* KPIs do módulo de Documentos */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total de Termos</span>
-          <p className="text-2xl font-black text-slate-900 mt-1">{terms.length}</p>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+            <i className="fa-solid fa-file-lines"></i>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total de Termos</span>
+            <p className="text-2xl font-black text-slate-900">{terms.length}</p>
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assinados</span>
-          <p className="text-2xl font-black text-emerald-600 mt-1">
-            {terms.filter((t) => t.status === 'Assinado').length}
-          </p>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm shrink-0">
+            <i className="fa-solid fa-signature"></i>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assinados</span>
+            <p className="text-2xl font-black text-emerald-600">
+              {terms.filter((t) => t.status === 'Assinado').length}
+            </p>
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Aguardando Assinatura</span>
-          <p className="text-2xl font-black text-amber-600 mt-1">
-            {terms.filter((t) => t.status === 'Gerado').length}
-          </p>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm shrink-0">
+            <i className="fa-solid fa-hourglass-half"></i>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Aguardando Assinatura</span>
+            <p className="text-2xl font-black text-amber-600">
+              {terms.filter((t) => t.status === 'Gerado').length}
+            </p>
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Emitidos Este Mês</span>
-          <p className="text-2xl font-black text-blue-600 mt-1">
-            {terms.filter((t) => t.date && t.date.startsWith(new Date().toISOString().slice(0, 7))).length}
-          </p>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm shrink-0">
+            <i className="fa-solid fa-calendar-check"></i>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Emitidos Este Mês</span>
+            <p className="text-2xl font-black text-blue-600">
+              {terms.filter((t) => t.date && t.date.startsWith(new Date().toISOString().slice(0, 7))).length}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -137,9 +157,9 @@ export const TermsView: React.FC<TermsViewProps> = ({
               <div
                 key={idx}
                 onClick={() => onOpenTermGenerator(claims[0], m.title)}
-                className="group p-3.5 bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400/80 rounded-xl cursor-pointer transition-all duration-150 flex items-start gap-3 shadow-2xs hover:shadow-xs"
+                className="group p-3.5 bg-slate-50 hover:bg-white border border-slate-200 hover:border-amber-400/80 hover:shadow-md rounded-xl cursor-pointer transition-all duration-150 flex items-start gap-3 shadow-2xs hover:-translate-y-0.5"
               >
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 flex items-center justify-center text-sm font-bold transition">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/10 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 flex items-center justify-center text-sm font-bold transition shrink-0">
                   <i className={`fa-solid ${m.icon}`}></i>
                 </div>
                 <div className="min-w-0 flex-1">
@@ -227,7 +247,13 @@ export const TermsView: React.FC<TermsViewProps> = ({
             {filteredTerms.map((term) => (
               <div
                 key={term.id}
-                className="p-4 hover:bg-slate-50/80 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className={`p-4 hover:bg-slate-50/80 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 ${
+                  term.status === 'Assinado'
+                    ? 'border-l-emerald-400'
+                    : term.status === 'Gerado'
+                    ? 'border-l-blue-400'
+                    : 'border-l-slate-200'
+                }`}
               >
                 <div className="space-y-1.5 min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -368,6 +394,19 @@ export const TermsView: React.FC<TermsViewProps> = ({
 
             {/* Document Sheet (Standard Trans Pinho Format) */}
             <div className="trans-pinho-doc p-4 sm:p-8 md:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
+              {/* Cabeçalho / Timbrado da Empresa */}
+              <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
+                <h1 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-950">
+                  JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
+                </h1>
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                  Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
+                </p>
+                <p className="text-[11px] text-slate-600">
+                  Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
+                </p>
+              </div>
+
               {/* Content Body */}
               <div className="text-xs sm:text-sm font-serif text-slate-900 leading-relaxed">
                 {(() => {
@@ -409,9 +448,18 @@ export const TermsView: React.FC<TermsViewProps> = ({
                       return <div key={idx} className="h-3" />;
                     }
 
+                    // Item de lista com marcador, ex: "- Placa: {{placa}}"
+                    if (/^-\s+/.test(trimmed)) {
+                      return (
+                        <p key={idx} className="text-justify mb-1.5 pl-5 relative before:content-['•'] before:absolute before:left-1 before:text-slate-500">
+                          {trimmed.replace(/^-\s+/, '')}
+                        </p>
+                      );
+                    }
+
                     // Parágrafo normal
                     return (
-                      <p key={idx} className="text-justify mb-2">
+                      <p key={idx} className="text-justify mb-3 indent-6">
                         {line}
                       </p>
                     );
@@ -425,19 +473,6 @@ export const TermsView: React.FC<TermsViewProps> = ({
                   <p className="text-[10px] text-slate-600 mt-1">Assinatura do Condutor</p>
                 </div>
               )}
-
-              {/* Official Trans Pinho Footer (Mover de cima para rodapé) */}
-              <div className="text-center border-t-2 border-slate-900 pt-4 mt-8">
-                <h1 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-950">
-                  JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
-                </h1>
-                <p className="text-[11px] text-slate-600 mt-0.5">
-                  Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
-                </p>
-                <p className="text-[11px] text-slate-600">
-                  Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
-                </p>
-              </div>
             </div>
           </div>
         </div>
