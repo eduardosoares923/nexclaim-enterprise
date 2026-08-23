@@ -119,7 +119,6 @@ export interface Claim {
   thirdPartyName?: string;
   occurrenceTime?: string;
   caseDetail?: string;
-  attachments?: { name: string; url: string; uploadedAt: string }[];
   createdBy?: string;
 }
 

@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Claim, Person, Vehicle, Term } from '../types';
 import { formatarDataHoraBr } from '../utils/dateUtils';
-import { firebaseService } from '../services/firebase';
 
 interface ClaimDetailModalProps {
   claim: Claim;
@@ -11,7 +10,6 @@ interface ClaimDetailModalProps {
   terms: Term[];
   onClose: () => void;
   onOpenTermGenerator: (claim: Claim) => void;
-  onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
 }
 
 export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
@@ -21,31 +19,8 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
   terms,
   onClose,
   onOpenTermGenerator,
-  onUpdateClaim,
 }) => {
   const [activeTab, setActiveTab] = useState<'geral' | 'avarias' | 'termos' | 'documentos'>('geral');
-  const [enviandoArquivo, setEnviandoArquivo] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const handleUploadArquivo = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setEnviandoArquivo(true);
-    try {
-      const url = await firebaseService.uploadFile(file, `sinistros/${claim.id}`);
-      const novoAnexo = { name: file.name, url, uploadedAt: new Date().toISOString() };
-      onUpdateClaim?.(claim.id, { attachments: [...(claim.attachments || []), novoAnexo] });
-    } catch (err: any) {
-      alert(`Não foi possível enviar o arquivo: ${err?.message || err}`);
-    } finally {
-      setEnviandoArquivo(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleRemoverArquivo = (url: string) => {
-    onUpdateClaim?.(claim.id, { attachments: (claim.attachments || []).filter((a) => a.url !== url) });
-  };
 
   const relatedTerms = terms.filter((t) => t.claimId === claim.id);
   const matchedVehicle = vehicles.find((v) => v.plate === claim.vehiclePlate);
@@ -383,56 +358,13 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
 
           {activeTab === 'documentos' && (
             <div className="space-y-4">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleUploadArquivo}
-                accept="image/*,.pdf"
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={enviandoArquivo}
-                className="w-full p-8 text-center bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 rounded-xl space-y-2 transition cursor-pointer disabled:opacity-60"
-              >
-                <i className={`fa-solid ${enviandoArquivo ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'} text-3xl text-slate-400`}></i>
-                <p className="text-xs font-bold text-slate-700">
-                  {enviandoArquivo ? 'Enviando arquivo...' : 'Clique para enviar foto ou PDF'}
-                </p>
+              <div className="p-8 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl space-y-2">
+                <i className="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                <p className="text-xs font-bold text-slate-700">Galeria de Mídias & Evidências do Sinistro</p>
                 <p className="text-[11px] text-slate-400">
-                  Fotos das avarias, comprovantes e cópia do Boletim de Ocorrência sincronizados com o Firebase Storage.
+                  Recurso em standby — upload de fotos e anexos ainda será implementado.
                 </p>
-              </button>
-
-              {claim.attachments && claim.attachments.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {claim.attachments.map((anexo) => (
-                    <div key={anexo.url} className="relative group border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-                      <a href={anexo.url} target="_blank" rel="noopener noreferrer" className="block">
-                        {/\.(jpg|jpeg|png|gif|webp)$/i.test(anexo.name) ? (
-                          <img src={anexo.url} alt={anexo.name} className="w-full h-28 object-cover" />
-                        ) : (
-                          <div className="w-full h-28 flex items-center justify-center">
-                            <i className="fa-solid fa-file-pdf text-3xl text-rose-400"></i>
-                          </div>
-                        )}
-                      </a>
-                      <p className="text-[10px] text-slate-600 p-1.5 truncate" title={anexo.name}>{anexo.name}</p>
-                      {onUpdateClaim && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoverArquivo(anexo.url)}
-                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-slate-900/70 text-white opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer"
-                          title="Remover anexo"
-                        >
-                          <i className="fa-solid fa-xmark text-xs"></i>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
