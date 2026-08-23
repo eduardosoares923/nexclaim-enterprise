@@ -147,6 +147,15 @@ export interface Fine {
   createdBy?: string;
 }
 
+export type BlocoTipo = 'titulo' | 'secao' | 'paragrafo' | 'item' | 'assinatura' | 'espaco';
+
+export interface BlocoDocumento {
+  id: string;
+  tipo: BlocoTipo;
+  texto: string;
+  nivel?: number; // usado só em 'item': 0 = primeiro nível, 1 = subitem, 2 = sub-subitem
+}
+
 export interface DocumentTemplate {
   id: string;
   name: string;
@@ -158,6 +167,7 @@ export interface DocumentTemplate {
   };
   isActive: boolean;
   content: string;
+  blocos?: BlocoDocumento[];
   availableVariables: string[];
   createdBy?: string;
 }
