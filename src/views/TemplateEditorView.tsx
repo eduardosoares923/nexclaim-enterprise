@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { DocumentTemplate, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
 import { BlocosPreview } from '../components/BlocosPreview';
-import { garantirBlocos } from '../utils/documentoBlocos';
+import { BlocosEditor } from '../components/BlocosEditor';
+import { garantirBlocos, blocosParaTexto } from '../utils/documentoBlocos';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -22,6 +23,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
   const permissoes = usePermissions(userRole, userEmail);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
+  const [blocoFocado, setBlocoFocado] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<DocumentTemplate>>({
     name: '',
     category: 'Responsabilidade',
@@ -64,61 +66,40 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
   const handleStartEdit = (t: DocumentTemplate) => {
     setSelectedTemplate(t);
-    setEditForm(t);
+    setEditForm({ ...t, blocos: garantirBlocos(t) });
     setIsEditing(true);
   };
 
   const handleInsertVariable = (v: string) => {
-    setEditForm((prev) => ({
-      ...prev,
-      content: (prev.content || '') + ' ' + v,
-    }));
+    setEditForm((prev) => {
+      const blocosAtuais = garantirBlocos({ blocos: prev.blocos, content: prev.content || '' });
+      const alvo = blocoFocado || blocosAtuais[blocosAtuais.length - 1]?.id;
+      const novos = blocosAtuais.map((b) =>
+        b.id === alvo ? { ...b, texto: `${b.texto}${b.texto ? ' ' : ''}${v}` } : b
+      );
+      return { ...prev, blocos: novos, content: blocosParaTexto(novos) };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editForm.name || !editForm.content) return;
+    if (!editForm.name) return;
+    const blocosFinais = garantirBlocos({ blocos: editForm.blocos, content: editForm.content || '' });
+    const textoFinal = blocosParaTexto(blocosFinais);
+    if (!textoFinal.trim()) return;
     const newTmpl: DocumentTemplate = {
       id: editForm.id || `tmpl-${Date.now()}`,
       name: editForm.name,
       category: editForm.category || 'Responsabilidade',
       conditionRules: editForm.conditionRules || {},
       isActive: editForm.isActive !== undefined ? editForm.isActive : true,
-      content: editForm.content,
+      content: textoFinal,
+      blocos: blocosFinais,
       availableVariables: editForm.availableVariables || [],
     };
     onSaveTemplate(newTmpl);
     setSelectedTemplate(newTmpl);
     setIsEditing(false);
-  };
-
-  const handleTabNaTextarea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key !== 'Tab') return;
-    e.preventDefault();
-
-    const textarea = e.currentTarget;
-    const { selectionStart, selectionEnd, value } = textarea;
-    const inicioLinha = value.lastIndexOf('\n', selectionStart - 1) + 1;
-
-    if (e.shiftKey) {
-      // Shift+Tab: remove até 2 espaços do início da linha
-      const linhaAtual = value.slice(inicioLinha, selectionStart);
-      const espacosARemover = linhaAtual.match(/^ {1,2}/)?.[0].length || 0;
-      if (espacosARemover > 0) {
-        const novoValor = value.slice(0, inicioLinha) + value.slice(inicioLinha + espacosARemover);
-        setEditForm({ ...editForm, content: novoValor });
-        requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = selectionStart - espacosARemover;
-        });
-      }
-    } else {
-      // Tab: adiciona 2 espaços no início da linha
-      const novoValor = value.slice(0, inicioLinha) + '  ' + value.slice(inicioLinha);
-      setEditForm({ ...editForm, content: novoValor });
-      requestAnimationFrame(() => {
-        textarea.selectionStart = textarea.selectionEnd = selectionEnd + 2;
-      });
-    }
   };
 
   return (
@@ -265,15 +246,19 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <div>
-                  <label className="form-label text-xs">Conteúdo do Modelo (com variáveis {'{{variavel}}'}) *</label>
-                  <textarea
-                    rows={18}
-                    value={editForm.content}
-                    onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                    onKeyDown={handleTabNaTextarea}
-                    className="form-textarea font-mono text-[11px] leading-6 min-h-[380px]"
-                    required
-                  />
+                  <label className="form-label text-xs flex items-center gap-1.5">
+                    <i className="fa-solid fa-layer-group text-amber-500"></i>
+                    Blocos do Documento
+                  </label>
+                  <div className="border border-slate-200 rounded-lg bg-slate-50/50 p-2.5 max-h-[480px] overflow-y-auto">
+                    <BlocosEditor
+                      blocos={garantirBlocos({ blocos: editForm.blocos, content: editForm.content || '' })}
+                      onChange={(novos) =>
+                        setEditForm({ ...editForm, blocos: novos, content: blocosParaTexto(novos) })
+                      }
+                      onFocoBloco={setBlocoFocado}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="form-label text-xs flex items-center gap-1.5">
