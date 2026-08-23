@@ -193,7 +193,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           paidInstallments: 0,
           firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
           status: 'Pendente',
-          notes: `Placa: ${fine.vehiclePlate} | Vencimento: ${formatarDataBr(fine.dueDate)}`,
+          notes: fine.dueDate ? `Placa: ${fine.vehiclePlate} | Vencimento: ${formatarDataBr(fine.dueDate)}` : `Placa: ${fine.vehiclePlate}`,
         });
       }
 
@@ -762,8 +762,12 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                                   )}
                                 </div>
                                 {entry.notes && (
-                                  <div className="text-[10px] text-slate-500 italic mt-0.5 truncate max-w-xs" title={entry.notes}>
-                                    "{entry.notes}"
+                                  <div
+                                    className="inline-flex items-center gap-1 text-[10px] text-slate-600 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 mt-1 truncate max-w-xs"
+                                    title={entry.notes}
+                                  >
+                                    <i className="fa-solid fa-note-sticky text-slate-400"></i>
+                                    {entry.notes}
                                   </div>
                                 )}
                               </td>

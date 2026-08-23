@@ -60,6 +60,7 @@ import {
   RoleType,
 } from './types';
 import { usePermissions } from './hooks/usePermissions';
+import { formatarDataBr } from './utils/dateUtils';
 
 export const App: React.FC = () => {
   const navigate = useNavigate();
@@ -275,7 +276,7 @@ export const App: React.FC = () => {
     navigate('/termos');
   };
 
-  const gerarLancamentoAutomaticoParaTermo = (term: Term) => {
+  const gerarLancamentoAutomaticoParaTermo = async (term: Term) => {
     if (term.status !== 'Assinado') return;
 
     const jaExiste = financialEntries.some(
@@ -283,49 +284,53 @@ export const App: React.FC = () => {
     );
     if (jaExiste) return;
 
-    if (term.claimId) {
-      const claim = claims.find((c) => c.id === term.claimId);
-      if (!claim) return;
-      const total = claim.totalValue || claim.approvedCost || claim.estimatedCost || 0;
-      if (total <= 0) return;
-      createFinancialEntryMutation.mutate({
-        driverName: claim.driverName || 'Condutor Não Informado',
-        originType: 'Sinistro',
-        originId: claim.id,
-        originLabel: claim.claimNumber,
-        description: `Sinistro ${claim.claimNumber} - ${claim.occurrenceType || 'Ocorrência'}`,
-        direction: (claim.paymentDirection as 'Cobrar' | 'Pagar') || 'Cobrar',
-        totalAmount: total,
-        installmentsCount: 1,
-        installmentValue: total,
-        paidInstallments: 0,
-        firstDueDate: claim.date || new Date().toISOString().split('T')[0],
-        status: 'Pendente',
-        notes: claim.description ? `Sinistro: ${claim.description.slice(0, 150)}` : undefined,
-      });
-      return;
-    }
+    try {
+      if (term.claimId) {
+        const claim = claims.find((c) => c.id === term.claimId);
+        if (!claim) return;
+        const total = claim.totalValue || claim.approvedCost || claim.estimatedCost || 0;
+        if (total <= 0) return;
+        await createFinancialEntryMutation.mutateAsync({
+          driverName: claim.driverName || 'Condutor Não Informado',
+          originType: 'Sinistro',
+          originId: claim.id,
+          originLabel: claim.claimNumber,
+          description: `Sinistro ${claim.claimNumber} - ${claim.occurrenceType || 'Ocorrência'}`,
+          direction: (claim.paymentDirection as 'Cobrar' | 'Pagar') || 'Cobrar',
+          totalAmount: total,
+          installmentsCount: 1,
+          installmentValue: total,
+          paidInstallments: 0,
+          firstDueDate: claim.date || new Date().toISOString().split('T')[0],
+          status: 'Pendente',
+          notes: claim.description ? `Sinistro: ${claim.description.slice(0, 150)}` : undefined,
+        });
+        return;
+      }
 
-    if (term.fineId) {
-      const fine = fines.find((f) => f.id === term.fineId);
-      if (!fine) return;
-      const total = fine.amount || 0;
-      if (total <= 0) return;
-      createFinancialEntryMutation.mutate({
-        driverName: fine.driverName || 'Condutor Não Informado',
-        originType: 'Multa',
-        originId: fine.id,
-        originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-        description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${fine.description || 'Infração de Trânsito'}`,
-        direction: 'Cobrar',
-        totalAmount: total,
-        installmentsCount: 1,
-        installmentValue: total,
-        paidInstallments: 0,
-        firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
-        status: 'Pendente',
-        notes: `Placa: ${fine.vehiclePlate}`,
-      });
+      if (term.fineId) {
+        const fine = fines.find((f) => f.id === term.fineId);
+        if (!fine) return;
+        const total = fine.amount || 0;
+        if (total <= 0) return;
+        await createFinancialEntryMutation.mutateAsync({
+          driverName: fine.driverName || 'Condutor Não Informado',
+          originType: 'Multa',
+          originId: fine.id,
+          originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
+          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${fine.description || 'Infração de Trânsito'}`,
+          direction: 'Cobrar',
+          totalAmount: total,
+          installmentsCount: 1,
+          installmentValue: total,
+          paidInstallments: 0,
+          firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
+          status: 'Pendente',
+          notes: fine.dueDate ? `Placa: ${fine.vehiclePlate} | Vencimento: ${formatarDataBr(fine.dueDate)}` : `Placa: ${fine.vehiclePlate}`,
+        });
+      }
+    } catch (err: any) {
+      alert(`Não foi possível gerar o lançamento financeiro automaticamente para este termo: ${err?.message || err}. Vá em Financeiro e use o botão "Gerar Lançamentos Automaticamente" pra tentar de novo.`);
     }
   };
 
