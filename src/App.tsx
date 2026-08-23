@@ -270,8 +270,63 @@ export const App: React.FC = () => {
   const handleGenerateTerm = (newTerm: Term) => {
     const { id, ...termData } = newTerm;
     createTermMutation.mutate(termData);
+    gerarLancamentoAutomaticoParaTermo(newTerm);
     setShowTermGenModal(false);
     navigate('/termos');
+  };
+
+  const gerarLancamentoAutomaticoParaTermo = (term: Term) => {
+    if (term.status !== 'Assinado') return;
+
+    const jaExiste = financialEntries.some(
+      (e) => e.originId === term.claimId || e.originId === term.fineId
+    );
+    if (jaExiste) return;
+
+    if (term.claimId) {
+      const claim = claims.find((c) => c.id === term.claimId);
+      if (!claim) return;
+      const total = claim.totalValue || claim.approvedCost || claim.estimatedCost || 0;
+      if (total <= 0) return;
+      createFinancialEntryMutation.mutate({
+        driverName: claim.driverName || 'Condutor Não Informado',
+        originType: 'Sinistro',
+        originId: claim.id,
+        originLabel: claim.claimNumber,
+        description: `Sinistro ${claim.claimNumber} - ${claim.occurrenceType || 'Ocorrência'}`,
+        direction: (claim.paymentDirection as 'Cobrar' | 'Pagar') || 'Cobrar',
+        totalAmount: total,
+        installmentsCount: 1,
+        installmentValue: total,
+        paidInstallments: 0,
+        firstDueDate: claim.date || new Date().toISOString().split('T')[0],
+        status: 'Pendente',
+        notes: claim.description ? `Sinistro: ${claim.description.slice(0, 150)}` : undefined,
+      });
+      return;
+    }
+
+    if (term.fineId) {
+      const fine = fines.find((f) => f.id === term.fineId);
+      if (!fine) return;
+      const total = fine.amount || 0;
+      if (total <= 0) return;
+      createFinancialEntryMutation.mutate({
+        driverName: fine.driverName || 'Condutor Não Informado',
+        originType: 'Multa',
+        originId: fine.id,
+        originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
+        description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${fine.description || 'Infração de Trânsito'}`,
+        direction: 'Cobrar',
+        totalAmount: total,
+        installmentsCount: 1,
+        installmentValue: total,
+        paidInstallments: 0,
+        firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
+        status: 'Pendente',
+        notes: `Placa: ${fine.vehiclePlate}`,
+      });
+    }
   };
 
   const handleSaveTemplate = (updatedTemplate: DocumentTemplate) => {
@@ -428,7 +483,10 @@ export const App: React.FC = () => {
                   people={people}
                   infractionTypes={infractionTypes}
                   templates={templates}
-                  onGenerateTerm={(term) => createTermMutation.mutate(term as any)}
+                  onGenerateTerm={(term) => {
+                    createTermMutation.mutate(term as any);
+                    gerarLancamentoAutomaticoParaTermo(term);
+                  }}
                   onSaveFine={(newFine) => {
                     const { id, ...data } = newFine;
                     createFineMutation.mutate(data);

@@ -111,8 +111,12 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       financialEntries.filter((e) => e.originId).map((e) => e.originId)
     );
 
-    const claimsComTermo = new Set(terms.filter((t) => t.claimId).map((t) => t.claimId));
-    const finesComTermo = new Set(terms.filter((t) => t.fineId).map((t) => t.fineId));
+    const claimsComTermo = new Set(
+      terms.filter((t) => t.claimId && t.status === 'Assinado').map((t) => t.claimId)
+    );
+    const finesComTermo = new Set(
+      terms.filter((t) => t.fineId && t.status === 'Assinado').map((t) => t.fineId)
+    );
 
     const claimsCandidatos = claims.filter((c) => {
       if (existingOriginIds.has(c.id)) return false;
