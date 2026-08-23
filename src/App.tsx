@@ -527,6 +527,13 @@ export const App: React.FC = () => {
                     setShowTermGenModal(true);
                   }}
                   onDeleteTerm={(id) => deleteTermMutation.mutate(id)}
+                  onUpdateTerm={(id, data) => {
+                    updateTermMutation.mutate({ id, data });
+                    const termoOriginal = terms.find((t) => t.id === id);
+                    if (termoOriginal) {
+                      gerarLancamentoAutomaticoParaTermo({ ...termoOriginal, ...data });
+                    }
+                  }}
                   userRole={userRole}
                   userEmail={userEmail}
                 />

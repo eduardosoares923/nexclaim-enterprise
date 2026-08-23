@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../types';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { SignaturePad } from '../components/SignaturePad';
 
 interface TermsViewProps {
   terms: Term[];
@@ -12,6 +14,7 @@ interface TermsViewProps {
   templates: DocumentTemplate[];
   onOpenTermGenerator: (claim?: Claim, templateName?: string) => void;
   onDeleteTerm?: (id: string) => void;
+  onUpdateTerm?: (id: string, data: Partial<Term>) => void;
   userRole?: RoleType;
   userEmail?: string;
 }
@@ -24,6 +27,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
   templates,
   onOpenTermGenerator,
   onDeleteTerm,
+  onUpdateTerm,
   userRole,
   userEmail,
 }) => {
@@ -33,6 +37,8 @@ export const TermsView: React.FC<TermsViewProps> = ({
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [viewingTerm, setViewingTerm] = useState<Term | null>(null);
+  const [assinandoTerm, setAssinandoTerm] = useState<Term | null>(null);
+  const [assinaturaTemp, setAssinaturaTemp] = useState<string | null>(null);
 
   // Template Quick-Launch cards (5 Modelos Oficiais Trans Pinho)
   const officialModels = [
@@ -269,6 +275,18 @@ export const TermsView: React.FC<TermsViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  {onUpdateTerm && term.status !== 'Assinado' && (
+                    <button
+                      onClick={() => {
+                        setAssinaturaTemp(null);
+                        setAssinandoTerm(term);
+                      }}
+                      className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow-2xs transition"
+                    >
+                      <i className="fa-solid fa-signature"></i>
+                      <span>Assinar</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => setViewingTerm(term)}
                     className="btn bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow-2xs transition"
@@ -420,6 +438,50 @@ export const TermsView: React.FC<TermsViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {assinandoTerm && createPortal(
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setAssinandoTerm(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <i className="fa-solid fa-signature text-amber-500"></i>
+              Assinatura de {assinandoTerm.involvedPerson}
+            </h3>
+            <SignaturePad value={assinaturaTemp} onChange={setAssinaturaTemp} />
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                onClick={() => setAssinandoTerm(null)}
+                className="btn btn-secondary text-xs px-4 py-2"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (!assinaturaTemp) {
+                    alert('Peça para o condutor desenhar a assinatura antes de confirmar.');
+                    return;
+                  }
+                  onUpdateTerm?.(assinandoTerm.id, {
+                    status: 'Assinado',
+                    signatureDataUrl: assinaturaTemp,
+                  });
+                  setAssinandoTerm(null);
+                }}
+                className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2 shadow-sm"
+              >
+                <i className="fa-solid fa-check mr-1"></i>
+                Confirmar Assinatura
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
