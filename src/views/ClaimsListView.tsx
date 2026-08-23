@@ -52,7 +52,18 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [occurrenceTypeFilter, setOccurrenceTypeFilter] = useState('');
   const [caseDetailFilter, setCaseDetailFilter] = useState('');
   const [sortBy, setSortBy] = useState<'data-desc' | 'data-asc' | 'nome' | 'placa'>('data-desc');
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>(
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'table'
+  );
+
+  const jaAjustouViewMode = useRef(false);
+  useEffect(() => {
+    if (jaAjustouViewMode.current) return;
+    jaAjustouViewMode.current = true;
+    if (window.innerWidth < 768) {
+      setViewMode('grid');
+    }
+  }, []);
 
   const [selectedClaimDetail, setSelectedClaimDetail] = useState<Claim | null>(null);
   const [showNewClaimModal, setShowNewClaimModal] = useState(false);
