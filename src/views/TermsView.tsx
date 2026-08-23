@@ -4,6 +4,7 @@ import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../typ
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { DocumentPreview } from '../components/DocumentPreview';
 
 interface TermsViewProps {
   terms: Term[];
@@ -408,71 +409,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
               </div>
 
               {/* Content Body */}
-              <div className="text-xs sm:text-sm font-serif text-slate-900 leading-relaxed">
-                {(() => {
-                  const lines = (viewingTerm.content || '').split('\n');
-                  return lines.map((line, idx) => {
-                    const trimmed = line.trim();
-
-                    // Título principal (primeira linha, ex: "TERMO DE RESPONSABILIDADE")
-                    if (idx === 0 && trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
-                      return (
-                        <h2
-                          key={idx}
-                          className="text-center font-black text-sm sm:text-base uppercase tracking-wide mb-4 pb-2 border-b-2 border-slate-900"
-                        >
-                          {trimmed}
-                        </h2>
-                      );
-                    }
-
-                    // Cabeçalho de seção numerada, ex: "1. IDENTIFICAÇÃO DO CONDUTOR" ou "I – Da ciência"
-                    if (/^\d+\.\s+[A-ZÀ-Ú\s]+$/.test(trimmed) || /^[IVX]+\s*[-–]\s+/.test(trimmed)) {
-                      return (
-                        <h3
-                          key={idx}
-                          className="font-black text-xs sm:text-sm uppercase mt-5 mb-2 pb-1 border-b border-slate-400"
-                        >
-                          {trimmed}
-                        </h3>
-                      );
-                    }
-
-                    // Linha de assinatura (sublinhado)
-                    if (/^_{10,}$/.test(trimmed)) {
-                      return <div key={idx} className="border-t border-slate-900 mt-8 pt-1" />;
-                    }
-
-                    // Linha vazia
-                    if (trimmed === '') {
-                      return <div key={idx} className="h-3" />;
-                    }
-
-                    // Item de lista com marcador, ex: "- Placa: {{placa}}"
-                    if (/^-\s+/.test(trimmed)) {
-                      return (
-                        <p key={idx} className="text-justify mb-1.5 pl-5 relative before:content-['•'] before:absolute before:left-1 before:text-slate-500">
-                          {trimmed.replace(/^-\s+/, '')}
-                        </p>
-                      );
-                    }
-
-                    // Parágrafo normal
-                    return (
-                      <p key={idx} className="text-justify mb-3 indent-6">
-                        {line}
-                      </p>
-                    );
-                  });
-                })()}
-              </div>
-
-              {viewingTerm.signatureDataUrl && (
-                <div className="text-center mt-8">
-                  <img src={viewingTerm.signatureDataUrl} alt="Assinatura" className="max-w-[220px] mx-auto border-b border-slate-900 pb-1" />
-                  <p className="text-[10px] text-slate-600 mt-1">Assinatura do Condutor</p>
-                </div>
-              )}
+              <DocumentPreview content={viewingTerm.content || ''} signatureDataUrl={viewingTerm.signatureDataUrl} />
             </div>
           </div>
         </div>

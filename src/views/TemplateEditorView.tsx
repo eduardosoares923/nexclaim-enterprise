@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DocumentTemplate, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
+import { DocumentPreview } from '../components/DocumentPreview';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -95,7 +96,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       <div className="bg-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <span className="badge bg-amber-500 text-slate-950 text-[10px] px-2.5 py-0.5 rounded font-black uppercase mb-1 inline-block">
-            Módulo Administrativo (Requisitos 17 & 22)
+            Módulo Administrativo
           </span>
           <h2 className="text-xl font-bold tracking-tight">Editor de Modelos de Documentos</h2>
           <p className="text-xs text-slate-300 mt-1">
@@ -232,15 +233,26 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 </div>
               </div>
 
-              <div>
-                <label className="form-label text-xs">Conteúdo do Modelo (com variáveis {'{{variavel}}'}) *</label>
-                <textarea
-                  rows={18}
-                  value={editForm.content}
-                  onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                  className="form-textarea font-mono text-[11px] leading-6 min-h-[320px]"
-                  required
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div>
+                  <label className="form-label text-xs">Conteúdo do Modelo (com variáveis {'{{variavel}}'}) *</label>
+                  <textarea
+                    rows={18}
+                    value={editForm.content}
+                    onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                    className="form-textarea font-mono text-[11px] leading-6 min-h-[380px]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="form-label text-xs flex items-center gap-1.5">
+                    <i className="fa-solid fa-eye text-amber-500"></i>
+                    Pré-visualização ao Vivo
+                  </label>
+                  <div className="border border-slate-200 rounded-lg bg-white p-4 min-h-[380px] max-h-[420px] overflow-y-auto trans-pinho-doc">
+                    <DocumentPreview content={editForm.content || ''} />
+                  </div>
+                </div>
               </div>
 
               <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
