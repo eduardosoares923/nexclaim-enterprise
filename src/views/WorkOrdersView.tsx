@@ -818,7 +818,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)"
+                      placeholder="Nome completo ou razão social"
                       value={newClientName}
                       onChange={(e) => setNewClientName(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -830,7 +830,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: 94.476.207/0001-80"
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
                       value={newClientDocument}
                       onChange={(e) => setNewClientDocument(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -842,7 +842,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: (051) 3047-0212 / (051) 98266-0028"
+                      placeholder="(00) 00000-0000"
                       value={newClientPhone}
                       onChange={(e) => setNewClientPhone(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -854,7 +854,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     </label>
                     <input
                       type="email"
-                      placeholder="Ex: operacional@transpinho.com"
+                      placeholder="email@exemplo.com"
                       value={newClientEmail}
                       onChange={(e) => setNewClientEmail(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -919,7 +919,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Telefone / Chave PIX</label>
                     <input
                       type="text"
-                      placeholder="Ex: (51) 99432-4224"
+                      placeholder="(00) 00000-0000"
                       value={newPaymentPhone}
                       onChange={(e) => setNewPaymentPhone(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -929,7 +929,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Banco</label>
                     <input
                       type="text"
-                      placeholder="Ex: Itaú Unibanco"
+                      placeholder="Nome do banco"
                       value={newPaymentBank}
                       onChange={(e) => setNewPaymentBank(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -939,7 +939,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                     <label className="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Titular da Conta</label>
                     <input
                       type="text"
-                      placeholder="Ex: Fabiano da Silva Vieira"
+                      placeholder="Nome do titular da conta"
                       value={newPaymentHolderName}
                       onChange={(e) => setNewPaymentHolderName(e.target.value)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded bg-white text-xs text-slate-900 font-semibold"
@@ -1169,7 +1169,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white"
-                  placeholder="Ex: Danos decorrentes de colisão traseira. Peças genuínas solicitadas."
+                  placeholder="Descreva os danos e observações relevantes"
                 ></textarea>
               </div>
 
