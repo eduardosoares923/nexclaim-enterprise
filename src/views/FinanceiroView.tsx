@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine, Term, Person, RoleType } from '../types';
 import { Combobox } from '../components/Combobox';
-import { formatarDataBr } from '../utils/dateUtils';
+import { formatarDataBr, limparDescricaoMulta } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
 
@@ -185,7 +185,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           originType: 'Multa',
           originId: fine.id,
           originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${fine.description || 'Infração de Trânsito'}`,
+          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${limparDescricaoMulta(fine.description)}`,
           direction: 'Cobrar',
           totalAmount: total,
           installmentsCount: 1,
@@ -745,7 +745,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
                               {/* Descrição & Ref */}
                               <td className="p-3.5 max-w-xs">
-                                <div className="font-bold text-slate-900 text-xs leading-snug">
+                                <div className="font-bold text-slate-900 text-xs leading-snug line-clamp-2" title={entry.description}>
                                   {entry.description}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-1.5 mt-1.5">

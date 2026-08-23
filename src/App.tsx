@@ -60,7 +60,7 @@ import {
   RoleType,
 } from './types';
 import { usePermissions } from './hooks/usePermissions';
-import { formatarDataBr } from './utils/dateUtils';
+import { formatarDataBr, limparDescricaoMulta } from './utils/dateUtils';
 
 export const App: React.FC = () => {
   const navigate = useNavigate();
@@ -319,7 +319,7 @@ export const App: React.FC = () => {
           originType: 'Multa',
           originId: fine.id,
           originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${fine.description || 'Infração de Trânsito'}`,
+          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${limparDescricaoMulta(fine.description)}`,
           direction: 'Cobrar',
           totalAmount: total,
           installmentsCount: numParcelas,

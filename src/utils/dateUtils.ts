@@ -37,3 +37,17 @@ export function formatarDataHoraBr(
   if (!horario) return dataFormatada;
   return `${dataFormatada} às ${horario}`;
 }
+
+/**
+ * Limpa a descrição de uma multa removendo prefixos redundantes (ex: MULTA.) e aplicando formato de frase.
+ */
+export function limparDescricaoMulta(desc: string | undefined): string {
+  if (!desc) return 'Infração de Trânsito';
+  let texto = desc.trim();
+  // Remove "MULTA." ou "MULTA -" ou "MULTA:" repetido no início (case-insensitive)
+  texto = texto.replace(/^multa[\s.:-]+/i, '').trim();
+  if (!texto) return 'Infração de Trânsito';
+  // Deixa em formato de frase (primeira letra maiúscula, resto minúsculo),
+  // preservando números e parênteses como estão
+  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+}
