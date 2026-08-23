@@ -319,7 +319,7 @@ export const App: React.FC = () => {
           originType: 'Multa',
           originId: fine.id,
           originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''}`,
+          description: `${fine.infractionAuto || fine.infractionCode || 'Multa'}`,
           originDetail: limparDescricaoMulta(fine.description),
           direction: 'Cobrar',
           totalAmount: total,

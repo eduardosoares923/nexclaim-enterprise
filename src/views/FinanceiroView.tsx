@@ -46,6 +46,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
   // Modal de Criação / Edição de Lançamento Manual
   const [showModal, setShowModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinancialEntry | null>(null);
+  const [origemParaVer, setOrigemParaVer] = useState<FinancialEntry | null>(null);
 
   // Formulário Modal
   const [formDriver, setFormDriver] = useState('');
@@ -187,7 +188,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           originType: 'Multa',
           originId: fine.id,
           originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''}`,
+          description: `${fine.infractionAuto || fine.infractionCode || 'Multa'}`,
           originDetail: limparDescricaoMulta(fine.description),
           direction: 'Cobrar',
           totalAmount: total,
@@ -748,9 +749,15 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
                               {/* Descrição & Ref */}
                               <td className="p-3.5 max-w-xs">
-                                <div className="font-bold text-slate-900 text-xs leading-snug">
+                                <button
+                                  type="button"
+                                  onClick={() => setOrigemParaVer(entry)}
+                                  className="font-bold text-slate-900 text-xs leading-snug hover:text-amber-600 hover:underline text-left cursor-pointer flex items-center gap-1.5"
+                                  title="Ver dados originais"
+                                >
                                   {entry.description}
-                                </div>
+                                  <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400"></i>
+                                </button>
                                 {entry.originDetail && (
                                   <div className="text-[10px] text-slate-400 truncate max-w-[220px]" title={entry.originDetail}>
                                     {entry.originDetail}
@@ -1102,6 +1109,63 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           </div>,
           document.body
         )}
+
+      {origemParaVer && createPortal(
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setOrigemParaVer(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-slate-900 px-5 py-4 flex items-center justify-between">
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <i className="fa-solid fa-file-lines text-amber-400"></i>
+                Dados Originais
+              </h3>
+              <button
+                onClick={() => setOrigemParaVer(null)}
+                className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div className="p-5 space-y-3 text-xs">
+              {origemParaVer.originType === 'Multa' ? (() => {
+                const fine = fines.find((f) => f.id === origemParaVer.originId);
+                if (!fine) return <p className="text-slate-500">Multa original não encontrada (pode ter sido excluída).</p>;
+                return (
+                  <div className="space-y-2">
+                    <p><span className="font-bold text-slate-700">Auto de Infração:</span> {fine.infractionAuto || fine.infractionCode}</p>
+                    <p><span className="font-bold text-slate-700">Descrição:</span> {fine.description}</p>
+                    <p><span className="font-bold text-slate-700">Condutor:</span> {fine.driverName}</p>
+                    <p><span className="font-bold text-slate-700">Placa:</span> {fine.vehiclePlate}</p>
+                    <p><span className="font-bold text-slate-700">Valor:</span> {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fine.amount || 0)}</p>
+                    <p><span className="font-bold text-slate-700">Pontos:</span> {fine.points}</p>
+                    <p><span className="font-bold text-slate-700">Vencimento:</span> {formatarDataBr(fine.dueDate)}</p>
+                    <p><span className="font-bold text-slate-700">Status:</span> {fine.status}</p>
+                  </div>
+                );
+              })() : (() => {
+                const claim = claims.find((c) => c.id === origemParaVer.originId);
+                if (!claim) return <p className="text-slate-500">Sinistro original não encontrado (pode ter sido excluído).</p>;
+                return (
+                  <div className="space-y-2">
+                    <p><span className="font-bold text-slate-700">Número:</span> {claim.claimNumber}</p>
+                    <p><span className="font-bold text-slate-700">Tipo:</span> {claim.occurrenceType}</p>
+                    <p><span className="font-bold text-slate-700">Condutor:</span> {claim.driverName}</p>
+                    <p><span className="font-bold text-slate-700">Data:</span> {formatarDataBr(claim.date)}</p>
+                    <p><span className="font-bold text-slate-700">Descrição:</span> {claim.description}</p>
+                    <p><span className="font-bold text-slate-700">Status:</span> {claim.status}</p>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
