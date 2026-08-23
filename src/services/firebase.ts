@@ -82,7 +82,7 @@ export const firebaseService = {
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveClaim error:', e);
-      return `claim-${Date.now()}`;
+      throw e;
     }
   },
 
@@ -122,7 +122,7 @@ export const firebaseService = {
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveFine error:', e);
-      return `fine-${Date.now()}`;
+      throw e;
     }
   },
 
@@ -162,7 +162,7 @@ export const firebaseService = {
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveInfractionType error:', e);
-      return `inf-${Date.now()}`;
+      throw e;
     }
   },
 
@@ -202,7 +202,7 @@ export const firebaseService = {
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveTerm error:', e);
-      return `trm-${Date.now()}`;
+      throw e;
     }
   },
 
@@ -243,7 +243,7 @@ export const firebaseService = {
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveVehicle error:', e);
-      return `veh-${Date.now()}`;
+      throw e;
     }
   },
 
@@ -283,7 +283,7 @@ export const firebaseService = {
       return docRef.id;
     } catch (e) {
       console.error('Firestore savePerson error:', e);
-      return `peo-${Date.now()}`;
+      throw e;
     }
   },
 
