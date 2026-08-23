@@ -44,8 +44,22 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({ content, signa
         }
 
         if (/^-\s+/.test(trimmed)) {
+          const espacosAntes = line.length - line.trimStart().length;
+          const nivel = Math.min(Math.floor(espacosAntes / 2), 3);
+          const paddingClasses = ['pl-5', 'pl-9', 'pl-13', 'pl-17'];
+          const marcador = nivel > 0 ? '◦' : '•';
           return (
-            <p key={idx} className="text-justify mb-1.5 pl-5 relative before:content-['•'] before:absolute before:left-1 before:text-slate-500">
+            <p
+              key={idx}
+              className={`text-justify mb-1.5 relative before:content-['${marcador}'] before:absolute before:text-slate-500 ${paddingClasses[nivel]}`}
+              style={{ paddingLeft: `${1.25 + nivel * 1}rem` }}
+            >
+              <span
+                className="absolute text-slate-500"
+                style={{ left: `${0.25 + nivel * 1}rem` }}
+              >
+                {marcador}
+              </span>
               {trimmed.replace(/^-\s+/, '')}
             </p>
           );
