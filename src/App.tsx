@@ -311,6 +311,18 @@ export const App: React.FC = () => {
       if (term.fineId) {
         const fine = fines.find((f) => f.id === term.fineId);
         if (!fine) return;
+
+        // Atualiza a Indicação do Condutor de acordo com o modelo de termo assinado
+        let novaIndicacao: string | undefined;
+        if (term.templateId === 'tmpl-empresa-paga-multa') {
+          novaIndicacao = 'INDICADO/TRANS PINHO';
+        } else if (term.templateId === 'tmpl-multa-descontada') {
+          novaIndicacao = fine.duplicateOfAuto ? 'INDICADO/DOBRADO' : 'INDICADO';
+        }
+        if (novaIndicacao && fine.indicationStatus !== novaIndicacao) {
+          updateFineMutation.mutate({ id: fine.id, data: { indicationStatus: novaIndicacao } });
+        }
+
         const total = fine.amount || 0;
         if (total <= 0) return;
         const numParcelas = term.installmentsCount && term.installmentsCount > 0 ? term.installmentsCount : 1;
