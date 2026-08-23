@@ -193,7 +193,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           paidInstallments: 0,
           firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
           status: 'Pendente',
-          notes: fine.dueDate ? `Placa: ${fine.vehiclePlate} | Vencimento: ${formatarDataBr(fine.dueDate)}` : `Placa: ${fine.vehiclePlate}`,
+          notes: `Placa: ${fine.vehiclePlate}`,
         });
       }
 
@@ -744,32 +744,32 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                               </td>
 
                               {/* Descrição & Ref */}
-                              <td className="p-3.5">
-                                <div className="font-bold text-slate-900 text-xs">
+                              <td className="p-3.5 max-w-xs">
+                                <div className="font-bold text-slate-900 text-xs leading-snug">
                                   {entry.description}
                                 </div>
-                                <div className="text-[10px] text-slate-500 mt-0.5 space-x-2">
+                                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                                   {entry.originLabel && (
-                                    <span className="font-mono bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200 text-slate-700">
+                                    <span className="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-700">
                                       {entry.originLabel}
                                     </span>
                                   )}
                                   {entry.firstDueDate && (
-                                    <span>
-                                      <i className="fa-regular fa-calendar mr-1"></i>
-                                      Vencimento: {formatarDataBr(entry.firstDueDate)}
+                                    <span className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                                      <i className="fa-regular fa-calendar text-slate-400"></i>
+                                      {formatarDataBr(entry.firstDueDate)}
+                                    </span>
+                                  )}
+                                  {entry.notes && (
+                                    <span
+                                      className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 truncate max-w-[140px]"
+                                      title={entry.notes}
+                                    >
+                                      <i className="fa-solid fa-note-sticky text-slate-400"></i>
+                                      {entry.notes}
                                     </span>
                                   )}
                                 </div>
-                                {entry.notes && (
-                                  <div
-                                    className="inline-flex items-center gap-1 text-[10px] text-slate-600 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 mt-1 truncate max-w-xs"
-                                    title={entry.notes}
-                                  >
-                                    <i className="fa-solid fa-note-sticky text-slate-400"></i>
-                                    {entry.notes}
-                                  </div>
-                                )}
                               </td>
 
                               {/* Direção */}

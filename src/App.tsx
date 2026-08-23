@@ -327,7 +327,7 @@ export const App: React.FC = () => {
           paidInstallments: 0,
           firstDueDate: fine.dueDate || new Date().toISOString().split('T')[0],
           status: 'Pendente',
-          notes: fine.dueDate ? `Placa: ${fine.vehiclePlate} | Vencimento: ${formatarDataBr(fine.dueDate)}` : `Placa: ${fine.vehiclePlate}`,
+          notes: `Placa: ${fine.vehiclePlate}`,
         });
       }
     } catch (err: any) {
