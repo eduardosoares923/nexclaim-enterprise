@@ -209,6 +209,7 @@ export interface FinancialEntry {
   originType: FinancialEntryOrigin;
   originId?: string; // id do Claim ou Fine relacionado, se houver
   originLabel?: string; // ex: "SIN-2026-83" ou "MO98745698745", pra referência rápida
+  originDetail?: string; // texto original da infração/ocorrência, exibido pequeno e discreto
   description: string;
   direction: 'Cobrar' | 'Pagar'; // Cobrar = empresa recebe do condutor/terceiro; Pagar = empresa paga
   totalAmount: number;

@@ -185,7 +185,8 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           originType: 'Multa',
           originId: fine.id,
           originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''} - ${limparDescricaoMulta(fine.description)}`,
+          description: `Multa ${fine.infractionAuto || fine.infractionCode || ''}`,
+          originDetail: limparDescricaoMulta(fine.description),
           direction: 'Cobrar',
           totalAmount: total,
           installmentsCount: 1,
@@ -745,9 +746,14 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
                               {/* Descrição & Ref */}
                               <td className="p-3.5 max-w-xs">
-                                <div className="font-bold text-slate-900 text-xs leading-snug line-clamp-2" title={entry.description}>
+                                <div className="font-bold text-slate-900 text-xs leading-snug">
                                   {entry.description}
                                 </div>
+                                {entry.originDetail && (
+                                  <div className="text-[10px] text-slate-400 truncate max-w-[220px]" title={entry.originDetail}>
+                                    {entry.originDetail}
+                                  </div>
+                                )}
                                 <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                                   {entry.originLabel && (
                                     <span className="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-700">
