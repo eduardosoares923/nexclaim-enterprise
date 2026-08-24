@@ -4,6 +4,7 @@ import { usePermissions } from '../hooks/usePermissions';
 import { Editor } from '@tiptap/react';
 import { RichTextEditor } from '../components/RichTextEditor';
 import { garantirHtml } from '../utils/documentoBlocos';
+import { rotuloDaVariavel } from '../utils/variaveisDocumento';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -73,7 +74,14 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
   const handleInsertVariable = (v: string) => {
     if (!editorAtivo) return;
-    editorAtivo.chain().focus().insertContent(v).run();
+    const { from, to } = editorAtivo.state.selection;
+    if (from !== to) {
+      // Tem texto selecionado: substitui pela variável
+      editorAtivo.chain().focus().deleteSelection().insertContent(v).run();
+    } else {
+      // Sem seleção: insere no cursor
+      editorAtivo.chain().focus().insertContent(v).run();
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -228,7 +236,9 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 <label className="form-label text-xs mb-1.5 block flex items-center gap-1.5">
                   <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
                   Variáveis Disponíveis
-                  <span className="text-slate-400 font-normal normal-case">— clique pra inserir no cursor</span>
+                  <span className="text-slate-400 font-normal normal-case">
+                    — selecione um texto no documento e clique pra substituir, ou clique pra inserir no cursor
+                  </span>
                 </label>
                 <div className="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl">
                   {editForm.availableVariables?.map((v) => (
@@ -236,10 +246,11 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                       key={v}
                       type="button"
                       onClick={() => handleInsertVariable(v)}
-                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-amber-800 font-mono text-[10px] font-bold border border-amber-200 hover:border-amber-400 shadow-2xs transition cursor-pointer flex items-center gap-1"
+                      title={`Insere ${v} — selecione um texto antes pra substituir`}
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-amber-800 text-[11px] font-bold border border-amber-200 hover:border-amber-400 shadow-2xs transition cursor-pointer flex items-center gap-1.5"
                     >
                       <i className="fa-solid fa-plus text-[8px]"></i>
-                      {v}
+                      {rotuloDaVariavel(v)}
                     </button>
                   ))}
                 </div>

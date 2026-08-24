@@ -224,5 +224,10 @@
   font-weight: 700;
 }
 
+/* Destaque visual das variáveis {{...}} dentro do editor */
+.prose-documento {
+  --cor-variavel: #b45309;
+}
+
 
 
