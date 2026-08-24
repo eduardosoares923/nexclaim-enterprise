@@ -197,7 +197,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       installmentsCount: formaPagamento === 'parcelado' ? numeroParcelasEscolhido : 1,
       paymentDate: dataPagamento || undefined,
       content: textContent,
-      htmlContent: `<div class="trans-pinho-doc prose-documento p-8 bg-white">
+      htmlContent: `<div class="prose-documento">
         <div style="text-align:center;border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:20px;">
           <h1 style="font-size:15px;font-weight:900;text-transform:uppercase;margin:0;border:none;padding:0;">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h1>
           <p style="font-size:11px;color:#475569;margin:2px 0 0 0;text-align:center;">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>

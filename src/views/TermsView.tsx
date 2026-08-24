@@ -399,7 +399,9 @@ export const TermsView: React.FC<TermsViewProps> = ({
               {viewingTerm.htmlContent ? (
                 <div
                   className="prose-documento"
-                  dangerouslySetInnerHTML={{ __html: viewingTerm.htmlContent }}
+                  dangerouslySetInnerHTML={{
+                    __html: viewingTerm.htmlContent.replace(/class="trans-pinho-doc /g, 'class="'),
+                  }}
                 />
               ) : (
                 <>
