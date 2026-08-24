@@ -14,7 +14,6 @@ const TIPOS: { valor: BlocoTipo; rotulo: string; icone: string }[] = [
   { valor: 'paragrafo', rotulo: 'Parágrafo', icone: 'fa-align-left' },
   { valor: 'item', rotulo: 'Item', icone: 'fa-list-ul' },
   { valor: 'assinatura', rotulo: 'Assinatura', icone: 'fa-signature' },
-  { valor: 'espaco', rotulo: 'Espaço', icone: 'fa-arrows-up-down' },
 ];
 
 export const BlocosEditor: React.FC<BlocosEditorProps> = ({ blocos, onChange, onFocoBloco }) => {
@@ -51,13 +50,23 @@ export const BlocosEditor: React.FC<BlocosEditorProps> = ({ blocos, onChange, on
       {blocos.map((bloco, index) => (
         <div
           key={bloco.id}
-          className="group border border-slate-200 rounded-lg bg-white p-2 hover:border-amber-300 transition"
+          className={`group border-l-4 border border-slate-200 rounded-lg bg-white p-1.5 hover:border-amber-300 transition ${
+            bloco.tipo === 'titulo'
+              ? 'border-l-slate-900'
+              : bloco.tipo === 'secao'
+              ? 'border-l-amber-400'
+              : bloco.tipo === 'item'
+              ? 'border-l-blue-300'
+              : bloco.tipo === 'assinatura'
+              ? 'border-l-emerald-400'
+              : 'border-l-slate-200'
+          }`}
         >
-          <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="flex items-center gap-1.5 mb-1">
             <select
               value={bloco.tipo}
               onChange={(e) => atualizar(bloco.id, { tipo: e.target.value as BlocoTipo })}
-              className="text-[10px] font-bold uppercase border border-slate-200 rounded px-1.5 py-1 bg-slate-50 cursor-pointer"
+              className="text-[9px] font-bold uppercase border border-slate-200 rounded px-1 py-0.5 bg-slate-50 cursor-pointer"
             >
               {TIPOS.map((t) => (
                 <option key={t.valor} value={t.valor}>
@@ -88,7 +97,7 @@ export const BlocosEditor: React.FC<BlocosEditorProps> = ({ blocos, onChange, on
               </div>
             )}
 
-            <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition">
+            <div className="ml-auto flex items-center gap-0.5">
               <button
                 type="button"
                 onClick={() => mover(index, -1)}
@@ -144,10 +153,7 @@ export const BlocosEditor: React.FC<BlocosEditorProps> = ({ blocos, onChange, on
           )}
 
           {bloco.tipo === 'assinatura' && (
-            <p className="text-[10px] text-slate-400 italic px-1">Linha de assinatura (traço horizontal)</p>
-          )}
-          {bloco.tipo === 'espaco' && (
-            <p className="text-[10px] text-slate-400 italic px-1">Linha em branco</p>
+            <div className="border-t-2 border-slate-300 mx-1 my-1.5" />
           )}
         </div>
       ))}

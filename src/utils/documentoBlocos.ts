@@ -22,7 +22,6 @@ export function textoParaBlocos(conteudo: string): BlocoDocumento[] {
     const limpa = linha.trim();
 
     if (limpa === '') {
-      blocos.push(criarBloco('espaco'));
       return;
     }
 
@@ -59,20 +58,38 @@ export function textoParaBlocos(conteudo: string): BlocoDocumento[] {
  * gerador de termo, que continua consumindo o campo "content".
  */
 export function blocosParaTexto(blocos: BlocoDocumento[]): string {
-  return blocos
-    .map((b) => {
-      switch (b.tipo) {
-        case 'espaco':
-          return '';
-        case 'assinatura':
-          return '_______________________________________________';
-        case 'item':
-          return `${'  '.repeat(b.nivel || 0)}- ${b.texto}`;
-        default:
-          return b.texto;
-      }
-    })
-    .join('\n');
+  const linhas: string[] = [];
+
+  blocos.forEach((b, i) => {
+    const anterior = blocos[i - 1];
+
+    // Linha em branco antes de título, seção, assinatura, e antes do primeiro item de uma lista
+    if (i > 0) {
+      const precisaEspaco =
+        b.tipo === 'titulo' ||
+        b.tipo === 'secao' ||
+        b.tipo === 'assinatura' ||
+        b.tipo === 'paragrafo' ||
+        (b.tipo === 'item' && anterior?.tipo !== 'item');
+      if (precisaEspaco) linhas.push('');
+    }
+
+    switch (b.tipo) {
+      case 'espaco':
+        linhas.push('');
+        break;
+      case 'assinatura':
+        linhas.push('_______________________________________________');
+        break;
+      case 'item':
+        linhas.push(`${'  '.repeat(b.nivel || 0)}- ${b.texto}`);
+        break;
+      default:
+        linhas.push(b.texto);
+    }
+  });
+
+  return linhas.join('\n');
 }
 
 /**

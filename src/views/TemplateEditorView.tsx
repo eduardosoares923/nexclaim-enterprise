@@ -244,8 +244,8 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <div>
+              <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+                <div className="xl:col-span-3">
                   <label className="form-label text-xs flex items-center gap-1.5">
                     <i className="fa-solid fa-layer-group text-amber-500"></i>
                     Blocos do Documento
@@ -260,7 +260,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                     />
                   </div>
                 </div>
-                <div>
+                <div className="xl:col-span-2">
                   <label className="form-label text-xs flex items-center gap-1.5">
                     <i className="fa-solid fa-eye text-amber-500"></i>
                     Pré-visualização ao Vivo
