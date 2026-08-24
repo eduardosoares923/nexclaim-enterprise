@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { DocumentTemplate, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
-import { BlocosPreview } from '../components/BlocosPreview';
-import { BlocosEditor } from '../components/BlocosEditor';
-import { garantirBlocos, blocosParaTexto } from '../utils/documentoBlocos';
+import { Editor } from '@tiptap/react';
+import { RichTextEditor } from '../components/RichTextEditor';
+import { garantirHtml } from '../utils/documentoBlocos';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -23,7 +23,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
   const permissoes = usePermissions(userRole, userEmail);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
-  const [blocoFocado, setBlocoFocado] = useState<string | null>(null);
+  const [editorAtivo, setEditorAtivo] = useState<Editor | null>(null);
   const [editForm, setEditForm] = useState<Partial<DocumentTemplate>>({
     name: '',
     category: 'Responsabilidade',
@@ -50,6 +50,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       name: 'Novo Termo de Responsabilidade Customizado',
       category: 'Responsabilidade',
       content: `JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)\nRua Florida, 116 – Nossa Chácara – Gravataí/ RS\n\nTERMO DE RESPONSABILIDADE\n\nEu, {{nome_condutor}}, inscrito no CPF sob nº {{cpf_condutor}}, condutor do veículo Placa: {{placa}}, Prefixo: {{prefixo}}, declaro para os devidos fins que...\n\nGravataí, {{data_sinistro}}.`,
+      htmlContent: `<h1>JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h1><p>Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p><h1>TERMO DE RESPONSABILIDADE</h1><p>Eu, {{nome_condutor}}, inscrito no CPF sob nº {{cpf_condutor}}, condutor do veículo Placa: {{placa}}, Prefixo: {{prefixo}}, declaro para os devidos fins que...</p><p>Gravataí, {{data_sinistro}}.</p>`,
       isActive: true,
       availableVariables: [
         '{{nome_condutor}}',
@@ -66,27 +67,27 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
   const handleStartEdit = (t: DocumentTemplate) => {
     setSelectedTemplate(t);
-    setEditForm({ ...t, blocos: garantirBlocos(t) });
+    setEditForm({ ...t, htmlContent: garantirHtml(t) });
     setIsEditing(true);
   };
 
   const handleInsertVariable = (v: string) => {
-    setEditForm((prev) => {
-      const blocosAtuais = garantirBlocos({ blocos: prev.blocos, content: prev.content || '' });
-      const alvo = blocoFocado || blocosAtuais[blocosAtuais.length - 1]?.id;
-      const novos = blocosAtuais.map((b) =>
-        b.id === alvo ? { ...b, texto: `${b.texto}${b.texto ? ' ' : ''}${v}` } : b
-      );
-      return { ...prev, blocos: novos, content: blocosParaTexto(novos) };
-    });
+    if (!editorAtivo) return;
+    editorAtivo.chain().focus().insertContent(v).run();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editForm.name) return;
-    const blocosFinais = garantirBlocos({ blocos: editForm.blocos, content: editForm.content || '' });
-    const textoFinal = blocosParaTexto(blocosFinais);
-    if (!textoFinal.trim()) return;
+    const htmlFinal = editForm.htmlContent || '';
+    // Texto puro extraído do HTML, mantido pra compatibilidade com o gerador de termo
+    const div = document.createElement('div');
+    div.innerHTML = htmlFinal
+      .replace(/<\/(p|h1|h2|h3|li|div)>/gi, '\n')
+      .replace(/<li[^>]*>/gi, '- ')
+      .replace(/<hr\s*\/?>/gi, '\n_______________________________________________\n');
+    const textoFinal = (div.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+    if (!textoFinal) return;
     const newTmpl: DocumentTemplate = {
       id: editForm.id || `tmpl-${Date.now()}`,
       name: editForm.name,
@@ -94,7 +95,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       conditionRules: editForm.conditionRules || {},
       isActive: editForm.isActive !== undefined ? editForm.isActive : true,
       content: textoFinal,
-      blocos: blocosFinais,
+      htmlContent: htmlFinal,
       availableVariables: editForm.availableVariables || [],
     };
     onSaveTemplate(newTmpl);
@@ -244,31 +245,16 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
-                <div className="xl:col-span-3">
-                  <label className="form-label text-xs flex items-center gap-1.5">
-                    <i className="fa-solid fa-layer-group text-amber-500"></i>
-                    Blocos do Documento
-                  </label>
-                  <div className="border border-slate-200 rounded-lg bg-slate-50/50 p-2.5 max-h-[480px] overflow-y-auto">
-                    <BlocosEditor
-                      blocos={garantirBlocos({ blocos: editForm.blocos, content: editForm.content || '' })}
-                      onChange={(novos) =>
-                        setEditForm({ ...editForm, blocos: novos, content: blocosParaTexto(novos) })
-                      }
-                      onFocoBloco={setBlocoFocado}
-                    />
-                  </div>
-                </div>
-                <div className="xl:col-span-2">
-                  <label className="form-label text-xs flex items-center gap-1.5">
-                    <i className="fa-solid fa-eye text-amber-500"></i>
-                    Pré-visualização ao Vivo
-                  </label>
-                  <div className="border border-slate-200 rounded-lg bg-white p-4 min-h-[380px] max-h-[420px] overflow-y-auto trans-pinho-doc">
-                    <BlocosPreview blocos={garantirBlocos({ blocos: editForm.blocos, content: editForm.content || '' })} />
-                  </div>
-                </div>
+              <div>
+                <label className="form-label text-xs flex items-center gap-1.5 mb-1.5">
+                  <i className="fa-solid fa-file-word text-amber-500"></i>
+                  Conteúdo do Documento
+                </label>
+                <RichTextEditor
+                  value={editForm.htmlContent || ''}
+                  onChange={(html) => setEditForm((prev) => ({ ...prev, htmlContent: html }))}
+                  onEditorReady={setEditorAtivo}
+                />
               </div>
 
               <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
@@ -307,7 +293,10 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                   Pré-visualização do Modelo com Variáveis
                 </label>
                 <div className="border border-slate-200 rounded-lg bg-white p-6 max-h-[500px] overflow-y-auto trans-pinho-doc">
-                  <BlocosPreview blocos={garantirBlocos(selectedTemplate)} />
+                  <div
+                    className="prose-documento"
+                    dangerouslySetInnerHTML={{ __html: garantirHtml(selectedTemplate) }}
+                  />
                 </div>
               </div>
             </div>
