@@ -99,6 +99,20 @@
     margin-top: 0.75rem !important;
     margin-bottom: 0.25rem !important;
   }
+  .prose-documento h1 {
+    font-size: 14px !important;
+  }
+  .prose-documento h2 {
+    font-size: 12px !important;
+    margin-top: 14px !important;
+  }
+  .prose-documento p {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+  }
+  .prose-documento li {
+    font-size: 11px !important;
+  }
 }
 
 /* Scrollbar fina e discreta em todo o sistema */

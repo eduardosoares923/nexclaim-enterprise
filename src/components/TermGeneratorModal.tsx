@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Claim, Person, Vehicle, DocumentTemplate, Term } from '../types';
 import { SignaturePad } from './SignaturePad';
 import { Combobox } from './Combobox';
+import { garantirHtml } from '../utils/documentoBlocos';
 
 interface TermGeneratorModalProps {
   claim?: Claim;
@@ -111,8 +112,8 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   ];
 
   // Dynamic Variable Replacement Engine (All Official Templates)
-  const generateFilledContent = () => {
-    const rawContent = currentTemplate?.content || '';
+  const generateFilledContent = (conteudoBase?: string) => {
+    const rawContent = conteudoBase !== undefined ? conteudoBase : (currentTemplate?.content || '');
     const driverCpf = currentDriver?.docNumber || cpfManual;
     const vehiclePlate = claim?.vehiclePlate || currentVehicle?.plate || 'IZF4E82';
     const vehiclePrefix = currentVehicle?.prefix || '24127';
@@ -176,9 +177,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       onUpdatePerson(currentDriver.id, { docNumber: cpfManual.trim() });
     }
     const textContent = generateFilledContent();
-    const textContentDestacado = textContent
+    const htmlDoModelo = currentTemplate ? garantirHtml(currentTemplate) : '';
+    const htmlPreenchido = generateFilledContent(htmlDoModelo)
       .replace(/☑/g, '<span style="color:#059669;font-weight:900;">☑</span>')
-      .replace(/☐([^\n]*)/g, '<span style="color:#94a3b8;">☐$1</span>');
+      .replace(/☐/g, '<span style="color:#94a3b8;">☐</span>');
 
     const newTerm: Term = {
       id: `trm-${Date.now()}`,
@@ -195,14 +197,14 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       installmentsCount: formaPagamento === 'parcelado' ? numeroParcelasEscolhido : 1,
       paymentDate: dataPagamento || undefined,
       content: textContent,
-      htmlContent: `<div class="trans-pinho-doc text-slate-900 font-serif p-8 bg-white border border-slate-300 rounded-lg max-w-2xl mx-auto shadow-sm">
-        <div class="whitespace-pre-wrap text-xs font-serif leading-relaxed text-justify text-slate-900 my-4">${textContentDestacado}</div>
-        ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura do Condutor</p></div>` : ''}
-        <div class="trans-pinho-header text-center border-t-2 border-black pt-4 mt-6">
-          <h2 class="font-black text-base uppercase tracking-tight">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h2>
-          <p class="text-xs">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
-          <p class="text-xs">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+      htmlContent: `<div class="trans-pinho-doc prose-documento p-8 bg-white">
+        <div style="text-align:center;border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:20px;">
+          <h1 style="font-size:15px;font-weight:900;text-transform:uppercase;margin:0;border:none;padding:0;">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</h1>
+          <p style="font-size:11px;color:#475569;margin:2px 0 0 0;text-align:center;">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+          <p style="font-size:11px;color:#475569;margin:0;text-align:center;">Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com</p>
         </div>
+        ${htmlPreenchido}
+        ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura do Condutor</p></div>` : ''}
       </div>`,
     };
 
@@ -403,9 +405,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
               <label className="form-label text-xs">
                 Pré-visualização do Documento Preenchido com Variáveis (Editável antes de emitir):
               </label>
-              <div className="p-4 bg-slate-50 border border-slate-300 rounded-lg font-mono text-[11px] whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">
-                {generateFilledContent()}
-              </div>
+              <div
+                className="prose-documento bg-white p-5 border border-slate-200 rounded-lg max-h-[300px] overflow-y-auto"
+                dangerouslySetInnerHTML={{
+                  __html: generateFilledContent(currentTemplate ? garantirHtml(currentTemplate) : ''),
+                }}
+              />
             </div>
           )}
 

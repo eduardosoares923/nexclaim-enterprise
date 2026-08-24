@@ -396,24 +396,31 @@ export const TermsView: React.FC<TermsViewProps> = ({
 
             {/* Document Sheet (Standard Trans Pinho Format) */}
             <div className="trans-pinho-doc p-4 sm:p-8 md:p-12 overflow-y-auto max-h-[75vh] bg-white print:p-0 print:max-h-none font-serif text-slate-900 leading-relaxed">
-              {/* Cabeçalho / Timbrado da Empresa */}
-              <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
-                <h1 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-950">
-                  JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
-                </h1>
-                <p className="text-[11px] text-slate-600 mt-0.5">
-                  Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
-                </p>
-                <p className="text-[11px] text-slate-600">
-                  Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
-                </p>
-              </div>
-
-              {/* Content Body */}
-              <BlocosPreview
-                blocos={garantirBlocos({ content: viewingTerm.content || '' })}
-                signatureDataUrl={viewingTerm.signatureDataUrl}
-              />
+              {viewingTerm.htmlContent ? (
+                <div
+                  className="prose-documento"
+                  dangerouslySetInnerHTML={{ __html: viewingTerm.htmlContent }}
+                />
+              ) : (
+                <>
+                  {/* Cabeçalho / Timbrado da Empresa */}
+                  <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
+                    <h1 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-950">
+                      JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
+                    </h1>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
+                      Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
+                    </p>
+                    <p className="text-[11px] text-slate-600">
+                      Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
+                    </p>
+                  </div>
+                  <BlocosPreview
+                    blocos={garantirBlocos({ content: viewingTerm.content || '' })}
+                    signatureDataUrl={viewingTerm.signatureDataUrl}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
