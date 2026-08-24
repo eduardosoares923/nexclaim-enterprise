@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import mammoth from 'mammoth';
 import { DocumentTemplate, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
 import { Editor } from '@tiptap/react';
@@ -25,6 +26,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
   const [editorAtivo, setEditorAtivo] = useState<Editor | null>(null);
+  const docxInputRef = useRef<HTMLInputElement | null>(null);
   const [editForm, setEditForm] = useState<Partial<DocumentTemplate>>({
     name: '',
     category: 'Responsabilidade',
@@ -44,6 +46,75 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       '{{motivo_infracao}}',
     ],
   });
+
+  const handleImportarWord = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const resultado = await mammoth.convertToHtml({ arrayBuffer });
+      const html = resultado.value;
+
+      if (!html || !html.trim()) {
+        alert('Não foi possível ler o conteúdo desse arquivo Word. Ele pode estar vazio ou protegido.');
+        return;
+      }
+
+      // Texto puro pra compatibilidade com o gerador de termo
+      const div = document.createElement('div');
+      div.innerHTML = html
+        .replace(/<\/(p|h1|h2|h3|li|div)>/gi, '\n')
+        .replace(/<li[^>]*>/gi, '- ');
+      const textoPuro = (div.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+
+      const nomeSemExtensao = file.name.replace(/\.docx?$/i, '');
+
+      setEditForm({
+        id: `tmpl-${Date.now()}`,
+        name: nomeSemExtensao,
+        category: 'Responsabilidade',
+        content: textoPuro,
+        htmlContent: html,
+        isActive: true,
+        availableVariables: [
+          '{{nome_condutor}}',
+          '{{cpf_condutor}}',
+          '{{placa}}',
+          '{{prefixo}}',
+          '{{auto_infracao}}',
+          '{{data_infracao}}',
+          '{{horario_infracao}}',
+          '{{motivo_infracao}}',
+          '{{valor_infracao}}',
+          '{{valor_total}}',
+          '{{valor_total_extenso}}',
+          '{{opcao_cota_unica}}',
+          '{{opcao_parcelado}}',
+          '{{data_vencimento}}',
+          '{{numero_parcelas}}',
+          '{{valor_parcela}}',
+          '{{data_primeira_parcela}}',
+          '{{dia_assinatura}}',
+          '{{mes_assinatura}}',
+          '{{data_sinistro}}',
+          '{{hora_sinistro}}',
+          '{{local_sinistro}}',
+          '{{cidade}}',
+          '{{estado}}',
+        ],
+        conditionRules: {},
+      });
+      setIsEditing(true);
+
+      if (resultado.messages && resultado.messages.length > 0) {
+        console.warn('Avisos ao importar o Word:', resultado.messages);
+      }
+    } catch (err: any) {
+      alert(`Não foi possível importar o arquivo Word: ${err?.message || err}`);
+    } finally {
+      if (docxInputRef.current) docxInputRef.current.value = '';
+    }
+  };
 
   const handleStartCreate = () => {
     setEditForm({
@@ -124,12 +195,28 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
           </p>
         </div>
         {permissoes.podeCriar && (
-          <button
-            onClick={handleStartCreate}
-            className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm self-start sm:self-auto cursor-pointer"
-          >
-            <i className="fa-solid fa-plus"></i> Criar Novo Modelo
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <input
+              type="file"
+              ref={docxInputRef}
+              onChange={handleImportarWord}
+              accept=".docx"
+              className="hidden"
+            />
+            <button
+              onClick={() => docxInputRef.current?.click()}
+              className="bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm border border-slate-200 cursor-pointer transition"
+              title="Importar um arquivo Word (.docx) como novo modelo"
+            >
+              <i className="fa-solid fa-file-word text-blue-600"></i> Importar Word
+            </button>
+            <button
+              onClick={handleStartCreate}
+              className="btn bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm cursor-pointer"
+            >
+              <i className="fa-solid fa-plus"></i> Criar Novo Modelo
+            </button>
+          </div>
         )}
       </div>
 
