@@ -100,3 +100,71 @@ export function garantirBlocos(template: { blocos?: BlocoDocumento[]; content: s
   if (template.blocos && template.blocos.length > 0) return template.blocos;
   return textoParaBlocos(template.content);
 }
+
+/**
+ * Converte o conteúdo antigo (texto corrido) em HTML, pra migrar os modelos
+ * existentes pro editor rico. Usado uma única vez, na primeira abertura.
+ */
+export function textoParaHtml(conteudo: string): string {
+  const linhas = (conteudo || '').split('\n');
+  const partes: string[] = [];
+  let listaAberta = false;
+
+  const fecharLista = () => {
+    if (listaAberta) {
+      partes.push('</ul>');
+      listaAberta = false;
+    }
+  };
+
+  linhas.forEach((linha, idx) => {
+    const limpa = linha.trim();
+
+    if (limpa === '') {
+      fecharLista();
+      return;
+    }
+
+    if (/^_{10,}$/.test(limpa)) {
+      fecharLista();
+      partes.push('<hr>');
+      return;
+    }
+
+    if (idx === 0 && limpa === limpa.toUpperCase() && limpa.length > 5) {
+      fecharLista();
+      partes.push(`<h1 style="text-align:center">${limpa}</h1>`);
+      return;
+    }
+
+    if (/^\d+\.\s+[A-ZÀ-Ú\s]+$/.test(limpa) || /^[IVX]+\s*[-–]\s+/.test(limpa)) {
+      fecharLista();
+      partes.push(`<h2>${limpa}</h2>`);
+      return;
+    }
+
+    if (/^-\s+/.test(limpa)) {
+      if (!listaAberta) {
+        partes.push('<ul>');
+        listaAberta = true;
+      }
+      partes.push(`<li><p>${limpa.replace(/^-\s+/, '')}</p></li>`);
+      return;
+    }
+
+    fecharLista();
+    partes.push(`<p>${limpa}</p>`);
+  });
+
+  fecharLista();
+  return partes.join('');
+}
+
+/**
+ * Devolve o HTML de um modelo: usa o htmlContent se já existir, senão converte
+ * do texto antigo.
+ */
+export function garantirHtml(template: { htmlContent?: string; content?: string }): string {
+  if (template.htmlContent && template.htmlContent.trim()) return template.htmlContent;
+  return textoParaHtml(template.content || '');
+}

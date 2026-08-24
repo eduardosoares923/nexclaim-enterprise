@@ -152,4 +152,63 @@
   @apply w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 text-xs leading-relaxed resize-y;
 }
 
+/* Aparência de documento no editor rico e na visualização */
+.prose-documento {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #0f172a;
+}
+.prose-documento h1 {
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.prose-documento h2 {
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  border-bottom: 1px solid #94a3b8;
+  padding-bottom: 4px;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+.prose-documento p {
+  margin-bottom: 10px;
+  text-align: justify;
+}
+.prose-documento ul,
+.prose-documento ol {
+  margin: 0 0 10px 0;
+  padding-left: 24px;
+}
+.prose-documento ul {
+  list-style: disc;
+}
+.prose-documento ul ul {
+  list-style: circle;
+}
+.prose-documento ol {
+  list-style: decimal;
+}
+.prose-documento li {
+  margin-bottom: 4px;
+}
+.prose-documento li p {
+  margin-bottom: 2px;
+}
+.prose-documento hr {
+  border: none;
+  border-top: 1px solid #0f172a;
+  margin: 32px 0 4px 0;
+}
+.prose-documento strong {
+  font-weight: 700;
+}
+
+
 

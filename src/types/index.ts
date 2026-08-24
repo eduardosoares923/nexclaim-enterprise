@@ -168,6 +168,7 @@ export interface DocumentTemplate {
   isActive: boolean;
   content: string;
   blocos?: BlocoDocumento[];
+  htmlContent?: string;
   availableVariables: string[];
   createdBy?: string;
 }
