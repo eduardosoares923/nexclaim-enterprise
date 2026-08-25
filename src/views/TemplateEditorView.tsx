@@ -44,6 +44,10 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       '{{estado}}',
       '{{valor_total}}',
       '{{motivo_infracao}}',
+      '{{nome_terceiro}}',
+      '{{cpf_terceiro}}',
+      '{{placa_terceiro}}',
+      '{{modelo_veiculo_terceiro}}',
     ],
   });
 
@@ -112,6 +116,10 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
           '{{local_sinistro}}',
           '{{cidade}}',
           '{{estado}}',
+          '{{nome_terceiro}}',
+          '{{cpf_terceiro}}',
+          '{{placa_terceiro}}',
+          '{{modelo_veiculo_terceiro}}',
         ],
         conditionRules: {},
       });
@@ -340,7 +348,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                   aparecer só na situação certa.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Origem</label>
                     <select
@@ -403,6 +411,26 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                       <option value="">Qualquer</option>
                       <option value="Pagar">Pagar (empresa paga o terceiro)</option>
                       <option value="Cobrar">Cobrar (empresa recebe)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Quem assina</label>
+                    <select
+                      value={editForm.conditionRules?.signatario || 'condutor'}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          conditionRules: {
+                            ...editForm.conditionRules,
+                            signatario: e.target.value as 'condutor' | 'terceiro',
+                          },
+                        })
+                      }
+                      className="w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white"
+                    >
+                      <option value="condutor">Condutor</option>
+                      <option value="terceiro">Terceiro</option>
                     </select>
                   </div>
                 </div>

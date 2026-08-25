@@ -89,6 +89,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
 
   const currentTemplate = templatesFiltrados.find((t) => t.id === selectedTemplateId) || templatesFiltrados[0] || templates[0];
+  const assinaTerceiro = currentTemplate?.conditionRules?.signatario === 'terceiro';
+  const nomeSignatario = assinaTerceiro
+    ? (claim?.thirdPartyName || 'Terceiro Não Informado')
+    : selectedDriverName;
   const currentDriver = people.find((p) => p.name === selectedDriverName) || people[0];
   const currentVehicle = vehicles.find((v) => v.plate === claim?.vehiclePlate) || vehicles[0];
 
@@ -167,8 +171,10 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       .replace(/\{\{dia_assinatura\}\}/g, diaAssinatura)
       .replace(/\{\{mes_assinatura\}\}/g, mesAssinatura)
       .replace(/\{\{numero_ocorrencia\}\}/g, claim?.protocol || claim?.claimNumber || '2026 0713 3731 277')
-      .replace(/\{\{modelo_veiculo_terceiro\}\}/g, 'RENAULT/MASTER TVAN')
-      .replace(/\{\{placa_terceiro\}\}/g, 'TQQ6H24')
+      .replace(/\{\{modelo_veiculo_terceiro\}\}/g, claim?.thirdPartyVehicleDescription || '')
+      .replace(/\{\{placa_terceiro\}\}/g, claim?.thirdPartyPlate || '')
+      .replace(/\{\{nome_terceiro\}\}/g, claim?.thirdPartyName || '')
+      .replace(/\{\{cpf_terceiro\}\}/g, claim?.thirdPartyDocument || '')
       .replace(/\{\{data_sinistro\}\}/g, claim?.date || '18/06/2026')
       .replace(/\{\{hora_sinistro\}\}/g, claim?.time || '14:30')
       .replace(/\{\{local_sinistro\}\}/g, claim?.location || 'Gravataí/RS')
@@ -184,7 +190,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentDriver?.docNumber && !cpfManual.trim()) {
+    if (assinaTerceiro) {
+      if (!claim?.thirdPartyName) {
+        alert('Este modelo é assinado pelo terceiro, mas o sinistro não tem os dados do terceiro preenchidos. Edite o sinistro e informe o nome do terceiro antes de emitir.');
+        return;
+      }
+    } else if (!currentDriver?.docNumber && !cpfManual.trim()) {
       alert('Este condutor não tem CPF cadastrado. Preencha o campo "CPF do Condutor" no Passo 1 antes de continuar.');
       setStep(1);
       return;
@@ -206,7 +217,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       type: currentTemplate?.category || 'Responsabilidade',
       date: new Date().toISOString().split('T')[0],
       responsible: 'Carlos Pinho',
-      involvedPerson: selectedDriverName,
+      involvedPerson: nomeSignatario,
       status: signatureDataUrl ? 'Assinado' : 'Gerado',
       signatureDataUrl: signatureDataUrl || undefined,
       paymentMode: formaPagamento,
@@ -220,7 +231,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
           <p style="font-size:11px;color:#475569;margin:0;text-align:center;">Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com</p>
         </div>
         ${htmlPreenchido}
-        ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura do Condutor</p></div>` : ''}
+        ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura ${assinaTerceiro ? 'do Terceiro' : 'do Condutor'}</p></div>` : ''}
       </div>`,
     };
 
@@ -314,6 +325,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                     <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-1">
                       <i className="fa-solid fa-triangle-exclamation mr-1"></i>
                       Nenhum modelo específico para esta situação do sinistro. Mostrando todos os modelos de sinistro.
+                    </p>
+                  )}
+                  {assinaTerceiro && (
+                    <p className="text-[10px] text-blue-700 bg-blue-50 border border-blue-200 rounded px-2 py-1 mt-1">
+                      <i className="fa-solid fa-user-tie mr-1"></i>
+                      Este termo será assinado pelo terceiro: <strong>{claim?.thirdPartyName || 'não informado'}</strong>
                     </p>
                   )}
                 </div>
@@ -436,15 +453,15 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
             </div>
           )}
 
-          {/* Passo 3: Assinatura do Condutor */}
+          {/* Passo 3: Assinatura do Condutor ou Terceiro */}
           {step === 3 && (
             <div className="space-y-1.5">
               <label className="form-label text-xs">
-                Assinatura do Condutor {selectedDriverName}:
+                Assinatura {assinaTerceiro ? 'do Terceiro' : 'do Condutor'} {nomeSignatario}:
               </label>
               <SignaturePad value={signatureDataUrl} onChange={(dataUrl) => setSignatureDataUrl(dataUrl)} />
               <p className="text-[10px] text-slate-500">
-                Peça para o condutor assinar na tela antes de confirmar. Se pular esta etapa,
+                Peça para o {assinaTerceiro ? 'terceiro' : 'condutor'} assinar na tela antes de confirmar. Se pular esta etapa,
                 o termo fica com status "Gerado" (pendente de assinatura) em vez de "Assinado".
               </p>
             </div>

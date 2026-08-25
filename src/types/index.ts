@@ -166,6 +166,7 @@ export interface DocumentTemplate {
     hasFine?: boolean;
     atFault?: string;
     paymentDirection?: 'Pagar' | 'Cobrar';
+    signatario?: 'condutor' | 'terceiro';
   };
   isActive: boolean;
   content: string;

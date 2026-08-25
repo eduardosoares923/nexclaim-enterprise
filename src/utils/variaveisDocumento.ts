@@ -27,6 +27,8 @@ export const ROTULOS_VARIAVEIS: Record<string, string> = {
   '{{estado}}': 'Estado',
   '{{placa_terceiro}}': 'Placa do Terceiro',
   '{{modelo_veiculo_terceiro}}': 'Modelo do Veículo do Terceiro',
+  '{{nome_terceiro}}': 'Nome do Terceiro',
+  '{{cpf_terceiro}}': 'CPF do Terceiro',
 };
 
 export function rotuloDaVariavel(variavel: string): string {
