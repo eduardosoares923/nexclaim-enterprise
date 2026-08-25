@@ -223,6 +223,12 @@
 .prose-documento strong {
   font-weight: 700;
 }
+.prose-documento img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 12px auto;
+}
 
 /* Destaque visual das variáveis {{...}} dentro do editor */
 .prose-documento {

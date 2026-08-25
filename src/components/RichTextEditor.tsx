@@ -3,6 +3,7 @@ import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
+import Image from '@tiptap/extension-image';
 
 interface RichTextEditorProps {
   value: string;
@@ -36,6 +37,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
     extensions: [
       StarterKit,
       Underline,
+      Image.configure({ inline: false, allowBase64: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: value,

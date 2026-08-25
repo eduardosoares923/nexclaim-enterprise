@@ -53,10 +53,21 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
     try {
       const arrayBuffer = await file.arrayBuffer();
       const resultado = await mammoth.convertToHtml({ arrayBuffer });
-      const html = resultado.value;
 
-      if (!html || !html.trim()) {
+      // Converte as caixas de marcação do Word (<input type="checkbox">) nos
+      // caracteres ☒ / ☐, que o editor entende e o gerador de termo já usa.
+      const html = (resultado.value || '')
+        .replace(/<input[^>]*type="checkbox"[^>]*checked[^>]*>/gi, '☒')
+        .replace(/<input[^>]*type="checkbox"[^>]*>/gi, '☐');
+
+      if (!html.trim()) {
         alert('Não foi possível ler o conteúdo desse arquivo Word. Ele pode estar vazio ou protegido.');
+        return;
+      }
+
+      // Avisa se o documento ficou grande demais pro Firestore (limite de 1 MB por registro)
+      if (html.length > 800000) {
+        alert('Esse documento tem imagens muito pesadas e pode não caber no banco de dados. Tente remover ou reduzir as imagens no Word antes de importar.');
         return;
       }
 
