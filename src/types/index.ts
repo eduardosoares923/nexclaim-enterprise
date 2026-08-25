@@ -164,6 +164,8 @@ export interface DocumentTemplate {
     occurrenceType?: string;
     hasThirdParty?: boolean;
     hasFine?: boolean;
+    atFault?: string;
+    paymentDirection?: 'Pagar' | 'Cobrar';
   };
   isActive: boolean;
   content: string;

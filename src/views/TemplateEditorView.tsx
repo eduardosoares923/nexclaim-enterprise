@@ -330,6 +330,84 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 </div>
               </div>
 
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                <label className="form-label text-xs flex items-center gap-1.5 mb-0">
+                  <i className="fa-solid fa-filter text-amber-500"></i>
+                  Quando este modelo deve aparecer
+                </label>
+                <p className="text-[10px] text-slate-500">
+                  Deixe em branco para o modelo aparecer sempre. Preencha para ele
+                  aparecer só na situação certa.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Origem</label>
+                    <select
+                      value={editForm.conditionRules?.hasFine ? 'multa' : 'sinistro'}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          conditionRules: {
+                            ...editForm.conditionRules,
+                            hasFine: e.target.value === 'multa' ? true : undefined,
+                          },
+                        })
+                      }
+                      className="w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white"
+                    >
+                      <option value="sinistro">Sinistro</option>
+                      <option value="multa">Multa</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Culpado</label>
+                    <select
+                      value={editForm.conditionRules?.atFault || ''}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          conditionRules: {
+                            ...editForm.conditionRules,
+                            atFault: e.target.value || undefined,
+                          },
+                        })
+                      }
+                      disabled={!!editForm.conditionRules?.hasFine}
+                      className="w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white disabled:opacity-50"
+                    >
+                      <option value="">Qualquer</option>
+                      <option value="Motorista Trans Pinho">Motorista Trans Pinho</option>
+                      <option value="Terceiro">Terceiro</option>
+                      <option value="Motorista não assume a culpa">Motorista não assume a culpa</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Direção do Pagamento</label>
+                    <select
+                      value={editForm.conditionRules?.paymentDirection || ''}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          conditionRules: {
+                            ...editForm.conditionRules,
+                            paymentDirection: (e.target.value || undefined) as 'Pagar' | 'Cobrar' | undefined,
+                          },
+                        })
+                      }
+                      disabled={!!editForm.conditionRules?.hasFine}
+                      className="w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white disabled:opacity-50"
+                    >
+                      <option value="">Qualquer</option>
+                      <option value="Pagar">Pagar (empresa paga o terceiro)</option>
+                      <option value="Cobrar">Cobrar (empresa recebe)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="form-label text-xs mb-1.5 block flex items-center gap-1.5">
                   <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i>

@@ -453,6 +453,7 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
                   <option value="">Selecione</option>
                   <option value="Terceiro">Terceiro</option>
                   <option value="Motorista Trans Pinho">Motorista Trans Pinho</option>
+                  <option value="Motorista não assume a culpa">Motorista não assume a culpa</option>
                 </select>
               </div>
 

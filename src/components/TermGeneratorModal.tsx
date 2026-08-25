@@ -57,9 +57,25 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     );
   }
 
-  const templatesFiltrados = templates.filter((t) =>
+  const templatesDaOrigem = templates.filter((t) =>
     origin === 'multa' ? t.conditionRules?.hasFine === true : t.conditionRules?.hasFine !== true
   );
+
+  // Em sinistros, mostra só os modelos cuja regra bate com a situação do sinistro
+  const templatesRecomendados =
+    origin === 'multa'
+      ? templatesDaOrigem
+      : templatesDaOrigem.filter((t) => {
+          const regras = t.conditionRules || {};
+          if (regras.atFault && regras.atFault !== claim?.atFault) return false;
+          if (regras.paymentDirection && regras.paymentDirection !== claim?.paymentDirection) return false;
+          return true;
+        });
+
+  // Se nenhum modelo bater com a situação, mostra todos da origem, pra não travar
+  const templatesFiltrados = templatesRecomendados.length > 0 ? templatesRecomendados : templatesDaOrigem;
+  const usandoFallback = templatesRecomendados.length === 0 && templatesDaOrigem.length > 0;
+
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templatesFiltrados[0]?.id || '');
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
@@ -294,6 +310,12 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                       </option>
                     ))}
                   </select>
+                  {usandoFallback && (
+                    <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-1">
+                      <i className="fa-solid fa-triangle-exclamation mr-1"></i>
+                      Nenhum modelo específico para esta situação do sinistro. Mostrando todos os modelos de sinistro.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="form-label text-xs">Condutor Selecionado *</label>
