@@ -3,6 +3,7 @@ import { Claim, Person, Vehicle, DocumentTemplate, Term } from '../types';
 import { SignaturePad } from './SignaturePad';
 import { Combobox } from './Combobox';
 import { garantirHtml } from '../utils/documentoBlocos';
+import { baixarDocxPreenchido } from '../services/docxTemplate';
 
 interface TermGeneratorModalProps {
   claim?: Claim;
@@ -188,8 +189,29 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     return filled;
   };
 
+  const montarDadosDasVariaveis = (): Record<string, string> => {
+    const preenchido = generateFilledContent('|||' + [
+      'nome_condutor','cpf_condutor','placa','prefixo','auto_infracao','data_infracao',
+      'horario_infracao','motivo_infracao','valor_infracao','valor_total','valor_total_extenso',
+      'data_vencimento','numero_parcelas','valor_parcela','data_primeira_parcela',
+      'dia_assinatura','mes_assinatura','nome_terceiro','cpf_terceiro','placa_terceiro',
+      'modelo_veiculo_terceiro','data_sinistro','hora_sinistro','local_sinistro','cidade','estado',
+    ].map((n) => `{{${n}}}`).join('|||'));
+
+    const valores = preenchido.split('|||').filter((v, i) => i > 0);
+    const nomes = [
+      'nome_condutor','cpf_condutor','placa','prefixo','auto_infracao','data_infracao',
+      'horario_infracao','motivo_infracao','valor_infracao','valor_total','valor_total_extenso',
+      'data_vencimento','numero_parcelas','valor_parcela','data_primeira_parcela',
+      'dia_assinatura','mes_assinatura','nome_terceiro','cpf_terceiro','placa_terceiro',
+      'modelo_veiculo_terceiro','data_sinistro','hora_sinistro','local_sinistro','cidade','estado',
+    ];
+    const mapa: Record<string, string> = {};
+    nomes.forEach((n, i) => { mapa[n] = (valores[i] || '').trim(); });
+    return mapa;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
     if (assinaTerceiro) {
       if (!claim?.thirdPartyName) {
         alert('Este modelo é assinado pelo terceiro, mas o sinistro não tem os dados do terceiro preenchidos. Edite o sinistro e informe o nome do terceiro antes de emitir.');
@@ -224,6 +246,8 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       installmentsCount: formaPagamento === 'parcelado' ? numeroParcelasEscolhido : 1,
       paymentDate: dataPagamento || undefined,
       content: textContent,
+      templateDocxBase64: currentTemplate?.docxBase64,
+      variaveisPreenchidas: montarDadosDasVariaveis(),
       htmlContent: `<div class="prose-documento">
         ${htmlPreenchido}
         ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura ${assinaTerceiro ? 'do Terceiro' : 'do Condutor'}</p></div>` : ''}
@@ -450,6 +474,26 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                   __html: generateFilledContent(currentTemplate ? garantirHtml(currentTemplate) : ''),
                 }}
               />
+              {currentTemplate?.docxBase64 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      baixarDocxPreenchido(
+                        currentTemplate.docxBase64!,
+                        montarDadosDasVariaveis(),
+                        `${currentTemplate.name} - ${nomeSignatario}.docx`
+                      );
+                    } catch (err: any) {
+                      alert(`Não foi possível gerar o documento Word: ${err?.message || err}`);
+                    }
+                  }}
+                  className="w-full mt-2 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition"
+                >
+                  <i className="fa-solid fa-file-word"></i>
+                  Baixar em Word (.docx)
+                </button>
+              )}
             </div>
           )}
 

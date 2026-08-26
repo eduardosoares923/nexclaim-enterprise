@@ -6,6 +6,7 @@ import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { BlocosPreview } from '../components/BlocosPreview';
 import { garantirBlocos } from '../utils/documentoBlocos';
+import { baixarDocxPreenchido } from '../services/docxTemplate';
 
 interface TermsViewProps {
   terms: Term[];
@@ -335,6 +336,26 @@ export const TermsView: React.FC<TermsViewProps> = ({
                     <i className="fa-solid fa-print text-amber-400"></i>
                     <span>Imprimir / PDF</span>
                   </button>
+                  {term.templateDocxBase64 && (
+                    <button
+                      onClick={() => {
+                        try {
+                          baixarDocxPreenchido(
+                            term.templateDocxBase64!,
+                            term.variaveisPreenchidas || {},
+                            `${term.title} - ${term.involvedPerson}.docx`
+                          );
+                        } catch (err: any) {
+                          alert(`Não foi possível gerar o Word: ${err?.message || err}`);
+                        }
+                      }}
+                      className="btn bg-blue-600 hover:bg-blue-500 text-white text-xs px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow-2xs transition"
+                      title="Baixar o termo em Word"
+                    >
+                      <i className="fa-solid fa-file-word"></i>
+                      <span>Word</span>
+                    </button>
+                  )}
                   {onDeleteTerm && permissoes.podeEditarOuExcluir(term.createdBy) === true && (
                     <button
                       onClick={async () => {

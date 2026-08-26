@@ -195,6 +195,8 @@ export interface Term {
   paymentDate?: string;
   content?: string;
   htmlContent?: string;
+  templateDocxBase64?: string;
+  variaveisPreenchidas?: Record<string, string>;
   createdBy?: string;
 }
 

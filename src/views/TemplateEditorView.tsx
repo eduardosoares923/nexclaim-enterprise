@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
-import mammoth from 'mammoth';
 import { DocumentTemplate, RoleType } from '../types';
 import { usePermissions } from '../hooks/usePermissions';
-import { Editor } from '@tiptap/react';
-import { RichTextEditor } from '../components/RichTextEditor';
-import { garantirHtml } from '../utils/documentoBlocos';
 import { rotuloDaVariavel } from '../utils/variaveisDocumento';
+import { garantirHtml } from '../utils/documentoBlocos';
+import { DocxViewer } from '../components/DocxViewer';
+import { arquivoParaBase64, marcarVariavelNoDocx, listarVariaveisDoDocx } from '../services/docxTemplate';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -25,7 +24,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
   const permissoes = usePermissions(userRole, userEmail);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editorAtivo, setEditorAtivo] = useState<Editor | null>(null);
+  const [textoSelecionado, setTextoSelecionado] = useState('');
   const docxInputRef = useRef<HTMLInputElement | null>(null);
   const [editForm, setEditForm] = useState<Partial<DocumentTemplate>>({
     name: '',
@@ -55,81 +54,37 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const resultado = await mammoth.convertToHtml({ arrayBuffer });
+      const base64 = await arquivoParaBase64(file);
 
-      // Converte as caixas de marcação do Word (<input type="checkbox">) nos
-      // caracteres ☒ / ☐, que o editor entende e o gerador de termo já usa.
-      const html = (resultado.value || '')
-        .replace(/<input[^>]*type="checkbox"[^>]*checked[^>]*>/gi, '☒')
-        .replace(/<input[^>]*type="checkbox"[^>]*>/gi, '☐');
-
-      if (!html.trim()) {
-        alert('Não foi possível ler o conteúdo desse arquivo Word. Ele pode estar vazio ou protegido.');
+      if (base64.length > 900000) {
+        alert('Esse arquivo Word é grande demais para ser salvo. Tente reduzir as imagens dentro dele.');
         return;
       }
-
-      // Avisa se o documento ficou grande demais pro Firestore (limite de 1 MB por registro)
-      if (html.length > 800000) {
-        alert('Esse documento tem imagens muito pesadas e pode não caber no banco de dados. Tente remover ou reduzir as imagens no Word antes de importar.');
-        return;
-      }
-
-      // Texto puro pra compatibilidade com o gerador de termo
-      const div = document.createElement('div');
-      div.innerHTML = html
-        .replace(/<\/(p|h1|h2|h3|li|div)>/gi, '\n')
-        .replace(/<li[^>]*>/gi, '- ');
-      const textoPuro = (div.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
-
-      const nomeSemExtensao = file.name.replace(/\.docx?$/i, '');
 
       setEditForm({
         id: `tmpl-${Date.now()}`,
-        name: nomeSemExtensao,
+        name: file.name.replace(/\.docx?$/i, ''),
         category: 'Responsabilidade',
-        content: textoPuro,
-        htmlContent: html,
+        content: '',
+        docxBase64: base64,
+        docxFileName: file.name,
         isActive: true,
         availableVariables: [
-          '{{nome_condutor}}',
-          '{{cpf_condutor}}',
-          '{{placa}}',
-          '{{prefixo}}',
-          '{{auto_infracao}}',
-          '{{data_infracao}}',
-          '{{horario_infracao}}',
-          '{{motivo_infracao}}',
-          '{{valor_infracao}}',
-          '{{valor_total}}',
-          '{{valor_total_extenso}}',
-          '{{opcao_cota_unica}}',
-          '{{opcao_parcelado}}',
-          '{{data_vencimento}}',
-          '{{numero_parcelas}}',
-          '{{valor_parcela}}',
-          '{{data_primeira_parcela}}',
-          '{{dia_assinatura}}',
-          '{{mes_assinatura}}',
-          '{{data_sinistro}}',
-          '{{hora_sinistro}}',
-          '{{local_sinistro}}',
-          '{{cidade}}',
-          '{{estado}}',
-          '{{nome_terceiro}}',
-          '{{cpf_terceiro}}',
-          '{{placa_terceiro}}',
-          '{{modelo_veiculo_terceiro}}',
+          '{{nome_condutor}}', '{{cpf_condutor}}', '{{placa}}', '{{prefixo}}',
+          '{{auto_infracao}}', '{{data_infracao}}', '{{horario_infracao}}',
+          '{{motivo_infracao}}', '{{valor_infracao}}', '{{valor_total}}',
+          '{{valor_total_extenso}}', '{{data_vencimento}}', '{{numero_parcelas}}',
+          '{{valor_parcela}}', '{{data_primeira_parcela}}', '{{dia_assinatura}}',
+          '{{mes_assinatura}}', '{{nome_terceiro}}', '{{cpf_terceiro}}',
+          '{{placa_terceiro}}', '{{modelo_veiculo_terceiro}}', '{{data_sinistro}}',
+          '{{hora_sinistro}}', '{{local_sinistro}}', '{{cidade}}', '{{estado}}',
         ],
         conditionRules: {},
       });
+      setTextoSelecionado('');
       setIsEditing(true);
-
-      if (resultado.messages && resultado.messages.length > 0) {
-        console.warn('Avisos ao importar o Word:', resultado.messages);
-      }
     } catch (err: any) {
-      alert(`Não foi possível importar o arquivo Word: ${err?.message || err}`);
+      alert(`Não foi possível ler o arquivo Word: ${err?.message || err}`);
     } finally {
       if (docxInputRef.current) docxInputRef.current.value = '';
     }
@@ -153,47 +108,52 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       ],
       conditionRules: { occurrenceType: 'Colisão' },
     });
+    setTextoSelecionado('');
     setIsEditing(true);
   };
 
   const handleStartEdit = (t: DocumentTemplate) => {
     setSelectedTemplate(t);
-    setEditForm({ ...t, htmlContent: garantirHtml(t) });
+    setEditForm({ ...t, htmlContent: t.htmlContent || (t.docxBase64 ? undefined : garantirHtml(t)) });
+    setTextoSelecionado('');
     setIsEditing(true);
   };
 
   const handleInsertVariable = (v: string) => {
-    if (!editorAtivo) return;
-    const { from, to } = editorAtivo.state.selection;
-    if (from !== to) {
-      // Tem texto selecionado: substitui pela variável
-      editorAtivo.chain().focus().deleteSelection().insertContent(v).run();
-    } else {
-      // Sem seleção: insere no cursor
-      editorAtivo.chain().focus().insertContent(v).run();
+    if (!editForm.docxBase64) {
+      alert('Importe um arquivo Word primeiro.');
+      return;
+    }
+    if (!textoSelecionado) {
+      alert('Selecione com o mouse, no documento abaixo, o texto que essa variável deve substituir.');
+      return;
+    }
+    try {
+      const novoBase64 = marcarVariavelNoDocx(editForm.docxBase64, textoSelecionado, v);
+      setEditForm((prev) => ({ ...prev, docxBase64: novoBase64 }));
+      setTextoSelecionado('');
+    } catch (err: any) {
+      alert(`Não foi possível marcar a variável: ${err?.message || err}`);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editForm.name) return;
-    const htmlFinal = editForm.htmlContent || '';
-    // Texto puro extraído do HTML, mantido pra compatibilidade com o gerador de termo
-    const div = document.createElement('div');
-    div.innerHTML = htmlFinal
-      .replace(/<\/(p|h1|h2|h3|li|div)>/gi, '\n')
-      .replace(/<li[^>]*>/gi, '- ')
-      .replace(/<hr\s*\/?>/gi, '\n_______________________________________________\n');
-    const textoFinal = (div.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
-    if (!textoFinal) return;
+    if (!editForm.docxBase64 && !editForm.htmlContent) {
+      alert('Importe um arquivo Word antes de salvar o modelo.');
+      return;
+    }
     const newTmpl: DocumentTemplate = {
       id: editForm.id || `tmpl-${Date.now()}`,
       name: editForm.name,
       category: editForm.category || 'Responsabilidade',
       conditionRules: editForm.conditionRules || {},
       isActive: editForm.isActive !== undefined ? editForm.isActive : true,
-      content: textoFinal,
-      htmlContent: htmlFinal,
+      content: editForm.content || '',
+      htmlContent: editForm.htmlContent,
+      docxBase64: editForm.docxBase64,
+      docxFileName: editForm.docxFileName,
       availableVariables: editForm.availableVariables || [],
     };
     onSaveTemplate(newTmpl);
@@ -462,14 +422,47 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
               <div>
                 <label className="form-label text-xs flex items-center gap-1.5 mb-1.5">
-                  <i className="fa-solid fa-file-word text-amber-500"></i>
-                  Conteúdo do Documento
+                  <i className="fa-solid fa-file-word text-blue-600"></i>
+                  Documento do Modelo
                 </label>
-                <RichTextEditor
-                  value={editForm.htmlContent || ''}
-                  onChange={(html) => setEditForm((prev) => ({ ...prev, htmlContent: html }))}
-                  onEditorReady={setEditorAtivo}
-                />
+
+                {editForm.docxBase64 ? (
+                  <>
+                    <div className={`mb-2 px-3 py-2 rounded-lg border text-xs ${
+                      textoSelecionado
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : 'bg-slate-50 border-slate-200 text-slate-500'
+                    }`}>
+                      {textoSelecionado ? (
+                        <>
+                          <i className="fa-solid fa-hand-pointer mr-1.5"></i>
+                          Selecionado: <strong>"{textoSelecionado}"</strong> — agora clique na variável correspondente lá em cima.
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa-solid fa-circle-info mr-1.5"></i>
+                          Selecione com o mouse, no documento abaixo, o dado que deve virar variável (ex: o nome da pessoa), depois clique na variável correspondente.
+                        </>
+                      )}
+                    </div>
+
+                    <p className="text-[10px] text-slate-500 mb-1.5">
+                      Variáveis já marcadas neste documento:{' '}
+                      <strong>{listarVariaveisDoDocx(editForm.docxBase64).join(', ') || 'nenhuma ainda'}</strong>
+                    </p>
+
+                    <DocxViewer
+                      docxBase64={editForm.docxBase64}
+                      onTextoSelecionado={setTextoSelecionado}
+                    />
+                  </>
+                ) : (
+                  <div className="p-8 text-center bg-slate-50 border border-dashed border-slate-300 rounded-xl">
+                    <i className="fa-solid fa-file-word text-3xl text-slate-300"></i>
+                    <p className="text-xs font-bold text-slate-600 mt-2">Nenhum documento Word neste modelo</p>
+                    <p className="text-[11px] text-slate-400">Use o botão "Importar Word" no topo da tela.</p>
+                  </div>
+                )}
               </div>
 
               <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
@@ -508,10 +501,14 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                   Pré-visualização do Modelo com Variáveis
                 </label>
                 <div className="border border-slate-200 rounded-lg bg-white p-6 max-h-[500px] overflow-y-auto trans-pinho-doc">
-                  <div
-                    className="prose-documento"
-                    dangerouslySetInnerHTML={{ __html: garantirHtml(selectedTemplate) }}
-                  />
+                  {selectedTemplate.docxBase64 ? (
+                    <DocxViewer docxBase64={selectedTemplate.docxBase64} />
+                  ) : (
+                    <div
+                      className="prose-documento"
+                      dangerouslySetInnerHTML={{ __html: garantirHtml(selectedTemplate) }}
+                    />
+                  )}
                 </div>
               </div>
             </div>
