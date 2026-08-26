@@ -227,7 +227,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       htmlContent: `<div class="prose-documento">
         ${htmlPreenchido}
         ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura ${assinaTerceiro ? 'do Terceiro' : 'do Condutor'}</p></div>` : ''}
-        <div style="text-align:center;border-top:2px solid #0f172a;padding-top:12px;margin-top:36px;">
+        <div class="doc-rodape">
           <p style="font-size:12px;font-weight:700;text-transform:uppercase;margin:0;text-align:center;">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</p>
           <p style="font-size:11px;font-weight:700;margin:2px 0 0 0;text-align:center;">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
           <p style="font-size:11px;font-weight:700;margin:0;text-align:center;">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>

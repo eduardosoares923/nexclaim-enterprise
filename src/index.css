@@ -49,7 +49,7 @@
   }
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 10mm 10mm 28mm 10mm;
   }
   body * {
     visibility: hidden !important;
@@ -126,6 +126,22 @@
   }
   .prose-documento a {
     text-decoration: none !important;
+  }
+
+  /* Rodapé fixo no pé de toda página impressa, igual ao rodapé do Word */
+  .doc-rodape {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 6px !important;
+    background: #ffffff !important;
+    border-top: 2px solid #000000 !important;
+  }
+  .doc-rodape p {
+    font-size: 10.5px !important;
+    line-height: 1.4 !important;
   }
 }
 
@@ -242,6 +258,19 @@
   height: auto;
   display: block;
   margin: 0 auto 12px auto;
+}
+
+/* Rodapé do documento: na tela fica no fim do conteúdo */
+.doc-rodape {
+  text-align: center;
+  border-top: 2px solid #0f172a;
+  padding-top: 10px;
+  margin-top: 36px;
+}
+.doc-rodape p {
+  text-align: center !important;
+  margin: 0 !important;
+  text-indent: 0 !important;
 }
 
 /* Destaque visual das variáveis {{...}} dentro do editor */
