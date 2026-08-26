@@ -99,19 +99,33 @@
     margin-top: 0.75rem !important;
     margin-bottom: 0.25rem !important;
   }
+  .prose-documento {
+    font-size: 12.5px !important;
+    line-height: 1.6 !important;
+    color: #000000 !important;
+  }
+  .prose-documento * {
+    color: #000000 !important;
+  }
   .prose-documento h1 {
-    font-size: 14px !important;
+    font-size: 15px !important;
+    margin-bottom: 14px !important;
   }
   .prose-documento h2 {
-    font-size: 12px !important;
-    margin-top: 14px !important;
+    font-size: 13px !important;
+    margin-top: 16px !important;
+    margin-bottom: 8px !important;
   }
   .prose-documento p {
-    font-size: 11px !important;
-    margin-bottom: 6px !important;
+    font-size: 12.5px !important;
+    margin-bottom: 9px !important;
   }
   .prose-documento li {
-    font-size: 11px !important;
+    font-size: 12.5px !important;
+    margin-bottom: 5px !important;
+  }
+  .prose-documento a {
+    text-decoration: none !important;
   }
 }
 

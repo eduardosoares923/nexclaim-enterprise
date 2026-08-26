@@ -405,22 +405,15 @@ export const TermsView: React.FC<TermsViewProps> = ({
                 />
               ) : (
                 <>
-                  {/* Cabeçalho / Timbrado da Empresa */}
-                  <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
-                    <h1 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-950">
-                      JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)
-                    </h1>
-                    <p className="text-[11px] text-slate-600 mt-0.5">
-                      Rua Florida, 116 – Nossa Chácara – Gravataí/ RS
-                    </p>
-                    <p className="text-[11px] text-slate-600">
-                      Telefone: (051) 3047-0212 / (051) 98266-0028 • E-mail: Transpinho@transpinho.com
-                    </p>
-                  </div>
                   <BlocosPreview
                     blocos={garantirBlocos({ content: viewingTerm.content || '' })}
                     signatureDataUrl={viewingTerm.signatureDataUrl}
                   />
+                  <div className="text-center border-t-2 border-slate-900 pt-3 mt-9">
+                    <p className="text-xs font-bold uppercase text-slate-900">JOÃO BATISTA DE SOUZA PINHO EPP (TRANS PINHO)</p>
+                    <p className="text-[11px] font-bold text-slate-800">Rua Florida, 116 – Nossa Chácara – Gravataí/ RS</p>
+                    <p className="text-[11px] font-bold text-slate-800">(051) 3047-0212 / 98266-0028 | Transpinho@transpinho.com</p>
+                  </div>
                 </>
               )}
             </div>

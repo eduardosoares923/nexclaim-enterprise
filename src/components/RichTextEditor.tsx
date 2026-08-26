@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -49,6 +49,15 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
       },
     },
   });
+
+  // Recarrega o conteúdo quando ele muda por fora (import de Word, troca de modelo)
+  useEffect(() => {
+    if (!editor) return;
+    const atual = editor.getHTML();
+    if (value !== atual) {
+      editor.commands.setContent(value || '', { emitUpdate: false });
+    }
+  }, [value, editor]);
 
   if (!editor) return null;
 
