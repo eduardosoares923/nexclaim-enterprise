@@ -172,6 +172,8 @@ export interface DocumentTemplate {
   content: string;
   blocos?: BlocoDocumento[];
   htmlContent?: string;
+  docxBase64?: string;      // o arquivo .docx do modelo, guardado em base64
+  docxFileName?: string;    // nome original do arquivo, só pra referência
   availableVariables: string[];
   createdBy?: string;
 }
