@@ -362,7 +362,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
       </div>
 
       {/* Document View / Print Modal */}
-      {viewingTerm && (
+      {viewingTerm && createPortal(
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:p-0 print:bg-white print:overflow-visible">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full my-8 flex flex-col overflow-hidden print:overflow-visible print:border-none print:shadow-none print:my-0 animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
@@ -425,7 +425,8 @@ export const TermsView: React.FC<TermsViewProps> = ({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
