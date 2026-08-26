@@ -19,6 +19,7 @@
     "@tiptap/pm": "^3.30.2",
     "@tiptap/react": "^3.30.2",
     "@tiptap/starter-kit": "^3.30.2",
+    "docx-preview": "^0.3.4",
     "docxtemplater": "^3.57.0",
     "file-saver": "^2.0.5",
     "firebase": "^10.8.1",

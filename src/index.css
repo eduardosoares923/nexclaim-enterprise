@@ -278,5 +278,18 @@
   --cor-variavel: #b45309;
 }
 
+/* Visualizador de documentos Word */
+.docx-render {
+  background: #ffffff;
+}
+.docx-render .docx-wrapper {
+  background: #f1f5f9;
+  padding: 16px;
+}
+.docx-render section.docx {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  margin-bottom: 12px;
+}
+
 
 

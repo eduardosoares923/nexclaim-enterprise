@@ -73,3 +73,61 @@ export function listarVariaveisDoDocx(docxBase64: string): string[] {
     return [];
   }
 }
+
+/**
+ * Substitui um texto por uma variável dentro do XML do Word, funcionando mesmo
+ * quando o Word partiu o texto em pedaços internamente (acontece direto).
+ */
+function substituirNoXml(xml: string, alvo: string, variavel: string): string {
+  return xml.replace(/<w:p[ >][\s\S]*?<\/w:p>/g, (paragrafo) => {
+    const pedacos = [...paragrafo.matchAll(/(<w:t(?:\s[^>]*)?>)([\s\S]*?)(<\/w:t>)/g)];
+    if (pedacos.length === 0) return paragrafo;
+
+    const textoCompleto = pedacos.map((p) => p[2]).join('');
+    const pos = textoCompleto.indexOf(alvo);
+    if (pos === -1) return paragrafo;
+
+    const fim = pos + alvo.length;
+    let cursor = 0;
+    let jaColocou = false;
+    let novoParagrafo = paragrafo;
+    const substituicoes: [string, string][] = [];
+
+    for (const p of pedacos) {
+      const ini = cursor;
+      const termino = cursor + p[2].length;
+      cursor = termino;
+      if (termino <= pos || ini >= fim) continue;
+      const antes = p[2].slice(0, Math.max(pos - ini, 0));
+      const depois = p[2].slice(Math.min(Math.max(fim - ini, 0), p[2].length));
+      const meio = jaColocou ? '' : variavel;
+      jaColocou = true;
+      substituicoes.push([p[0], `${p[1]}${antes}${meio}${depois}${p[3]}`]);
+    }
+
+    substituicoes.forEach(([de, para]) => {
+      novoParagrafo = novoParagrafo.replace(de, para);
+    });
+    return novoParagrafo;
+  });
+}
+
+/**
+ * Recebe o .docx em base64, troca um texto por uma variável, e devolve o .docx
+ * atualizado em base64. A formatação original fica intacta.
+ */
+export function marcarVariavelNoDocx(
+  docxBase64: string,
+  textoAlvo: string,
+  variavel: string
+): string {
+  const zip = new PizZip(base64ParaUint8Array(docxBase64));
+  const alvos = Object.keys(zip.files).filter((n) =>
+    /^word\/(document|header\d*|footer\d*)\.xml$/.test(n)
+  );
+  alvos.forEach((nome) => {
+    const xml = zip.file(nome)?.asText() || '';
+    zip.file(nome, substituirNoXml(xml, textoAlvo, variavel));
+  });
+  return zip.generate({ type: 'base64' });
+}
