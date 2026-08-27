@@ -395,6 +395,48 @@ export const firebaseService = {
     }
   },
 
+  // Sync Document Templates
+  async fetchTemplates(): Promise<DocumentTemplate[]> {
+    try {
+      const snap = await getDocs(collection(db, 'documentTemplates'));
+      if (!snap.empty) {
+        return snap.docs.map((d: any) => ({ ...d.data(), id: d.id } as DocumentTemplate));
+      }
+    } catch (e) {
+      console.warn('Firestore fetchTemplates fallback:', e);
+    }
+    return [];
+  },
+
+  async saveTemplate(data: Omit<DocumentTemplate, 'id'>): Promise<string> {
+    try {
+      const dadosComCriador = { ...data, createdBy: auth.currentUser?.email || null };
+      const docRef = await addDoc(collection(db, 'documentTemplates'), removeUndefinedFields(dadosComCriador));
+      return docRef.id;
+    } catch (e) {
+      console.error('Firestore saveTemplate error:', e);
+      throw e;
+    }
+  },
+
+  async updateTemplate(id: string, data: Partial<DocumentTemplate>): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'documentTemplates', id), removeUndefinedFields(data));
+    } catch (e) {
+      console.error('Firestore updateTemplate error:', e);
+      throw e;
+    }
+  },
+
+  async deleteTemplate(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'documentTemplates', id));
+    } catch (e) {
+      console.error('Firestore deleteTemplate error:', e);
+      throw e;
+    }
+  },
+
   // Cloud Storage File Upload
   async uploadFile(file: File, folder: string = 'documents'): Promise<string> {
     try {

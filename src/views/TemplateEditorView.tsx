@@ -5,6 +5,7 @@ import { rotuloDaVariavel } from '../utils/variaveisDocumento';
 import { garantirHtml } from '../utils/documentoBlocos';
 import { DocxViewer } from '../components/DocxViewer';
 import { arquivoParaBase64, marcarVariavelNoDocx, listarVariaveisDoDocx } from '../services/docxTemplate';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -22,6 +23,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
   userEmail,
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
+  const confirmar = useConfirm();
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
   const [textoSelecionado, setTextoSelecionado] = useState('');
@@ -174,7 +176,24 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
           </p>
         </div>
         {permissoes.podeCriar && (
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={async () => {
+                const ok = await confirmar({
+                  title: 'Salvar Modelos Oficiais',
+                  message: `Os ${templates.length} modelos atuais serão gravados no banco de dados, passando a ser editáveis de verdade. Continuar?`,
+                  confirmLabel: 'Salvar Todos',
+                });
+                if (ok) {
+                  templates.forEach((t) => onSaveTemplate(t));
+                  alert('Modelos enviados para o banco. Recarregue a página em alguns segundos.');
+                }
+              }}
+              className="bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm border border-slate-200 cursor-pointer transition"
+              title="Gravar os modelos oficiais no banco de dados"
+            >
+              <i className="fa-solid fa-database text-emerald-600"></i> Salvar no Banco
+            </button>
             <input
               type="file"
               ref={docxInputRef}

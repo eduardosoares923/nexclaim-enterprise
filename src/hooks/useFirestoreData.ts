@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firebaseService } from '../services/firebase';
-import { Claim, Fine, Term, Vehicle, Person, InfractionType, FinancialEntry } from '../types';
+import { Claim, Fine, Term, Vehicle, Person, InfractionType, FinancialEntry, DocumentTemplate } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 
 // ==========================================
@@ -335,6 +335,48 @@ export function useDeleteFinancialEntry() {
     mutationFn: (id: string) => firebaseService.deleteFinancialEntry(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['financialEntries'] });
+    },
+  });
+}
+
+// ==========================================
+// DOCUMENT TEMPLATES HOOKS
+// ==========================================
+export function useTemplates(enabled: boolean = true) {
+  return useQuery<DocumentTemplate[]>({
+    queryKey: ['documentTemplates'],
+    queryFn: () => firebaseService.fetchTemplates(),
+    enabled,
+  });
+}
+
+export function useCreateTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<DocumentTemplate, 'id'>) => firebaseService.saveTemplate(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documentTemplates'] });
+    },
+  });
+}
+
+export function useUpdateTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<DocumentTemplate> }) =>
+      firebaseService.updateTemplate(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documentTemplates'] });
+    },
+  });
+}
+
+export function useDeleteTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => firebaseService.deleteTemplate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documentTemplates'] });
     },
   });
 }
