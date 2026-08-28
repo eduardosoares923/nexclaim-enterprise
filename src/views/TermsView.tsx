@@ -88,7 +88,14 @@ export const TermsView: React.FC<TermsViewProps> = ({
         </div>
 
         {permissoes.podeCriar && (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => onOpenTermGenerator(undefined)}
+              className="bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm border border-slate-200 cursor-pointer transition"
+              title="Emitir um termo sem vínculo com sinistro ou multa"
+            >
+              <i className="fa-solid fa-file-circle-plus text-amber-500"></i> Termo Avulso
+            </button>
             <button
               onClick={() => onOpenTermGenerator(claims[0])}
               className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl shadow-md transition"

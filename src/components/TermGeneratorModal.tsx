@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Claim, Person, Vehicle, DocumentTemplate, Term } from '../types';
 import { SignaturePad } from './SignaturePad';
 import { Combobox } from './Combobox';
 import { garantirHtml } from '../utils/documentoBlocos';
-import { baixarDocxPreenchido } from '../services/docxTemplate';
+import { baixarDocxPreenchido, listarVariaveisDoDocx } from '../services/docxTemplate';
+import { rotuloDaVariavel } from '../utils/variaveisDocumento';
 import { useToast } from '../contexts/ToastContext';
 
 interface TermGeneratorModalProps {
@@ -28,37 +29,6 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   origin = 'sinistro',
 }) => {
   const notificar = useToast();
-  if (!claim) {
-    return (
-      <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <div
-          className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center space-y-4 animate-in fade-in zoom-in-95 duration-150"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
-            <i className="fa-solid fa-triangle-exclamation"></i>
-          </div>
-          <div>
-            <h3 className="font-bold text-slate-900 text-base">Nenhum sinistro disponível</h3>
-            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-              Nenhum sinistro disponível. Cadastre um sinistro em Sinistros & Ocorrências antes de emitir um termo vinculado a ele.
-            </p>
-          </div>
-          <div className="pt-2">
-            <button
-              onClick={onClose}
-              className="btn bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition"
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const templatesDaOrigem = templates.filter((t) =>
     origin === 'multa' ? t.conditionRules?.hasFine === true : t.conditionRules?.hasFine !== true
@@ -90,12 +60,13 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const [numeroParcelasEscolhido, setNumeroParcelasEscolhido] = useState<number>(2);
   const [dataPagamento, setDataPagamento] = useState<string>('');
   const [customHtmlContent, setCustomHtmlContent] = useState<string>('');
+  const [valoresEditados, setValoresEditados] = useState<Record<string, string>>({});
 
   const currentTemplate = templatesFiltrados.find((t) => t.id === selectedTemplateId) || templatesFiltrados[0] || templates[0];
   const assinaTerceiro = currentTemplate?.conditionRules?.signatario === 'terceiro';
   const nomeSignatario = assinaTerceiro
-    ? (claim?.thirdPartyName || 'Terceiro Não Informado')
-    : selectedDriverName;
+    ? (claim?.thirdPartyName || valoresEditados.nome_terceiro || 'Terceiro Não Informado')
+    : (selectedDriverName || valoresEditados.nome_condutor || 'Não Informado');
   const currentDriver = people.find((p) => p.name === selectedDriverName) || people[0];
   const currentVehicle = vehicles.find((v) => v.plate === claim?.vehiclePlate) || vehicles[0];
 
@@ -213,13 +184,25 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
     return mapa;
   };
 
+  useEffect(() => {
+    if (!currentTemplate?.docxBase64) return;
+    const automaticos = montarDadosDasVariaveis();
+    const usadas = listarVariaveisDoDocx(currentTemplate.docxBase64);
+    const iniciais: Record<string, string> = {};
+    usadas.forEach((v) => {
+      const nome = v.replace(/[{}]/g, '');
+      iniciais[nome] = automaticos[nome] || '';
+    });
+    setValoresEditados(iniciais);
+  }, [currentTemplate?.id]);
+
   const handleSubmit = (e: React.FormEvent) => {
     if (assinaTerceiro) {
-      if (!claim?.thirdPartyName) {
+      if (!claim?.thirdPartyName && !valoresEditados.nome_terceiro) {
         notificar('Este modelo é assinado pelo terceiro, mas o sinistro não tem os dados do terceiro preenchidos. Edite o sinistro e informe o nome do terceiro antes de emitir.', 'aviso');
         return;
       }
-    } else if (!currentDriver?.docNumber && !cpfManual.trim()) {
+    } else if (claim && !currentDriver?.docNumber && !cpfManual.trim()) {
       notificar('Este condutor não tem CPF cadastrado. Preencha o campo "CPF do Condutor" no Passo 1 antes de continuar.', 'aviso');
       setStep(1);
       return;
@@ -249,7 +232,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
       paymentDate: dataPagamento || undefined,
       content: textContent,
       templateDocxBase64: currentTemplate?.docxBase64,
-      variaveisPreenchidas: montarDadosDasVariaveis(),
+      variaveisPreenchidas: { ...montarDadosDasVariaveis(), ...valoresEditados },
       htmlContent: `<div class="prose-documento">
         ${htmlPreenchido}
         ${signatureDataUrl ? `<div style="text-align:center;margin-top:24px;"><img src="${signatureDataUrl}" style="max-width:220px;border-bottom:1px solid #000;padding-bottom:4px;" /><p style="font-size:10px;margin-top:4px;">Assinatura ${assinaTerceiro ? 'do Terceiro' : 'do Condutor'}</p></div>` : ''}
@@ -461,6 +444,38 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                   )}
                 </div>
               )}
+
+              {currentTemplate?.docxBase64 && Object.keys(valoresEditados).length > 0 && (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                  <label className="form-label text-xs flex items-center gap-1.5 mb-0">
+                    <i className="fa-solid fa-pen-to-square text-amber-500"></i>
+                    Dados do Documento
+                  </label>
+                  <p className="text-[10px] text-slate-500">
+                    {claim
+                      ? 'Preenchidos automaticamente a partir do registro. Você pode ajustar o que quiser.'
+                      : 'Termo avulso: preencha os campos abaixo manualmente.'}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[260px] overflow-y-auto pr-1">
+                    {Object.keys(valoresEditados).sort().map((nome) => (
+                      <div key={nome}>
+                        <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                          {rotuloDaVariavel(`{{${nome}}}`)}
+                        </label>
+                        <input
+                          type="text"
+                          value={valoresEditados[nome]}
+                          onChange={(e) =>
+                            setValoresEditados((prev) => ({ ...prev, [nome]: e.target.value }))
+                          }
+                          placeholder="Preencher"
+                          className="w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
 
@@ -483,7 +498,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                     try {
                       baixarDocxPreenchido(
                         currentTemplate.docxBase64!,
-                        montarDadosDasVariaveis(),
+                        { ...montarDadosDasVariaveis(), ...valoresEditados },
                         `${currentTemplate.name} - ${nomeSignatario}.docx`
                       );
                     } catch (err: any) {

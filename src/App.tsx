@@ -477,11 +477,7 @@ export const App: React.FC = () => {
                   people={people}
                   templates={templates}
                   onOpenTermGenerator={(claim) => {
-                    if (!claim && claims.length === 0) {
-                      notificar('Cadastre pelo menos um sinistro antes de emitir um termo.', 'aviso');
-                      return;
-                    }
-                    setSelectedClaim(claim || claims[0]);
+                    setSelectedClaim(claim || null);
                     setShowTermGenModal(true);
                   }}
                 />
@@ -567,11 +563,7 @@ export const App: React.FC = () => {
                   vehicles={vehicles}
                   templates={templates}
                   onOpenTermGenerator={(claim) => {
-                    if (!claim && claims.length === 0) {
-                      notificar('Cadastre pelo menos um sinistro antes de emitir um termo.', 'aviso');
-                      return;
-                    }
-                    setSelectedClaim(claim || claims[0]);
+                    setSelectedClaim(claim || null);
                     setShowTermGenModal(true);
                   }}
                   onDeleteTerm={(id) => deleteTermMutation.mutate(id)}
@@ -678,7 +670,7 @@ export const App: React.FC = () => {
 
       {showTermGenModal && (
         <TermGeneratorModal
-          claim={selectedClaim || claims[0]}
+          claim={selectedClaim || undefined}
           people={people}
           vehicles={vehicles}
           templates={templates.filter((t) => t.isActive)}
