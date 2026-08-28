@@ -4,6 +4,7 @@ import { Term, Claim, Person, Vehicle, DocumentTemplate, RoleType } from '../typ
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 import { BlocosPreview } from '../components/BlocosPreview';
 import { garantirBlocos } from '../utils/documentoBlocos';
 import { baixarDocxPreenchido } from '../services/docxTemplate';
@@ -35,6 +36,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -346,7 +348,7 @@ export const TermsView: React.FC<TermsViewProps> = ({
                             `${term.title} - ${term.involvedPerson}.docx`
                           );
                         } catch (err: any) {
-                          alert(`Não foi possível gerar o Word: ${err?.message || err}`);
+                          notificar(`Não foi possível gerar o Word: ${err?.message || err}`, 'erro');
                         }
                       }}
                       className="btn bg-blue-600 hover:bg-blue-500 text-white text-xs px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow-2xs transition"

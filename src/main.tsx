@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ConfirmProvider } from './contexts/ConfirmContext';
+import { ToastProvider } from './contexts/ToastContext';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -21,11 +22,13 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ConfirmProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ConfirmProvider>
+        <ToastProvider>
+          <ConfirmProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ConfirmProvider>
+        </ToastProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   </React.StrictMode>

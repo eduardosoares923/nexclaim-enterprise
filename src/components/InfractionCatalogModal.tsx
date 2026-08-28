@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { InfractionType } from '../types';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 export const CATALOGO_PADRAO_INICIAL: Omit<InfractionType, 'id'>[] = [
   { description: 'AVANÇAR O SINAL VERMELHO DO SEMAFORO - EXC HOUVER SINALIZ PERM LIVRE CONV A DIREITA FISC ELETRONICA', amount: 293.47, points: 7 },
@@ -44,6 +45,7 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
   onClose,
 }) => {
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [description, setDescription] = useState('');
@@ -104,10 +106,10 @@ export const InfractionCatalogModal: React.FC<InfractionCatalogModalProps> = ({
       for (const item of CATALOGO_PADRAO_INICIAL) {
         await onSave(item);
       }
-      alert('Catálogo padrão de infrações importado com sucesso!');
+      notificar('Catálogo padrão de infrações importado com sucesso!', 'sucesso');
     } catch (e: any) {
       console.error('Erro ao importar catálogo padrão:', e);
-      alert(`Erro ao importar catálogo: ${e.message || e}`);
+      notificar(`Erro ao importar catálogo: ${e.message || e}`, 'erro');
     } finally {
       setIsImportingDefault(false);
     }

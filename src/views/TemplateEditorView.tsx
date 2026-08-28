@@ -6,6 +6,7 @@ import { garantirHtml } from '../utils/documentoBlocos';
 import { DocxViewer } from '../components/DocxViewer';
 import { arquivoParaBase64, marcarVariavelNoDocx, listarVariaveisDoDocx } from '../services/docxTemplate';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface TemplateEditorViewProps {
   templates: DocumentTemplate[];
@@ -24,6 +25,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(templates[0] || null);
   const [isEditing, setIsEditing] = useState(false);
   const [textoSelecionado, setTextoSelecionado] = useState('');
@@ -59,7 +61,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       const base64 = await arquivoParaBase64(file);
 
       if (base64.length > 900000) {
-        alert('Esse arquivo Word é grande demais para ser salvo. Tente reduzir as imagens dentro dele.');
+        notificar('Esse arquivo Word é grande demais para ser salvo. Tente reduzir as imagens dentro dele.', 'aviso');
         return;
       }
 
@@ -86,7 +88,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       setTextoSelecionado('');
       setIsEditing(true);
     } catch (err: any) {
-      alert(`Não foi possível ler o arquivo Word: ${err?.message || err}`);
+      notificar(`Não foi possível ler o arquivo Word: ${err?.message || err}`, 'erro');
     } finally {
       if (docxInputRef.current) docxInputRef.current.value = '';
     }
@@ -123,11 +125,11 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
 
   const handleInsertVariable = (v: string) => {
     if (!editForm.docxBase64) {
-      alert('Importe um arquivo Word primeiro.');
+      notificar('Importe um arquivo Word primeiro.', 'aviso');
       return;
     }
     if (!textoSelecionado) {
-      alert('Selecione com o mouse, no documento abaixo, o texto que essa variável deve substituir.');
+      notificar('Selecione com o mouse, no documento abaixo, o texto que essa variável deve substituir.', 'aviso');
       return;
     }
     try {
@@ -135,7 +137,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
       setEditForm((prev) => ({ ...prev, docxBase64: novoBase64 }));
       setTextoSelecionado('');
     } catch (err: any) {
-      alert(`Não foi possível marcar a variável: ${err?.message || err}`);
+      notificar(`Não foi possível marcar a variável: ${err?.message || err}`, 'erro');
     }
   };
 
@@ -143,7 +145,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
     e.preventDefault();
     if (!editForm.name) return;
     if (!editForm.docxBase64 && !editForm.htmlContent) {
-      alert('Importe um arquivo Word antes de salvar o modelo.');
+      notificar('Importe um arquivo Word antes de salvar o modelo.', 'aviso');
       return;
     }
     const newTmpl: DocumentTemplate = {
@@ -186,7 +188,7 @@ export const TemplateEditorView: React.FC<TemplateEditorViewProps> = ({
                 });
                 if (ok) {
                   templates.forEach((t) => onSaveTemplate(t));
-                  alert('Modelos enviados para o banco. Recarregue a página em alguns segundos.');
+                  notificar('Modelos enviados para o banco. Recarregue a página em alguns segundos.', 'sucesso');
                 }
               }}
               className="bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm border border-slate-200 cursor-pointer transition"

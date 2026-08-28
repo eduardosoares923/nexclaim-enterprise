@@ -7,6 +7,7 @@ import { Combobox } from '../components/Combobox';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 export const COMPANY_BRANDS: Record<string, {
   name: string;
@@ -100,6 +101,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [selectedOrder, setSelectedOrder] = useState<WorkOrder | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null);
@@ -250,7 +252,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         setBudgetPdfUrl(url);
       }
     } catch (err: any) {
-      alert(`Erro ao processar PDF: ${err?.message || err}`);
+      notificar(`Erro ao processar PDF: ${err?.message || err}`, 'erro');
     } finally {
       setIsExtractingPdf(false);
       e.target.value = '';

@@ -16,6 +16,7 @@ import { TermGeneratorModal } from '../components/TermGeneratorModal';
 import { formatarDataBr, formatarDataHoraBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface FinesViewProps {
   fines: Fine[];
@@ -59,6 +60,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
   const queryClient = useQueryClient();
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -300,14 +302,14 @@ export const FinesView: React.FC<FinesViewProps> = ({
     try {
       const linhas = await lerPlanilhaMultas(file);
       if (linhas.length === 0) {
-        alert('Nenhuma multa válida encontrada na planilha.');
+        notificar('Nenhuma multa válida encontrada na planilha.', 'aviso');
         return;
       }
       setLinhasParaImportar(linhas);
       setShowImportModal(true);
     } catch (err: any) {
       console.error('Erro ao ler planilha de multas:', err);
-      alert(`Erro ao ler a planilha: ${err.message || err}`);
+      notificar(`Erro ao ler a planilha: ${err.message || err}`, 'erro');
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -340,10 +342,10 @@ export const FinesView: React.FC<FinesViewProps> = ({
       await queryClient.invalidateQueries({ queryKey: ['fines'] });
       setShowImportModal(false);
       setLinhasParaImportar([]);
-      alert(`Importação concluída com sucesso! ${total} multas processadas.`);
+      notificar(`Importação concluída com sucesso! ${total} multas processadas.`, 'sucesso');
     } catch (err: any) {
       console.error('Erro durante a importação de multas:', err);
-      alert(`Erro durante a importação: ${err.message || err}`);
+      notificar(`Erro durante a importação: ${err.message || err}`, 'erro');
     } finally {
       setIsImporting(false);
       setImportProgress(null);
@@ -1407,7 +1409,11 @@ export const FinesView: React.FC<FinesViewProps> = ({
                   type="button"
                   disabled={colunasExportSelecionadas.length === 0}
                   onClick={() => {
-                    exportarMultasParaExcel(sortedFines, colunasExportSelecionadas);
+                    try {
+                      exportarMultasParaExcel(sortedFines, colunasExportSelecionadas);
+                    } catch (err: any) {
+                      notificar(err?.message || 'Não foi possível exportar.', 'aviso');
+                    }
                     setShowExportModal(false);
                   }}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"

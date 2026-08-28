@@ -5,9 +5,11 @@ import { deleteDoc } from '@firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { User, RoleType } from '../types';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 export const UsersView: React.FC = () => {
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -184,7 +186,7 @@ export const UsersView: React.FC = () => {
 
   const handleDeleteUser = async (user: User) => {
     if (user.email === auth.currentUser?.email) {
-      alert('Você não pode excluir o seu próprio usuário conectado.');
+      notificar('Você não pode excluir o seu próprio usuário conectado.', 'aviso');
       return;
     }
     const ok = await confirmar({
@@ -198,7 +200,7 @@ export const UsersView: React.FC = () => {
         await deleteDoc(doc(db, 'users', user.id));
         await carregarUsuarios();
       } catch (e: any) {
-        alert(`Erro ao excluir: ${e.message}`);
+        notificar(`Erro ao excluir: ${e.message}`, 'erro');
       }
     }
   };

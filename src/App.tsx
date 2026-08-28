@@ -64,6 +64,7 @@ import {
 } from './types';
 import { usePermissions } from './hooks/usePermissions';
 import { formatarDataBr, limparDescricaoMulta } from './utils/dateUtils';
+import { useToast } from './contexts/ToastContext';
 
 const MODELOS_INICIAIS: DocumentTemplate[] = [
   {
@@ -182,6 +183,7 @@ const MODELOS_INICIAIS: DocumentTemplate[] = [
 
 export const App: React.FC = () => {
   const navigate = useNavigate();
+  const notificar = useToast();
   const [papelReal, setPapelReal] = useState<RoleType | undefined>(undefined);
   const [sidebarAberto, setSidebarAberto] = useState(false);
 
@@ -354,7 +356,7 @@ export const App: React.FC = () => {
         });
       }
     } catch (err: any) {
-      alert(`Não foi possível gerar o lançamento financeiro automaticamente para este termo: ${err?.message || err}. Vá em Financeiro e use o botão "Gerar Lançamentos Automaticamente" pra tentar de novo.`);
+      notificar(`Não foi possível gerar o lançamento financeiro automaticamente para este termo: ${err?.message || err}. Vá em Financeiro e use o botão "Gerar Lançamentos Automaticamente" pra tentar de novo.`, 'erro');
     }
   };
 
@@ -365,11 +367,11 @@ export const App: React.FC = () => {
     if (jaExisteNoBanco) {
       updateTemplateMutation.mutate(
         { id, data: dados },
-        { onError: (err: any) => alert(`Não foi possível salvar o modelo: ${err?.message || err}`) }
+        { onError: (err: any) => notificar(`Não foi possível salvar o modelo: ${err?.message || err}`, 'erro') }
       );
     } else {
       createTemplateMutation.mutate(dados, {
-        onError: (err: any) => alert(`Não foi possível salvar o modelo: ${err?.message || err}`),
+        onError: (err: any) => notificar(`Não foi possível salvar o modelo: ${err?.message || err}`, 'erro'),
       });
     }
   };
@@ -382,14 +384,14 @@ export const App: React.FC = () => {
     if (jaExisteNoBanco) {
       updateTemplateMutation.mutate(
         { id, data: { isActive: !modelo.isActive } },
-        { onError: (err: any) => alert(`Não foi possível alterar o modelo: ${err?.message || err}`) }
+        { onError: (err: any) => notificar(`Não foi possível alterar o modelo: ${err?.message || err}`, 'erro') }
       );
     } else {
       // Modelo ainda só existe no código: salva no banco já com o status trocado
       const { id: _ignorado, ...dados } = modelo;
       createTemplateMutation.mutate(
         { ...dados, isActive: !modelo.isActive },
-        { onError: (err: any) => alert(`Não foi possível alterar o modelo: ${err?.message || err}`) }
+        { onError: (err: any) => notificar(`Não foi possível alterar o modelo: ${err?.message || err}`, 'erro') }
       );
     }
   };
@@ -476,7 +478,7 @@ export const App: React.FC = () => {
                   templates={templates}
                   onOpenTermGenerator={(claim) => {
                     if (!claim && claims.length === 0) {
-                      alert('Cadastre pelo menos um sinistro antes de emitir um termo.');
+                      notificar('Cadastre pelo menos um sinistro antes de emitir um termo.', 'aviso');
                       return;
                     }
                     setSelectedClaim(claim || claims[0]);
@@ -535,7 +537,7 @@ export const App: React.FC = () => {
                     const { id, ...termData } = term as any;
                     createTermMutation.mutate(termData, {
                       onSuccess: () => gerarLancamentoAutomaticoParaTermo(term),
-                      onError: (err: any) => alert(`Não foi possível salvar o termo: ${err?.message || err}`),
+                      onError: (err: any) => notificar(`Não foi possível salvar o termo: ${err?.message || err}`, 'erro'),
                     });
                   }}
                   onSaveFine={(newFine) => {
@@ -566,7 +568,7 @@ export const App: React.FC = () => {
                   templates={templates}
                   onOpenTermGenerator={(claim) => {
                     if (!claim && claims.length === 0) {
-                      alert('Cadastre pelo menos um sinistro antes de emitir um termo.');
+                      notificar('Cadastre pelo menos um sinistro antes de emitir um termo.', 'aviso');
                       return;
                     }
                     setSelectedClaim(claim || claims[0]);
@@ -584,7 +586,7 @@ export const App: React.FC = () => {
                           }
                         },
                         onError: (err: any) => {
-                          alert(`Não foi possível salvar a assinatura: ${err?.message || err}`);
+                          notificar(`Não foi possível salvar a assinatura: ${err?.message || err}`, 'erro');
                         },
                       }
                     );

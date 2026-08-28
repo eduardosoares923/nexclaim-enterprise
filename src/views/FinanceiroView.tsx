@@ -6,6 +6,7 @@ import { formatarDataBr, limparDescricaoMulta } from '../utils/dateUtils';
 import { exportarFinanceiroParaExcel, lerPlanilhaFinanceiro } from '../services/financeiroImport';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface FinanceiroViewProps {
   financialEntries: FinancialEntry[];
@@ -34,6 +35,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 }) => {
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
+  const notificar = useToast();
 
   // Estados de Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,7 +74,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
     try {
       const linhas = await lerPlanilhaFinanceiro(file);
       if (linhas.length === 0) {
-        alert('Nenhum lançamento válido encontrado na planilha.');
+        notificar('Nenhum lançamento válido encontrado na planilha.', 'aviso');
         return;
       }
       const ok = await confirmar({
@@ -84,7 +86,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
         linhas.forEach((l) => onSaveEntry(l));
       }
     } catch (err: any) {
-      alert(`Não foi possível importar a planilha: ${err?.message || err}`);
+      notificar(`Não foi possível importar a planilha: ${err?.message || err}`, 'erro');
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -168,7 +170,7 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
   const handleGerarAutomatico = async () => {
     if (candidatosAuto.total === 0) {
-      alert('Não há novos sinistros ou multas pendentes para gerar lançamentos automáticos.');
+      notificar('Não há novos sinistros ou multas pendentes para gerar lançamentos automáticos.', 'info');
       return;
     }
 
@@ -227,9 +229,9 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
         });
       }
 
-      alert(`Sucesso! ${candidatosAuto.total} lançamento(s) financeiro(s) gerado(s).`);
+      notificar(`Sucesso! ${candidatosAuto.total} lançamento(s) financeiro(s) gerado(s).`, 'sucesso');
     } catch (err: any) {
-      alert(`Erro ao gerar lançamentos: ${err?.message || err}`);
+      notificar(`Erro ao gerar lançamentos: ${err?.message || err}`, 'erro');
     } finally {
       setIsGeneratingAuto(false);
     }
@@ -499,7 +501,13 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
           )}
 
           <button
-            onClick={() => exportarFinanceiroParaExcel(filteredEntries)}
+            onClick={() => {
+              try {
+                exportarFinanceiroParaExcel(filteredEntries);
+              } catch (err: any) {
+                notificar(err?.message || 'Não foi possível exportar.', 'aviso');
+              }
+            }}
             className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition cursor-pointer"
             title="Exportar lançamentos filtrados para Excel"
           >

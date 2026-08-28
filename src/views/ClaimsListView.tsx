@@ -11,6 +11,7 @@ import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -44,6 +45,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const queryClient = useQueryClient();
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
+  const notificar = useToast();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -154,7 +156,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       const dados = await lerAbaDados(file);
 
       if ((!linhas || linhas.length === 0) && (!dados || dados.cadastros.length === 0)) {
-        alert('Não foi possível identificar as colunas da planilha. Verifique se ela tem uma coluna PLACA.');
+        notificar('Não foi possível identificar as colunas da planilha. Verifique se ela tem uma coluna PLACA.', 'aviso');
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
@@ -169,7 +171,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       setShowImportModal(true);
     } catch (err: any) {
       console.error('Erro ao ler planilha:', err);
-      alert(`Erro ao processar planilha: ${err.message || err}`);
+      notificar(`Erro ao processar planilha: ${err.message || err}`, 'erro');
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -333,7 +335,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const corrigirTiposExistentes = async () => {
     const paraCorrigir = claims.filter((c) => normalizarTipoOcorrencia(c.occurrenceType) !== c.occurrenceType);
     if (paraCorrigir.length === 0) {
-      alert('Nenhum sinistro precisa de correção, todos já estão com o tipo padronizado.');
+      notificar('Nenhum sinistro precisa de correção, todos já estão com o tipo padronizado.', 'info');
       return;
     }
     const ok = await confirmar({
@@ -347,13 +349,13 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       await firebaseService.updateClaim(c.id, { occurrenceType: normalizarTipoOcorrencia(c.occurrenceType) });
     }
     queryClient.invalidateQueries({ queryKey: ['claims'] });
-    alert(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`);
+    notificar(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`, 'sucesso');
   };
 
   const corrigirStatusNovo = async () => {
     const paraCorrigir = claims.filter((c) => c.status === 'Novo');
     if (paraCorrigir.length === 0) {
-      alert('Nenhum sinistro está com o status "Novo".');
+      notificar('Nenhum sinistro está com o status "Novo".', 'info');
       return;
     }
     const ok = await confirmar({
@@ -367,7 +369,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       await firebaseService.updateClaim(c.id, { status: 'Em análise' });
     }
     queryClient.invalidateQueries({ queryKey: ['claims'] });
-    alert(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`);
+    notificar(`${paraCorrigir.length} sinistro(s) corrigidos com sucesso.`, 'sucesso');
   };
 
   return (

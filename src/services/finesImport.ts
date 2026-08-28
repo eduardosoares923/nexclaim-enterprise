@@ -172,8 +172,7 @@ export async function lerPlanilhaMultas(file: File): Promise<LinhaMultaImportada
 
 export function exportarMultasParaExcel(fines: Fine[], colunasSelecionadas?: string[]) {
   if (!fines || fines.length === 0) {
-    alert('Nenhuma multa selecionada para exportação.');
-    return;
+    throw new Error('Nenhuma multa selecionada para exportação.');
   }
 
   const cols = colunasSelecionadas && colunasSelecionadas.length > 0

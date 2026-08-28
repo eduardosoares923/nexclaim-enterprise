@@ -4,6 +4,7 @@ import { SignaturePad } from './SignaturePad';
 import { Combobox } from './Combobox';
 import { garantirHtml } from '../utils/documentoBlocos';
 import { baixarDocxPreenchido } from '../services/docxTemplate';
+import { useToast } from '../contexts/ToastContext';
 
 interface TermGeneratorModalProps {
   claim?: Claim;
@@ -26,6 +27,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   onUpdatePerson,
   origin = 'sinistro',
 }) => {
+  const notificar = useToast();
   if (!claim) {
     return (
       <div
@@ -214,11 +216,11 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     if (assinaTerceiro) {
       if (!claim?.thirdPartyName) {
-        alert('Este modelo é assinado pelo terceiro, mas o sinistro não tem os dados do terceiro preenchidos. Edite o sinistro e informe o nome do terceiro antes de emitir.');
+        notificar('Este modelo é assinado pelo terceiro, mas o sinistro não tem os dados do terceiro preenchidos. Edite o sinistro e informe o nome do terceiro antes de emitir.', 'aviso');
         return;
       }
     } else if (!currentDriver?.docNumber && !cpfManual.trim()) {
-      alert('Este condutor não tem CPF cadastrado. Preencha o campo "CPF do Condutor" no Passo 1 antes de continuar.');
+      notificar('Este condutor não tem CPF cadastrado. Preencha o campo "CPF do Condutor" no Passo 1 antes de continuar.', 'aviso');
       setStep(1);
       return;
     }
@@ -485,7 +487,7 @@ export const TermGeneratorModal: React.FC<TermGeneratorModalProps> = ({
                         `${currentTemplate.name} - ${nomeSignatario}.docx`
                       );
                     } catch (err: any) {
-                      alert(`Não foi possível gerar o documento Word: ${err?.message || err}`);
+                      notificar(`Não foi possível gerar o documento Word: ${err?.message || err}`, 'erro');
                     }
                   }}
                   className="w-full mt-2 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition"

@@ -74,8 +74,7 @@ export const COLUNAS_EXPORTACAO_FINANCEIRO: ColunaExportacaoFinanceiro[] = [
 
 export function exportarFinanceiroParaExcel(entries: FinancialEntry[]) {
   if (!entries || entries.length === 0) {
-    alert('Nenhum lançamento para exportar.');
-    return;
+    throw new Error('Nenhum lançamento para exportar.');
   }
 
   const linhas = entries.map((e: any) => {
