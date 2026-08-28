@@ -165,3 +165,145 @@ export async function lerPlanilhaFinanceiro(file: File): Promise<Omit<FinancialE
 
   return resultado;
 }
+
+function interpretarAcerto(valor: any): { parcelas: number; valorParcela: number } | null {
+  if (!valor) return null;
+  const texto = String(valor).trim();
+  const match = texto.match(/(\d+)\s*[xX]\s*(?:R\$\s*)?([\d.,]+)?/);
+  if (match) {
+    const parcelas = parseInt(match[1], 10) || 1;
+    const valorParcela = match[2] ? paraNumero(match[2]) : 0;
+    return { parcelas, valorParcela };
+  }
+  const n = paraNumero(texto);
+  if (n > 0) {
+    return { parcelas: 1, valorParcela: n };
+  }
+  return null;
+}
+
+/**
+ * Lista as abas da planilha que parecem ter descontos (têm coluna MOTORISTA),
+ * pra o usuário escolher qual importar.
+ */
+export async function listarAbasDeDescontos(file: File): Promise<string[]> {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+
+  return workbook.SheetNames.filter((nome) => {
+    const linhas: any[][] = XLSX.utils.sheet_to_json(workbook.Sheets[nome], {
+      header: 1,
+      defval: null,
+    });
+    return linhas
+      .slice(0, 10)
+      .some((linha) =>
+        (linha || []).some((c) => (c ?? '').toString().trim().toUpperCase() === 'MOTORISTA')
+      );
+  });
+}
+
+/**
+ * Lê uma aba de descontos e devolve os lançamentos financeiros prontos.
+ * Cobre tanto a aba "PAGAMENTO." do relatório de infrações quanto as abas
+ * mensais do arquivo de Descontos.
+ */
+export async function lerPlanilhaDescontos(
+  file: File,
+  nomeAbaEscolhida?: string
+): Promise<Omit<FinancialEntry, 'id'>[]> {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+
+  const nomeAba =
+    nomeAbaEscolhida ||
+    workbook.SheetNames.find((n) => n.trim().toUpperCase() === 'PAGAMENTO.') ||
+    workbook.SheetNames.find((n) => n.trim().toUpperCase().startsWith('PAGAMENTO'));
+
+  if (!nomeAba || !workbook.Sheets[nomeAba]) {
+    throw new Error('Não encontrei a aba de descontos nessa planilha.');
+  }
+
+  const linhas: any[][] = XLSX.utils.sheet_to_json(workbook.Sheets[nomeAba], {
+    header: 1,
+    defval: null,
+  });
+
+  const indiceHeader = linhas.findIndex((linha) =>
+    (linha || []).some((c) => (c ?? '').toString().trim().toUpperCase() === 'MOTORISTA')
+  );
+  if (indiceHeader === -1) {
+    throw new Error(`A aba "${nomeAba}" não tem a coluna MOTORISTA.`);
+  }
+
+  const headers = linhas[indiceHeader].map((h) => (h ?? '').toString());
+  const idx = {
+    descricao: acharColuna(headers, ['DESCRIÇÃO', 'DESCRICAO']),
+    placa: acharColuna(headers, ['PLACA']),
+    prefixo: acharColuna(headers, ['PREFIXO']),
+    auto: acharColuna(headers, ['AUTO DA INFRAÇÃO', 'AUTO DA INFRACAO', 'Nº REGISTRO', 'N REGISTRO', 'No REGISTRO']),
+    data: acharColuna(headers, ['DATA DA MULTA', 'DATA DO ACONTECIDO', 'DATA DO ACONTECIMENTO']),
+    valor: acharColuna(headers, ['VALOR']),
+    motorista: acharColuna(headers, ['MOTORISTA']),
+    multaPaga: acharColuna(headers, ['MULTA PAGA']),
+    tipo: acharColuna(headers, ['TIPO DE MULTA']),
+    acerto: acharColuna(headers, ['ACERTO']),
+    dataDesconto: acharColuna(headers, ['DATA DESCONTO']),
+  };
+
+  const pegar = (linha: any[], i: number) => (i === -1 ? undefined : linha[i]);
+  const resultado: Omit<FinancialEntry, 'id'>[] = [];
+
+  for (let l = indiceHeader + 1; l < linhas.length; l++) {
+    const linha = linhas[l];
+    if (!linha) continue;
+
+    const motorista = paraTexto(pegar(linha, idx.motorista));
+    if (!motorista) continue;
+
+    const auto = paraTexto(pegar(linha, idx.auto));
+    const acerto = interpretarAcerto(pegar(linha, idx.acerto));
+    const valorPlanilha = paraNumero(pegar(linha, idx.valor));
+
+    const parcelas = acerto?.parcelas || 1;
+    const valorParcela = acerto?.valorParcela || valorPlanilha;
+    const total = acerto ? Math.round(parcelas * valorParcela * 100) / 100 : valorPlanilha;
+    if (total <= 0) continue;
+
+    const descricaoLinha = paraTexto(pegar(linha, idx.descricao)).toUpperCase();
+    const origem: FinancialEntry['originType'] = descricaoLinha.includes('SINISTRO') ? 'Sinistro' : 'Multa';
+
+    const placa = paraTexto(pegar(linha, idx.placa));
+    const prefixo = paraTexto(pegar(linha, idx.prefixo));
+    const tipo = paraTexto(pegar(linha, idx.tipo));
+    const enviadoFinanceiro = paraTexto(pegar(linha, idx.multaPaga)).toUpperCase().includes('ENVIADO');
+
+    const detalhes = [placa && `Placa: ${placa}`, prefixo && `Prefixo: ${prefixo}`]
+      .filter(Boolean)
+      .join(' | ');
+
+    resultado.push({
+      driverName: motorista,
+      originType: origem,
+      originId: undefined,
+      originLabel: auto || undefined,
+      description: auto || (origem === 'Sinistro' ? 'Desconto de Sinistro' : 'Desconto de Multa'),
+      originDetail: tipo || undefined,
+      direction: 'Cobrar',
+      totalAmount: total,
+      installmentsCount: parcelas,
+      installmentValue: valorParcela,
+      paidInstallments: 0,
+      firstDueDate:
+        paraData(pegar(linha, idx.dataDesconto)) || paraData(pegar(linha, idx.data)) || undefined,
+      status: 'Pendente',
+      notes: [detalhes, enviadoFinanceiro ? 'Enviado ao financeiro' : ''].filter(Boolean).join(' | ') || undefined,
+    });
+  }
+
+  if (resultado.length === 0) {
+    throw new Error(`Nenhum desconto válido encontrado na aba "${nomeAba}".`);
+  }
+
+  return resultado;
+}

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine, Term, Person, RoleType } from '../types';
 import { Combobox } from '../components/Combobox';
 import { formatarDataBr, limparDescricaoMulta } from '../utils/dateUtils';
-import { exportarFinanceiroParaExcel, lerPlanilhaFinanceiro } from '../services/financeiroImport';
+import { exportarFinanceiroParaExcel, lerPlanilhaFinanceiro, lerPlanilhaDescontos, listarAbasDeDescontos } from '../services/financeiroImport';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { useToast } from '../contexts/ToastContext';
@@ -67,6 +67,9 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
   // Estado de confirmação do gerador automático
   const [isGeneratingAuto, setIsGeneratingAuto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const descontosInputRef = useRef<HTMLInputElement | null>(null);
+  const [arquivoDescontos, setArquivoDescontos] = useState<File | null>(null);
+  const [abasDisponiveis, setAbasDisponiveis] = useState<string[]>([]);
 
   const handleImportarPlanilha = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,6 +92,48 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
       notificar(`Não foi possível importar a planilha: ${err?.message || err}`, 'erro');
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleEscolherArquivoDescontos = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const abas = await listarAbasDeDescontos(file);
+      if (abas.length === 0) {
+        notificar('Nenhuma aba com coluna MOTORISTA foi encontrada nessa planilha.', 'aviso');
+        return;
+      }
+      if (abas.length === 1) {
+        await importarAbaDeDescontos(file, abas[0]);
+      } else {
+        setArquivoDescontos(file);
+        setAbasDisponiveis(abas);
+      }
+    } catch (err: any) {
+      notificar(err?.message || 'Não foi possível ler a planilha.', 'erro');
+    } finally {
+      if (descontosInputRef.current) descontosInputRef.current.value = '';
+    }
+  };
+
+  const importarAbaDeDescontos = async (file: File, aba: string) => {
+    try {
+      const linhas = await lerPlanilhaDescontos(file, aba);
+      const ok = await confirmar({
+        title: `Importar Descontos (${aba})`,
+        message: `${linhas.length} desconto(s) encontrado(s) na aba "${aba}". Serão criados como lançamentos a cobrar. Continuar?`,
+        confirmLabel: 'Importar',
+      });
+      if (ok) {
+        linhas.forEach((l) => onSaveEntry(l));
+        notificar(`${linhas.length} desconto(s) importado(s) da aba "${aba}".`, 'sucesso');
+      }
+    } catch (err: any) {
+      notificar(err?.message || 'Não foi possível importar os descontos.', 'erro');
+    } finally {
+      setArquivoDescontos(null);
+      setAbasDisponiveis([]);
     }
   };
 
@@ -496,6 +541,22 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
               >
                 <i className="fa-solid fa-file-import text-xs"></i>
                 <span>Importar (.xlsx)</span>
+              </button>
+
+              <input
+                type="file"
+                ref={descontosInputRef}
+                onChange={handleEscolherArquivoDescontos}
+                accept=".xlsx, .xls"
+                className="hidden"
+              />
+              <button
+                onClick={() => descontosInputRef.current?.click()}
+                className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition cursor-pointer"
+                title="Importar descontos de planilha (PAGAMENTO. ou abas mensais)"
+              >
+                <i className="fa-solid fa-file-invoice-dollar text-xs text-amber-500"></i>
+                <span>Importar Descontos</span>
               </button>
             </>
           )}
@@ -1224,6 +1285,49 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
                   </div>
                 );
               })()}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {arquivoDescontos && abasDisponiveis.length > 0 && createPortal(
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => { setArquivoDescontos(null); setAbasDisponiveis([]); }}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-slate-900 px-5 py-4">
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <i className="fa-solid fa-calendar-days text-amber-400"></i>
+                Qual mês importar?
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">{arquivoDescontos.name}</p>
+            </div>
+            <div className="p-4 space-y-2 max-h-[300px] overflow-y-auto">
+              {abasDisponiveis.map((aba) => (
+                <button
+                  key={aba}
+                  type="button"
+                  onClick={() => importarAbaDeDescontos(arquivoDescontos, aba)}
+                  className="w-full text-left px-4 py-2.5 rounded-lg border border-slate-200 hover:border-amber-400 hover:bg-amber-50 text-xs font-bold text-slate-700 transition cursor-pointer flex items-center justify-between"
+                >
+                  <span>{aba}</span>
+                  <i className="fa-solid fa-arrow-right text-slate-400"></i>
+                </button>
+              ))}
+            </div>
+            <div className="px-4 pb-4">
+              <button
+                type="button"
+                onClick={() => { setArquivoDescontos(null); setAbasDisponiveis([]); }}
+                className="w-full py-2 text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>,
