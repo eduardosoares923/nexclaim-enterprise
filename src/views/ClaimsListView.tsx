@@ -75,10 +75,15 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [linhasParaImportar, setLinhasParaImportar] = useState<LinhaImportada[]>([]);
   const [resultadoDados, setResultadoDados] = useState<ResultadoAbaDados | null>(null);
   const [abasSelecionadas, setAbasSelecionadas] = useState<Set<string>>(new Set());
+  const [importarSinistrosDaAbaDados, setImportarSinistrosDaAbaDados] = useState(false);
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const sinistrosDaAbaDadosParaImportar = importarSinistrosDaAbaDados
+    ? (resultadoDados?.sinistros.length || 0)
+    : 0;
 
   // Menu Mais Ações
   const [showMoreActions, setShowMoreActions] = useState(false);
@@ -205,7 +210,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       linhasFiltradas.length +
       novosVeiculosParaSalvar.length +
       novosMotoristasParaSalvar.length +
-      (resultadoDados?.sinistros.length || 0);
+      sinistrosDaAbaDadosParaImportar;
 
     if (totalItens === 0) return;
     setIsImporting(true);
@@ -251,8 +256,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       setImportProgress({ current: processados, total: totalItens });
     }
 
-    // 3. Gravar sinistros históricos da aba DADOS
-    if (resultadoDados?.sinistros) {
+    // 3. Gravar sinistros históricos da aba DADOS (só se o usuário marcou)
+    if (importarSinistrosDaAbaDados && resultadoDados?.sinistros) {
       for (const s of resultadoDados.sinistros) {
         onSaveNewClaim(s.claim as Claim);
         processados++;
@@ -905,7 +910,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     Pré-visualização da Importação de Sinistros & Frota
                   </h3>
                   <span className="text-[10px] text-emerald-400 font-bold">
-                    {linhasFiltradas.length + (resultadoDados?.sinistros.length || 0)} sinistros ({linhasFiltradas.length} abas mensais + {resultadoDados?.sinistros.length || 0} aba DADOS) • {novosVeiculosParaSalvar.length} veículos novos • {novosMotoristasParaSalvar.length} condutores novos
+                    {linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros no total: {linhasFiltradas.length} das abas mensais{sinistrosDaAbaDadosParaImportar > 0 ? ` + ${sinistrosDaAbaDadosParaImportar} da aba DADOS` : ''} • {novosVeiculosParaSalvar.length} veículos novos • {novosMotoristasParaSalvar.length} condutores novos
                   </span>
                 </div>
               </div>
@@ -935,7 +940,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                         <i className="fa-solid fa-id-card"></i>
                       </div>
                       <h4 className="font-bold text-blue-950 uppercase text-[11px]">
-                        Aba DADOS (Cadastro Completo de Veículo / Motorista & Sinistros)
+                        Aba DADOS (Cadastro de Veículo / Motorista)
                       </h4>
                     </div>
                     <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-blue-200/80 text-blue-900 border border-blue-300 uppercase">
@@ -945,9 +950,26 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   <p className="text-xs text-blue-900 leading-relaxed">
                     Identificados <strong>{resultadoDados.cadastros.length}</strong> cadastros de veículo/motorista (
                     <strong className="text-emerald-700 font-bold">{novosVeiculosParaSalvar.length} veículos novos</strong> e{' '}
-                    <strong className="text-emerald-700 font-bold">{novosMotoristasParaSalvar.length} motoristas novos</strong> que serão cadastrados automaticamente na frota) e{' '}
-                    <strong>{resultadoDados.sinistros.length}</strong> sinistros com dados preenchidos.
+                    <strong className="text-emerald-700 font-bold">{novosMotoristasParaSalvar.length} motoristas novos</strong> que serão cadastrados automaticamente na frota).
                   </p>
+
+                  {resultadoDados.sinistros.length > 0 && (
+                    <label className="flex items-start gap-2 mt-2 pt-2 border-t border-blue-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={importarSinistrosDaAbaDados}
+                        onChange={(e) => setImportarSinistrosDaAbaDados(e.target.checked)}
+                        className="mt-0.5 cursor-pointer"
+                      />
+                      <span className="text-[11px] text-blue-900 leading-relaxed">
+                        Importar também <strong>{resultadoDados.sinistros.length}</strong> linhas da aba DADOS como sinistros.
+                        <span className="block text-blue-700/80">
+                          Deixe desmarcado se a aba DADOS é só cadastro de frota. Essas linhas têm algum campo de
+                          situação, ocorrido ou tipo preenchido, mas nem sempre são sinistros de verdade.
+                        </span>
+                      </span>
+                    </label>
+                  )}
                 </div>
               )}
 
@@ -1095,7 +1117,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               <span className="text-xs text-slate-500">
                 {linhasFiltradas.length === 0 && !resultadoDados
                   ? 'Selecione pelo menos uma aba para importar.'
-                  : `Pronto para importar ${linhasFiltradas.length + (resultadoDados?.sinistros.length || 0)} sinistros (${linhasFiltradas.length} abas mensais + ${resultadoDados?.sinistros.length || 0} aba DADOS) e ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
+                  : `Pronto para importar ${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros${sinistrosDaAbaDadosParaImportar > 0 ? ` (${linhasFiltradas.length} das abas mensais e ${sinistrosDaAbaDadosParaImportar} da aba DADOS)` : ''} e cadastrar ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -1113,7 +1135,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </button>
                 <button
                   type="button"
-                  disabled={isImporting || (linhasFiltradas.length === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && resultadoDados.sinistros.length === 0)))}
+                  disabled={isImporting || (linhasFiltradas.length === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && sinistrosDaAbaDadosParaImportar === 0)))}
                   onClick={handleConfirmImport}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -1121,7 +1143,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   <span>
                     {isImporting
                       ? `Importando (${importProgress?.current || 0}/${importProgress?.total || 0})...`
-                      : `Confirmar Importação (${linhasFiltradas.length + (resultadoDados?.sinistros.length || 0)} sinistros)`}
+                      : `Confirmar Importação (${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros)`}
                   </span>
                 </button>
               </div>
