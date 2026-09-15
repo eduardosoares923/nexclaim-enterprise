@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firebaseService } from '../services/firebase';
-import { Claim, Fine, Term, Vehicle, Person, InfractionType, FinancialEntry, DocumentTemplate } from '../types';
+import { Claim, Fine, Term, Vehicle, Person, InfractionType, FinancialEntry, DocumentTemplate, AuditLog } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 
 // ==========================================
@@ -378,5 +378,16 @@ export function useDeleteTemplate() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documentTemplates'] });
     },
+  });
+}
+
+// ==========================================
+// AUDIT LOGS HOOKS
+// ==========================================
+export function useAuditLogs(enabled: boolean = true) {
+  return useQuery<AuditLog[]>({
+    queryKey: ['auditLogs'],
+    queryFn: () => firebaseService.fetchAuditLogs(),
+    enabled,
   });
 }

@@ -212,11 +212,12 @@ export interface TimelineEvent {
 export interface AuditLog {
   id: string;
   timestamp: string;
-  user: string;
-  userRole: RoleType;
-  action: string;
-  detail: string;
-  ip?: string;
+  usuario: string;
+  acao: 'criou' | 'alterou' | 'excluiu' | 'importou';
+  modulo: 'Sinistro' | 'Multa' | 'Termo' | 'Financeiro' | 'Veículo' | 'Condutor' | 'OS' | 'Usuário' | 'Modelo';
+  registroId?: string;
+  descricao: string;
+  detalhes?: string;
 }
 
 export type FinancialEntryStatus = 'Pendente' | 'Em Desconto' | 'Quitado' | 'Cancelado';

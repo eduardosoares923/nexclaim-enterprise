@@ -22,7 +22,7 @@ import {
 } from 'firebase/firestore';
 import { deleteDoc } from '@firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle, InfractionType, FinancialEntry } from '../types';
+import { Claim, Fine, Term, DocumentTemplate, Person, Vehicle, InfractionType, FinancialEntry, AuditLog } from '../types';
 import { WorkOrder } from '../views/WorkOrdersView';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
@@ -62,6 +62,43 @@ function removeUndefinedFields<T extends Record<string, any>>(obj: T): T {
 
 // Firestore Realtime Collections API Services
 export const firebaseService = {
+  // Auditoria
+  async registrarAuditoria(
+    acao: AuditLog['acao'],
+    modulo: AuditLog['modulo'],
+    descricao: string,
+    registroId?: string,
+    detalhes?: string
+  ): Promise<void> {
+    try {
+      await addDoc(collection(db, 'auditLogs'), removeUndefinedFields({
+        timestamp: new Date().toISOString(),
+        usuario: auth.currentUser?.email || 'desconhecido',
+        acao,
+        modulo,
+        registroId,
+        descricao,
+        detalhes,
+      }));
+    } catch (e) {
+      // Auditoria nunca deve travar a operação principal
+      console.error('Falha ao registrar auditoria:', e);
+    }
+  },
+
+  async fetchAuditLogs(limite: number = 300): Promise<AuditLog[]> {
+    try {
+      const snap = await getDocs(collection(db, 'auditLogs'));
+      return snap.docs
+        .map((d: any) => ({ ...d.data(), id: d.id } as AuditLog))
+        .sort((a: AuditLog, b: AuditLog) => (b.timestamp || '').localeCompare(a.timestamp || ''))
+        .slice(0, limite);
+    } catch (e) {
+      console.warn('Firestore fetchAuditLogs fallback:', e);
+      return [];
+    }
+  },
+
   // Sync Claims
   async fetchClaims(): Promise<Claim[]> {
     try {
@@ -79,6 +116,7 @@ export const firebaseService = {
     try {
       const dadosComCriador = { ...claimData, createdBy: auth.currentUser?.email || null };
       const docRef = await addDoc(collection(db, 'claims'), removeUndefinedFields(dadosComCriador));
+      await this.registrarAuditoria('criou', 'Sinistro', `Sinistro ${claimData.claimNumber || ''} criado`, docRef.id);
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveClaim error:', e);
@@ -89,6 +127,7 @@ export const firebaseService = {
   async updateClaim(id: string, data: Partial<Claim>): Promise<void> {
     try {
       await updateDoc(doc(db, 'claims', id), removeUndefinedFields(data));
+      await this.registrarAuditoria('alterou', 'Sinistro', `Sinistro alterado`, id, JSON.stringify(data).slice(0, 400));
     } catch (e) {
       console.error('Firestore updateClaim error:', e);
       throw e;
@@ -98,6 +137,7 @@ export const firebaseService = {
   async deleteClaim(id: string): Promise<void> {
     try {
       await deleteDoc(doc(db, 'claims', id));
+      await this.registrarAuditoria('excluiu', 'Sinistro', `Sinistro excluído`, id);
     } catch (e) {
       console.error('Firestore deleteClaim error:', e);
     }
@@ -120,6 +160,7 @@ export const firebaseService = {
     try {
       const dadosComCriador = { ...fineData, createdBy: auth.currentUser?.email || null };
       const docRef = await addDoc(collection(db, 'fines'), removeUndefinedFields(dadosComCriador));
+      await this.registrarAuditoria('criou', 'Multa', `Multa ${fineData.infractionAuto || ''} criada`, docRef.id);
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveFine error:', e);
@@ -130,6 +171,7 @@ export const firebaseService = {
   async updateFine(id: string, data: Partial<Fine>): Promise<void> {
     try {
       await updateDoc(doc(db, 'fines', id), removeUndefinedFields(data));
+      await this.registrarAuditoria('alterou', 'Multa', `Multa alterada`, id, JSON.stringify(data).slice(0, 400));
     } catch (e) {
       console.error('Firestore updateFine error:', e);
       throw e;
@@ -139,6 +181,7 @@ export const firebaseService = {
   async deleteFine(id: string): Promise<void> {
     try {
       await deleteDoc(doc(db, 'fines', id));
+      await this.registrarAuditoria('excluiu', 'Multa', `Multa excluída`, id);
     } catch (e) {
       console.error('Firestore deleteFine error:', e);
     }
@@ -202,6 +245,7 @@ export const firebaseService = {
     try {
       const dadosComCriador = { ...termData, createdBy: auth.currentUser?.email || null };
       const docRef = await addDoc(collection(db, 'terms'), removeUndefinedFields(dadosComCriador));
+      await this.registrarAuditoria('criou', 'Termo', `Termo emitido para ${termData.involvedPerson || ''}`, docRef.id);
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveTerm error:', e);
@@ -212,6 +256,7 @@ export const firebaseService = {
   async updateTerm(id: string, data: Partial<Term>): Promise<void> {
     try {
       await updateDoc(doc(db, 'terms', id), removeUndefinedFields(data));
+      await this.registrarAuditoria('alterou', 'Termo', `Termo alterado`, id, JSON.stringify(data).slice(0, 400));
     } catch (e) {
       console.error('Firestore updateTerm error:', e);
       throw e;
@@ -221,6 +266,7 @@ export const firebaseService = {
   async deleteTerm(id: string): Promise<void> {
     try {
       await deleteDoc(doc(db, 'terms', id));
+      await this.registrarAuditoria('excluiu', 'Termo', `Termo excluído`, id);
     } catch (e) {
       console.error('Firestore deleteTerm error:', e);
     }
@@ -370,6 +416,7 @@ export const firebaseService = {
     try {
       const dadosComCriador = { ...data, createdBy: auth.currentUser?.email || null };
       const docRef = await addDoc(collection(db, 'financialEntries'), removeUndefinedFields(dadosComCriador));
+      await this.registrarAuditoria('criou', 'Financeiro', `Lançamento de ${data.driverName || ''} (R$ ${data.totalAmount})`, docRef.id);
       return docRef.id;
     } catch (e) {
       console.error('Firestore saveFinancialEntry error:', e);
@@ -380,6 +427,7 @@ export const firebaseService = {
   async updateFinancialEntry(id: string, data: Partial<FinancialEntry>): Promise<void> {
     try {
       await updateDoc(doc(db, 'financialEntries', id), removeUndefinedFields(data));
+      await this.registrarAuditoria('alterou', 'Financeiro', `Lançamento alterado`, id, JSON.stringify(data).slice(0, 400));
     } catch (e) {
       console.error('Firestore updateFinancialEntry error:', e);
       throw e;
@@ -389,6 +437,7 @@ export const firebaseService = {
   async deleteFinancialEntry(id: string): Promise<void> {
     try {
       await deleteDoc(doc(db, 'financialEntries', id));
+      await this.registrarAuditoria('excluiu', 'Financeiro', `Lançamento excluído`, id);
     } catch (e) {
       console.error('Firestore deleteFinancialEntry error:', e);
       throw e;

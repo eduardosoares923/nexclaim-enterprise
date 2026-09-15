@@ -32,6 +32,20 @@ export function formatarDataHoraBr(
   data: string | undefined | null,
   horario?: string | undefined | null
 ): string {
+  if (!data) return '—';
+  if (data.includes('T') && !horario) {
+    try {
+      const d = new Date(data);
+      if (!isNaN(d.getTime())) {
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+        const hora = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes}/${ano} às ${hora}:${min}`;
+      }
+    } catch (_) {}
+  }
   const dataFormatada = formatarDataBr(data);
   if (dataFormatada === '—') return '—';
   if (!horario) return dataFormatada;

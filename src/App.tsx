@@ -15,6 +15,7 @@ import { WorkOrdersView } from './views/WorkOrdersView';
 import { FinanceiroView } from './views/FinanceiroView';
 import { DashboardView } from './views/DashboardView';
 import { UsersView } from './views/UsersView';
+import { AuditoriaView } from './views/AuditoriaView';
 import { observarAutenticacao, logout } from './services/firebase';
 import {
   useClaims,
@@ -52,6 +53,7 @@ import {
   useTemplates,
   useCreateTemplate,
   useUpdateTemplate,
+  useAuditLogs,
 } from './hooks/useFirestoreData';
 import {
   Claim,
@@ -231,6 +233,7 @@ export const App: React.FC = () => {
   const { data: people = [], isLoading: loadingPeople } = usePeople(loginConfirmado);
   const { data: workOrders = [], isLoading: loadingWorkOrders } = useWorkOrders(loginConfirmado);
   const { data: financialEntries = [], isLoading: loadingFinancialEntries } = useFinancialEntries(loginConfirmado);
+  const { data: auditLogs = [] } = useAuditLogs(loginConfirmado);
 
   // Mutations
   const createClaimMutation = useCreateClaim();
@@ -659,6 +662,24 @@ export const App: React.FC = () => {
                     <h3 className="font-bold text-slate-900 text-base">Acesso Restrito ao Proprietário</h3>
                     <p className="text-xs text-slate-500">
                       Apenas o perfil PROPRIETÁRIO possui permissão para gerenciar usuários e permissões do sistema.
+                    </p>
+                  </div>
+                )
+              }
+            />
+            <Route
+              path="/auditoria"
+              element={
+                permissoes.ehAdminOuMais ? (
+                  <AuditoriaView logs={auditLogs} userRole={userRole} />
+                ) : (
+                  <div className="p-8 text-center bg-white rounded-xl border border-slate-200 shadow-sm max-w-md mx-auto mt-12 space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl">
+                      <i className="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-base">Acesso Restrito</h3>
+                    <p className="text-xs text-slate-500">
+                      Apenas Administradores e Proprietários têm acesso ao Histórico de Alterações.
                     </p>
                   </div>
                 )

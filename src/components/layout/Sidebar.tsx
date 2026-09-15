@@ -64,11 +64,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const podeVerAuditoria = currentUser?.role === 'PROPRIETARIO' || currentUser?.role === 'ADMINISTRADOR';
+
   const menuGroups: MenuGroup[] = [
     {
       title: 'VISÃO GERAL',
       items: [
         { path: '/', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
+        ...(podeVerAuditoria
+          ? [{ path: '/auditoria', label: 'Histórico de Alterações', icon: 'fa-clock-rotate-left' }]
+          : []),
       ],
     },
     {
