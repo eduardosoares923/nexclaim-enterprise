@@ -11,9 +11,14 @@ import './index.css';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      // Atualiza ao voltar pra aba (barato e cobre o uso normal)
       refetchOnWindowFocus: true,
-      staleTime: 1000 * 15,
-      refetchInterval: 1000 * 30,
+      // Considera os dados frescos por 2 minutos, evitando buscas repetidas
+      staleTime: 1000 * 60 * 2,
+      // Atualização de fundo a cada 5 minutos, só com a aba visível
+      refetchInterval: 1000 * 60 * 5,
+      refetchIntervalInBackground: false,
+      retry: 1,
     },
   },
 });

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { RoleType } from '../../types';
 
 interface HeaderProps {
@@ -23,6 +24,14 @@ export const Header: React.FC<HeaderProps> = ({
   podeCriar = true,
 }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [atualizando, setAtualizando] = useState(false);
+
+  const handleAtualizar = async () => {
+    setAtualizando(true);
+    await queryClient.invalidateQueries();
+    setTimeout(() => setAtualizando(false), 600);
+  };
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between z-20 shadow-xs gap-2">
@@ -46,6 +55,15 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <button
+          onClick={handleAtualizar}
+          disabled={atualizando}
+          className="text-slate-400 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer disabled:opacity-50"
+          title="Atualizar dados agora"
+        >
+          <i className={`fa-solid fa-rotate ${atualizando ? 'fa-spin' : ''}`}></i>
+        </button>
+
         {podeGerenciarUsuarios && (
           <button
             onClick={() => navigate('/usuarios')}
