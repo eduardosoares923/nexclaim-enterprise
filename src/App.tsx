@@ -16,6 +16,7 @@ import { FinanceiroView } from './views/FinanceiroView';
 import { DashboardView } from './views/DashboardView';
 import { UsersView } from './views/UsersView';
 import { AuditoriaView } from './views/AuditoriaView';
+import { BackupView } from './views/BackupView';
 import { observarAutenticacao, logout } from './services/firebase';
 import {
   useClaims,
@@ -684,6 +685,10 @@ export const App: React.FC = () => {
                   </div>
                 )
               }
+            />
+            <Route
+              path="/backup"
+              element={<BackupView userRole={userRole} userEmail={userEmail} />}
             />
           </Routes>
         </main>

@@ -65,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, []);
 
   const podeVerAuditoria = currentUser?.role === 'PROPRIETARIO' || currentUser?.role === 'ADMINISTRADOR';
+  const podeFazerBackup = currentUser?.role === 'PROPRIETARIO';
 
   const menuGroups: MenuGroup[] = [
     {
@@ -73,6 +74,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { path: '/', label: 'Painel Trans Pinho', icon: 'fa-chart-pie' },
         ...(podeVerAuditoria
           ? [{ path: '/auditoria', label: 'Histórico de Alterações', icon: 'fa-clock-rotate-left' }]
+          : []),
+        ...(podeFazerBackup
+          ? [{ path: '/backup', label: 'Backup e Restauração', icon: 'fa-shield-halved' }]
           : []),
       ],
     },
