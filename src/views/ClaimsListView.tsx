@@ -293,6 +293,13 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     return acc;
   }, {});
 
+  const numerosCadastrados = new Set(
+    claims.map((c) => (c.claimNumber || '').trim().toUpperCase()).filter(Boolean)
+  );
+  const sinistrosRepetidos = linhasFiltradas.filter((item: any) =>
+    numerosCadastrados.has((item.claim?.claimNumber || '').trim().toUpperCase())
+  ).length;
+
   const sinistrosDaAbaDados = claims.filter((c) => c.claimNumber?.startsWith('SIN-IMP-DADOS-'));
 
   const tiposOcorrenciaDisponiveis = Array.from(
@@ -1113,39 +1120,50 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <span className="text-xs text-slate-500">
-                {linhasFiltradas.length === 0 && !resultadoDados
-                  ? 'Selecione pelo menos uma aba para importar.'
-                  : `Pronto para importar ${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros${sinistrosDaAbaDadosParaImportar > 0 ? ` (${linhasFiltradas.length} das abas mensais e ${sinistrosDaAbaDadosParaImportar} da aba DADOS)` : ''} e cadastrar ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={isImporting}
-                  onClick={() => {
-                    setShowImportModal(false);
-                    setLinhasParaImportar([]);
-                    setAbasSelecionadas(new Set());
-                    setResultadoDados(null);
-                  }}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  disabled={isImporting || (linhasFiltradas.length === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && sinistrosDaAbaDadosParaImportar === 0)))}
-                  onClick={handleConfirmImport}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <i className="fa-solid fa-cloud-arrow-up"></i>
-                  <span>
-                    {isImporting
-                      ? `Importando (${importProgress?.current || 0}/${importProgress?.total || 0})...`
-                      : `Confirmar Importação (${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros)`}
-                  </span>
-                </button>
+            <div className="p-4 bg-slate-50 border-t border-slate-200">
+              {sinistrosRepetidos > 0 && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 mb-3">
+                  <i className="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                  <p className="text-xs text-amber-900 leading-relaxed">
+                    <strong>{sinistrosRepetidos}</strong> sinistro(s) desta planilha já estão cadastrados
+                    (mesmo número de sinistro). Importar de novo vai criar registros duplicados.
+                  </p>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <span className="text-xs text-slate-500">
+                  {linhasFiltradas.length === 0 && !resultadoDados
+                    ? 'Selecione pelo menos uma aba para importar.'
+                    : `Pronto para importar ${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros${sinistrosDaAbaDadosParaImportar > 0 ? ` (${linhasFiltradas.length} das abas mensais e ${sinistrosDaAbaDadosParaImportar} da aba DADOS)` : ''} e cadastrar ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={isImporting}
+                    onClick={() => {
+                      setShowImportModal(false);
+                      setLinhasParaImportar([]);
+                      setAbasSelecionadas(new Set());
+                      setResultadoDados(null);
+                    }}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isImporting || (linhasFiltradas.length === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && sinistrosDaAbaDadosParaImportar === 0)))}
+                    onClick={handleConfirmImport}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <i className="fa-solid fa-cloud-arrow-up"></i>
+                    <span>
+                      {isImporting
+                        ? `Importando (${importProgress?.current || 0}/${importProgress?.total || 0})...`
+                        : `Confirmar Importação (${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros)`}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -305,6 +305,22 @@ export const FinesView: React.FC<FinesViewProps> = ({
         notificar('Nenhuma multa válida encontrada na planilha.', 'aviso');
         return;
       }
+
+      // Autos de infração que já existem no sistema
+      const autosCadastrados = new Set(
+        fines.map((f) => (f.infractionAuto || '').trim().toUpperCase()).filter(Boolean)
+      );
+      const repetidas = linhas.filter((l: any) =>
+        autosCadastrados.has((l.fine?.infractionAuto || l.infractionAuto || '').trim().toUpperCase())
+      ).length;
+
+      if (repetidas > 0) {
+        notificar(
+          `Atenção: ${repetidas} das ${linhas.length} multas desta planilha já estão cadastradas (mesmo auto de infração). Confira antes de confirmar a importação.`,
+          'aviso'
+        );
+      }
+
       setLinhasParaImportar(linhas);
       setShowImportModal(true);
     } catch (err: any) {

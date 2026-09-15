@@ -80,13 +80,41 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
         notificar('Nenhum lançamento válido encontrado na planilha.', 'aviso');
         return;
       }
+
+      // Chave de identificação: mesmo condutor + mesma referência + mesmo valor
+      const chaveDe = (e: { driverName: string; originLabel?: string; totalAmount: number }) =>
+        `${(e.driverName || '').trim().toUpperCase()}|${(e.originLabel || '').trim().toUpperCase()}|${e.totalAmount.toFixed(2)}`;
+
+      const jaCadastradas = new Set(financialEntries.map(chaveDe));
+      const novas = linhas.filter((l) => !jaCadastradas.has(chaveDe(l)));
+      const repetidas = linhas.length - novas.length;
+
+      if (novas.length === 0) {
+        notificar(
+          `Todos os ${linhas.length} lançamentos da planilha já estão cadastrados. Nada foi importado.`,
+          'aviso'
+        );
+        return;
+      }
+
+      const mensagem =
+        repetidas > 0
+          ? `Encontrei ${linhas.length} lançamentos na planilha.\n\n${novas.length} são novos e serão importados.\n${repetidas} já estão cadastrados e serão ignorados.\n\nContinuar?`
+          : `${novas.length} lançamento(s) serão importados da planilha. Continuar?`;
+
       const ok = await confirmar({
         title: 'Importar Lançamentos',
-        message: `${linhas.length} lançamento(s) serão importados da planilha. Continuar?`,
+        message: mensagem,
         confirmLabel: 'Importar',
       });
       if (ok) {
-        linhas.forEach((l) => onSaveEntry(l));
+        novas.forEach((l) => onSaveEntry(l));
+        notificar(
+          repetidas > 0
+            ? `${novas.length} lançamento(s) importado(s). ${repetidas} repetido(s) foram ignorados.`
+            : `${novas.length} lançamento(s) importado(s) com sucesso.`,
+          'sucesso'
+        );
       }
     } catch (err: any) {
       notificar(`Não foi possível importar a planilha: ${err?.message || err}`, 'erro');
@@ -120,14 +148,42 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
   const importarAbaDeDescontos = async (file: File, aba: string) => {
     try {
       const linhas = await lerPlanilhaDescontos(file, aba);
+
+      // Chave de identificação: mesmo condutor + mesma referência + mesmo valor
+      const chaveDe = (e: { driverName: string; originLabel?: string; totalAmount: number }) =>
+        `${(e.driverName || '').trim().toUpperCase()}|${(e.originLabel || '').trim().toUpperCase()}|${e.totalAmount.toFixed(2)}`;
+
+      const jaCadastradas = new Set(financialEntries.map(chaveDe));
+      const novas = linhas.filter((l) => !jaCadastradas.has(chaveDe(l)));
+      const repetidas = linhas.length - novas.length;
+
+      if (novas.length === 0) {
+        notificar(
+          `Todos os ${linhas.length} descontos da aba "${aba}" já estão cadastrados. Nada foi importado.`,
+          'aviso'
+        );
+        return;
+      }
+
+      const mensagem =
+        repetidas > 0
+          ? `Encontrei ${linhas.length} descontos na aba "${aba}".\n\n${novas.length} são novos e serão importados.\n${repetidas} já estão cadastrados e serão ignorados.\n\nContinuar?`
+          : `${novas.length} desconto(s) encontrado(s) na aba "${aba}". Serão criados como lançamentos a cobrar. Continuar?`;
+
       const ok = await confirmar({
         title: `Importar Descontos (${aba})`,
-        message: `${linhas.length} desconto(s) encontrado(s) na aba "${aba}". Serão criados como lançamentos a cobrar. Continuar?`,
+        message: mensagem,
         confirmLabel: 'Importar',
       });
+
       if (ok) {
-        linhas.forEach((l) => onSaveEntry(l));
-        notificar(`${linhas.length} desconto(s) importado(s) da aba "${aba}".`, 'sucesso');
+        novas.forEach((l) => onSaveEntry(l));
+        notificar(
+          repetidas > 0
+            ? `${novas.length} desconto(s) importado(s). ${repetidas} repetido(s) foram ignorados.`
+            : `${novas.length} desconto(s) importado(s) da aba "${aba}".`,
+          'sucesso'
+        );
       }
     } catch (err: any) {
       notificar(err?.message || 'Não foi possível importar os descontos.', 'erro');
