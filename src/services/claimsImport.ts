@@ -493,3 +493,95 @@ export async function lerPlanilhaStatus(file: File): Promise<LinhaStatusImportad
   return resultado;
 }
 
+export interface LinhaAdvogadoImportada {
+  placa: string;
+  atualizacao: Partial<Claim>;
+}
+
+/**
+ * Lê a aba "TERCEIRO NÃO QUEREM PAGAR" e devolve, por placa, os dados a
+ * atualizar no sinistro já cadastrado, marcando-o para o advogado.
+ */
+export async function lerPlanilhaAdvogado(file: File): Promise<LinhaAdvogadoImportada[]> {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+
+  const nomeAba = workbook.SheetNames.find((n) =>
+    n.trim().toUpperCase().includes('TERCEIRO') && n.trim().toUpperCase().includes('PAGAR')
+  );
+  if (!nomeAba) {
+    throw new Error('Não encontrei a aba "TERCEIRO NÃO QUEREM PAGAR" nessa planilha.');
+  }
+
+  const linhas: any[][] = XLSX.utils.sheet_to_json(workbook.Sheets[nomeAba], { header: 1, defval: null });
+  const indiceHeader = linhas.findIndex((linha) =>
+    (linha || []).some((c) => (c ?? '').toString().trim().toUpperCase() === 'CARRO')
+  );
+  if (indiceHeader === -1) {
+    throw new Error('Não encontrei a coluna "CARRO" nessa aba.');
+  }
+
+  const headers = linhas[indiceHeader].map((h) => (h ?? '').toString());
+  const idx = {
+    carro: acharColuna(headers, ['CARRO']),
+    nomeTerceiro: acharColuna(headers, ['NOME DO TERCEIRO']),
+    numeroTerceiro: acharColuna(headers, ['NUMERO DO TERCEIRO']),
+    contato: acharColuna(headers, ['CONTATO COM O TERCERIO', 'CONTATO COM O TERCEIRO']),
+    orcamento1: acharColuna(headers, ['ORÇAMENTO 1 (CALGAROTO)']),
+    orcamento2: acharColuna(headers, ['ORÇAMENTO 2 (JONES REPAROS)']),
+    orcamento3: acharColuna(headers, ['ORÇAMENTO 3 (CHAPEAÇÃO)']),
+    notaFiscal: acharColuna(headers, ['NOTAS FICAIS', 'NOTAS FISCAIS']),
+    consertado: acharColuna(headers, ['CONSERTADO']),
+    testemunha: acharColuna(headers, ['TESTEMUNHA']),
+    obs: acharColuna(headers, ['OBS']),
+  };
+
+  const pegar = (linha: any[], i: number) => (i === -1 ? undefined : linha[i]);
+  const resultado: LinhaAdvogadoImportada[] = [];
+
+  for (let l = indiceHeader + 1; l < linhas.length; l++) {
+    const linha = linhas[l];
+    if (!linha) continue;
+
+    const placa = paraTexto(pegar(linha, idx.carro)).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!placa) continue;
+
+    const contato = paraTexto(pegar(linha, idx.contato));
+    const nomeTerceiro = paraTexto(pegar(linha, idx.nomeTerceiro));
+    const testemunha = paraTexto(pegar(linha, idx.testemunha));
+    const obsPlanilha = paraTexto(pegar(linha, idx.obs));
+
+    const orcamentosTem = [
+      paraTexto(pegar(linha, idx.orcamento1)).toUpperCase() === 'TEM' ? 'Calgaroto' : null,
+      paraTexto(pegar(linha, idx.orcamento2)).toUpperCase() === 'TEM' ? 'Jones Reparos' : null,
+      paraTexto(pegar(linha, idx.orcamento3)).toUpperCase() === 'TEM' ? 'Chapeação' : null,
+    ].filter(Boolean);
+
+    const partesObs = [
+      `Contato com o terceiro: ${contato || 'não informado'}`,
+      orcamentosTem.length > 0 ? `Orçamentos recebidos: ${orcamentosTem.join(', ')}` : 'Nenhum orçamento recebido ainda',
+      paraTexto(pegar(linha, idx.notaFiscal)).toUpperCase() === 'TEM' ? 'Nota fiscal: recebida' : 'Nota fiscal: pendente',
+      paraTexto(pegar(linha, idx.consertado)).toUpperCase() === 'SIM' ? 'Veículo já consertado' : 'Veículo ainda não consertado',
+      testemunha ? `Testemunha: ${testemunha}` : '',
+      obsPlanilha,
+    ].filter(Boolean);
+
+    resultado.push({
+      placa,
+      atualizacao: {
+        enviarAdvogado: true,
+        advogadoStatus: contato ? `Contato ${contato.toLowerCase()}` : undefined,
+        advogadoObs: partesObs.join(' • '),
+        thirdPartyName: nomeTerceiro || undefined,
+        thirdPartyPhone: paraTexto(pegar(linha, idx.numeroTerceiro)) || undefined,
+      },
+    });
+  }
+
+  if (resultado.length === 0) {
+    throw new Error('Nenhuma linha válida encontrada na aba "TERCEIRO NÃO QUEREM PAGAR".');
+  }
+
+  return resultado;
+}
+

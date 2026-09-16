@@ -131,6 +131,10 @@ export interface Claim {
   firstDiscountMonth?: string;
   thirdPartyDocument?: string;
   thirdPartyName?: string;
+  thirdPartyPhone?: string;
+  enviarAdvogado?: boolean;
+  advogadoStatus?: string;
+  advogadoObs?: string;
   occurrenceTime?: string;
   caseDetail?: string;
   createdBy?: string;

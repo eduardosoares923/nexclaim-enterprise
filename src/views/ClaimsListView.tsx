@@ -6,7 +6,7 @@ import { Claim, Person, Vehicle, Term, DocumentTemplate, RoleType } from '../typ
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
 import { ClaimsPdfReportModal } from '../components/ClaimsPdfReportModal';
-import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS, lerPlanilhaStatus } from '../services/claimsImport';
+import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS, lerPlanilhaStatus, lerPlanilhaAdvogado } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 import { formatarDataBr } from '../utils/dateUtils';
@@ -65,7 +65,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
   const notificar = useToast();
-  const [abaPrincipal, setAbaPrincipal] = useState<'lista' | 'checklist'>('lista');
+  const [abaPrincipal, setAbaPrincipal] = useState<'lista' | 'checklist' | 'advogado'>('lista');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -154,6 +154,57 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       notificar(err?.message || 'Não foi possível importar a planilha de status.', 'erro');
     } finally {
       if (statusInputRef.current) statusInputRef.current.value = '';
+    }
+  };
+
+  // Estados e Funções da sub-aba Advogado
+  const [buscaAdvogado, setBuscaAdvogado] = useState('');
+  const advogadoInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportarAdvogado = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const linhas = await lerPlanilhaAdvogado(file);
+      const porPlaca = new Map(
+        claims.map((c) => [(c.vehiclePlate || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), c])
+      );
+
+      let encontrados = 0;
+      let naoEncontrados = 0;
+      const atualizacoes: { id: string; data: Partial<Claim> }[] = [];
+
+      linhas.forEach((linha) => {
+        const claim = porPlaca.get(linha.placa);
+        if (claim) {
+          atualizacoes.push({ id: claim.id, data: linha.atualizacao });
+          encontrados += 1;
+        } else {
+          naoEncontrados += 1;
+        }
+      });
+
+      if (atualizacoes.length === 0) {
+        notificar('Nenhuma placa da planilha bateu com sinistros já cadastrados.', 'aviso');
+        return;
+      }
+
+      const ok = await confirmar({
+        title: 'Importar Casos para o Advogado',
+        message: `${encontrados} sinistro(s) serão marcados para o advogado, com os dados do terceiro preenchidos.${
+          naoEncontrados > 0 ? `\n${naoEncontrados} linha(s) não encontraram sinistro com a mesma placa e serão ignoradas.` : ''
+        }\n\nContinuar?`,
+        confirmLabel: 'Importar',
+      });
+
+      if (ok) {
+        atualizacoes.forEach(({ id, data }) => onUpdateClaim?.(id, data));
+        notificar(`${atualizacoes.length} sinistro(s) marcados para o advogado.`, 'sucesso');
+      }
+    } catch (err: any) {
+      notificar(err?.message || 'Não foi possível importar a planilha.', 'erro');
+    } finally {
+      if (advogadoInputRef.current) advogadoInputRef.current.value = '';
     }
   };
 
@@ -637,6 +688,14 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
           }`}
         >
           <i className="fa-solid fa-clipboard-check"></i> Checklist de Documentação
+        </button>
+        <button
+          onClick={() => setAbaPrincipal('advogado')}
+          className={`px-4 py-2 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+            abaPrincipal === 'advogado' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <i className="fa-solid fa-scale-balanced"></i> Advogado
         </button>
       </div>
 
@@ -1156,6 +1215,130 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     </tr>
                   );
                 })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {abaPrincipal === 'advogado' && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">Casos Encaminhados ao Advogado</h3>
+              <p className="text-xs text-slate-500">
+                {claims.filter((c) => c.enviarAdvogado).length} caso(s) encaminhado(s)
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                ref={advogadoInputRef}
+                onChange={handleImportarAdvogado}
+                accept=".xlsx, .xls"
+                className="hidden"
+              />
+              <button
+                onClick={() => advogadoInputRef.current?.click()}
+                className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition cursor-pointer"
+                title='Importar a aba "TERCEIRO NÃO QUEREM PAGAR" de uma planilha'
+              >
+                <i className="fa-solid fa-file-import text-xs"></i>
+                <span>Importar Planilha</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="p-3 border-b border-slate-200 bg-white flex flex-wrap gap-2.5">
+            <input
+              type="text"
+              value={buscaAdvogado}
+              onChange={(e) => setBuscaAdvogado(e.target.value)}
+              placeholder="Buscar por placa, motorista, terceiro ou status..."
+              className="flex-1 min-w-[220px] px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+            />
+          </div>
+
+          <div className="overflow-x-auto max-h-[70vh]">
+            <table className="w-full min-w-[1000px] text-left text-[11px] text-slate-600">
+              <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[9px] sticky top-0 z-10">
+                <tr>
+                  <th className="p-2.5">Placa</th>
+                  <th className="p-2.5">Prefixo</th>
+                  <th className="p-2.5">Data</th>
+                  <th className="p-2.5">Motorista</th>
+                  <th className="p-2.5">Terceiro</th>
+                  <th className="p-2.5">Status Jurídico</th>
+                  <th className="p-2.5">Observações Jurídicas</th>
+                  <th className="p-2.5 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {claims
+                  .filter((claim) => claim.enviarAdvogado)
+                  .filter((claim) => {
+                    const t = buscaAdvogado.trim().toLowerCase();
+                    if (!t) return true;
+                    return (
+                      (claim.vehiclePlate || '').toLowerCase().includes(t) ||
+                      (claim.driverName || '').toLowerCase().includes(t) ||
+                      (claim.thirdPartyName || '').toLowerCase().includes(t) ||
+                      (claim.thirdPartyPhone || '').toLowerCase().includes(t) ||
+                      (claim.advogadoStatus || '').toLowerCase().includes(t) ||
+                      (claim.advogadoObs || '').toLowerCase().includes(t)
+                    );
+                  })
+                  .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+                  .map((claim) => (
+                    <tr key={claim.id} className="hover:bg-slate-50/60">
+                      <td className="p-2 font-mono font-bold whitespace-nowrap">{claim.vehiclePlate}</td>
+                      <td className="p-2 whitespace-nowrap">{claim.vehiclePrefix || '-'}</td>
+                      <td className="p-2 whitespace-nowrap">
+                        {claim.date ? formatarData(claim.date) : '-'}
+                      </td>
+                      <td className="p-2 font-semibold whitespace-nowrap">{claim.driverName}</td>
+                      <td className="p-2 whitespace-nowrap">
+                        {claim.thirdPartyName || '-'}
+                        {claim.thirdPartyPhone && (
+                          <span className="block text-[9px] text-slate-400">{claim.thirdPartyPhone}</span>
+                        )}
+                      </td>
+                      <td className="p-2 min-w-[160px]">
+                        <CelulaChecklistTexto
+                          valor={claim.advogadoStatus || ''}
+                          placeholder="Status jurídico..."
+                          onSalvar={(v) => onUpdateClaim?.(claim.id, { advogadoStatus: v })}
+                        />
+                      </td>
+                      <td className="p-2 min-w-[260px]">
+                        <CelulaChecklistTexto
+                          valor={claim.advogadoObs || ''}
+                          placeholder="Observações do advogado..."
+                          onSalvar={(v) => onUpdateClaim?.(claim.id, { advogadoObs: v })}
+                        />
+                      </td>
+                      <td className="p-2 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedClaimDetail(claim)}
+                            className="px-2 py-1 text-[10px] font-bold bg-slate-900 hover:bg-slate-800 text-white rounded cursor-pointer transition"
+                            title="Ver Dossiê do Sinistro"
+                          >
+                            Ver Dossiê
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateClaim?.(claim.id, { enviarAdvogado: false })}
+                            className="px-2 py-1 text-[10px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded cursor-pointer transition"
+                            title="Remover encaminhamento ao advogado"
+                          >
+                            <i className="fa-solid fa-xmark"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
