@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FinancialEntry, FinancialEntryStatus, FinancialEntryOrigin, Claim, Fine, Term, Person, RoleType } from '../types';
 import { Combobox } from '../components/Combobox';
 import { formatarDataBr, limparDescricaoMulta } from '../utils/dateUtils';
+import { montarLancamentoDeSinistro, montarLancamentoDeMulta } from '../utils/lancamentoFinanceiro';
 import { exportarFinanceiroParaExcel, lerPlanilhaFinanceiro, lerPlanilhaDescontos, listarAbasDeDescontos } from '../services/financeiroImport';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
@@ -286,48 +287,18 @@ export const FinanceiroView: React.FC<FinanceiroViewProps> = ({
 
     setIsGeneratingAuto(true);
     try {
-      // 1. Gera para Claims
+      // 1. Gera para Sinistros
       for (const claim of candidatosAuto.claims) {
-        const total = claim.totalValue || claim.approvedCost || claim.estimatedCost || 0;
-        const dir = (claim.paymentDirection as 'Cobrar' | 'Pagar') || 'Cobrar';
-        await onSaveEntry({
-          driverName: claim.driverName || 'Condutor Não Informado',
-          originType: 'Sinistro',
-          originId: claim.id,
-          originLabel: claim.claimNumber,
-          description: `Sinistro ${claim.claimNumber} - ${claim.occurrenceType || 'Ocorrência'}`,
-          direction: dir,
-          totalAmount: total,
-          installmentsCount: 1,
-          installmentValue: total,
-          paidInstallments: 0,
-          firstDueDate: claim.date || new Date().toISOString().split('T')[0],
-          status: 'Pendente',
-          notes: claim.description ? `Sinistro: ${claim.description.slice(0, 150)}` : undefined,
-        });
+        const termoDoSinistro = terms.find((t) => t.claimId === claim.id && t.status === 'Assinado');
+        const lancamento = montarLancamentoDeSinistro(claim, termoDoSinistro);
+        if (lancamento) await onSaveEntry(lancamento);
       }
 
-      // 2. Gera para Fines
+      // 2. Gera para Multas
       for (const fine of candidatosAuto.fines) {
-        const total = fine.amount || 0;
         const termoDaMulta = terms.find((t) => t.fineId === fine.id && t.status === 'Assinado');
-        const numParcelas = termoDaMulta?.installmentsCount || 1;
-        await onSaveEntry({
-          driverName: fine.driverName || 'Condutor Não Informado',
-          originType: 'Multa',
-          originId: fine.id,
-          originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `${fine.infractionAuto || fine.infractionCode || 'Multa'}`,
-          originDetail: limparDescricaoMulta(fine.description),
-          direction: 'Cobrar',
-          totalAmount: total,
-          installmentsCount: numParcelas,
-          installmentValue: Math.round((total / numParcelas) * 100) / 100,
-          paidInstallments: 0,
-          firstDueDate: termoDaMulta?.paymentDate || fine.dueDate || new Date().toISOString().split('T')[0],
-          status: 'Pendente',
-          notes: `Placa: ${fine.vehiclePlate}`,
-        });
+        const lancamento = montarLancamentoDeMulta(fine, termoDaMulta);
+        if (lancamento) await onSaveEntry(lancamento);
       }
 
       notificar(`Sucesso! ${candidatosAuto.total} lançamento(s) financeiro(s) gerado(s).`, 'sucesso');

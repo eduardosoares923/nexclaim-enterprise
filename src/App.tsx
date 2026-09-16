@@ -67,8 +67,9 @@ import {
   RoleType,
 } from './types';
 import { usePermissions } from './hooks/usePermissions';
-import { formatarDataBr, limparDescricaoMulta } from './utils/dateUtils';
+import { formatarDataBr } from './utils/dateUtils';
 import { useToast } from './contexts/ToastContext';
+import { montarLancamentoDeSinistro, montarLancamentoDeMulta, indicacaoPeloTermo } from './utils/lancamentoFinanceiro';
 
 const MODELOS_INICIAIS: DocumentTemplate[] = [
   {
@@ -305,23 +306,9 @@ export const App: React.FC = () => {
       if (term.claimId) {
         const claim = claims.find((c) => c.id === term.claimId);
         if (!claim) return;
-        const total = claim.totalValue || claim.approvedCost || claim.estimatedCost || 0;
-        if (total <= 0) return;
-        await createFinancialEntryMutation.mutateAsync({
-          driverName: claim.driverName || 'Condutor Não Informado',
-          originType: 'Sinistro',
-          originId: claim.id,
-          originLabel: claim.claimNumber,
-          description: `Sinistro ${claim.claimNumber} - ${claim.occurrenceType || 'Ocorrência'}`,
-          direction: (claim.paymentDirection as 'Cobrar' | 'Pagar') || 'Cobrar',
-          totalAmount: total,
-          installmentsCount: 1,
-          installmentValue: total,
-          paidInstallments: 0,
-          firstDueDate: claim.date || new Date().toISOString().split('T')[0],
-          status: 'Pendente',
-          notes: claim.description ? `Sinistro: ${claim.description.slice(0, 150)}` : undefined,
-        });
+        const lancamento = montarLancamentoDeSinistro(claim, term);
+        if (!lancamento) return;
+        await createFinancialEntryMutation.mutateAsync(lancamento);
         return;
       }
 
@@ -329,39 +316,20 @@ export const App: React.FC = () => {
         const fine = fines.find((f) => f.id === term.fineId);
         if (!fine) return;
 
-        // Atualiza a Indicação do Condutor de acordo com o modelo de termo assinado
-        let novaIndicacao: string | undefined;
-        if (term.templateId === 'tmpl-empresa-paga-multa') {
-          novaIndicacao = 'INDICADO/TRANS PINHO';
-        } else if (term.templateId === 'tmpl-multa-descontada') {
-          novaIndicacao = fine.duplicateOfAuto ? 'INDICADO/DOBRADO' : 'INDICADO';
-        }
+        const novaIndicacao = indicacaoPeloTermo(term, fine);
         if (novaIndicacao && fine.indicationStatus !== novaIndicacao) {
           updateFineMutation.mutate({ id: fine.id, data: { indicationStatus: novaIndicacao } });
         }
 
-        const total = fine.amount || 0;
-        if (total <= 0) return;
-        const numParcelas = term.installmentsCount && term.installmentsCount > 0 ? term.installmentsCount : 1;
-        await createFinancialEntryMutation.mutateAsync({
-          driverName: fine.driverName || 'Condutor Não Informado',
-          originType: 'Multa',
-          originId: fine.id,
-          originLabel: fine.infractionAuto || fine.infractionCode || 'Multa',
-          description: `${fine.infractionAuto || fine.infractionCode || 'Multa'}`,
-          originDetail: limparDescricaoMulta(fine.description),
-          direction: 'Cobrar',
-          totalAmount: total,
-          installmentsCount: numParcelas,
-          installmentValue: Math.round((total / numParcelas) * 100) / 100,
-          paidInstallments: 0,
-          firstDueDate: term.paymentDate || fine.dueDate || new Date().toISOString().split('T')[0],
-          status: 'Pendente',
-          notes: `Placa: ${fine.vehiclePlate}`,
-        });
+        const lancamento = montarLancamentoDeMulta(fine, term);
+        if (!lancamento) return;
+        await createFinancialEntryMutation.mutateAsync(lancamento);
       }
     } catch (err: any) {
-      notificar(`Não foi possível gerar o lançamento financeiro automaticamente para este termo: ${err?.message || err}. Vá em Financeiro e use o botão "Gerar Lançamentos Automaticamente" pra tentar de novo.`, 'erro');
+      notificar(
+        `Não foi possível gerar o lançamento financeiro automaticamente para este termo: ${err?.message || err}. Vá em Financeiro e use o botão "Gerar Lançamentos Automaticamente" pra tentar de novo.`,
+        'erro'
+      );
     }
   };
 
