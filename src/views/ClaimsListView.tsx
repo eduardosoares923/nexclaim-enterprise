@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Claim, Person, Vehicle, Term, DocumentTemplate, RoleType } from '../types';
@@ -342,6 +343,14 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       default:
         return (b.date || '').localeCompare(a.date || '');
     }
+  });
+
+  const containerTabelaClaimsRef = useRef<HTMLDivElement | null>(null);
+  const virtualizador = useVirtualizer({
+    count: sortedClaims.length,
+    getScrollElement: () => containerTabelaClaimsRef.current,
+    estimateSize: () => 64,
+    overscan: 12,
   });
 
   const corrigirTiposExistentes = async () => {
@@ -705,7 +714,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         </div>
       ) : viewMode === 'table' ? (
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
+          <div ref={containerTabelaClaimsRef} className="overflow-auto max-h-[70vh]">
             <table className="w-full min-w-[760px] text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
                 <tr>
@@ -720,7 +729,12 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {sortedClaims.map((claim) => (
+                {virtualizador.getVirtualItems().length > 0 && (
+                  <tr style={{ height: `${virtualizador.getVirtualItems()[0].start}px` }} />
+                )}
+                {virtualizador.getVirtualItems().map((item) => {
+                  const claim = sortedClaims[item.index];
+                  return (
                   <tr key={claim.id} className="hover:bg-amber-50/30 transition-colors">
                     <td className="p-3.5">
                       <div className="font-bold text-slate-900">{claim.claimNumber}</div>
@@ -788,7 +802,18 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
+                {virtualizador.getVirtualItems().length > 0 && (
+                  <tr
+                    style={{
+                      height: `${
+                        virtualizador.getTotalSize() -
+                        (virtualizador.getVirtualItems().at(-1)?.end || 0)
+                      }px`,
+                    }}
+                  />
+                )}
               </tbody>
             </table>
           </div>

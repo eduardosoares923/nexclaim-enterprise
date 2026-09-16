@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Fine, Vehicle, Person, FineStatus, InfractionType, RoleType, Claim, DocumentTemplate, Term } from '../types';
@@ -248,6 +249,14 @@ export const FinesView: React.FC<FinesViewProps> = ({
       default:
         return (b.infractionDate || '').localeCompare(a.infractionDate || '');
     }
+  });
+
+  const containerTabelaRef = useRef<HTMLDivElement | null>(null);
+  const virtualizador = useVirtualizer({
+    count: sortedFines.length,
+    getScrollElement: () => containerTabelaRef.current,
+    estimateSize: () => 64,
+    overscan: 12,
   });
 
   const multasImportadas = fines.filter(
@@ -658,7 +667,7 @@ export const FinesView: React.FC<FinesViewProps> = ({
         {sortedFines.length === 0 ? (
           <div className="p-12 text-center text-xs text-slate-500">Nenhuma infração encontrada.</div>
         ) : viewMode === 'table' ? (
-          <div className="overflow-x-auto">
+          <div ref={containerTabelaRef} className="overflow-auto max-h-[70vh]">
             <table className="w-full min-w-[700px] text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
                 <tr>
@@ -672,7 +681,12 @@ export const FinesView: React.FC<FinesViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {sortedFines.map((fine) => (
+                {virtualizador.getVirtualItems().length > 0 && (
+                  <tr style={{ height: `${virtualizador.getVirtualItems()[0].start}px` }} />
+                )}
+                {virtualizador.getVirtualItems().map((item) => {
+                  const fine = sortedFines[item.index];
+                  return (
                   <tr key={fine.id} className="hover:bg-amber-50/30 transition-colors">
                     <td className="p-3.5 font-bold font-mono text-slate-900">
                       <div>{fine.infractionAuto}</div>
@@ -778,7 +792,18 @@ export const FinesView: React.FC<FinesViewProps> = ({
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
+                {virtualizador.getVirtualItems().length > 0 && (
+                  <tr
+                    style={{
+                      height: `${
+                        virtualizador.getTotalSize() -
+                        (virtualizador.getVirtualItems().at(-1)?.end || 0)
+                      }px`,
+                    }}
+                  />
+                )}
               </tbody>
             </table>
           </div>

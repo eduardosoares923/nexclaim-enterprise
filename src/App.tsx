@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { User } from 'firebase/auth';
 import { Sidebar } from './components/layout/Sidebar';
@@ -6,17 +6,18 @@ import { Header } from './components/layout/Header';
 import { Login } from './components/Login';
 import { TermGeneratorModal } from './components/TermGeneratorModal';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
-import { TemplateEditorView } from './views/TemplateEditorView';
-import { TermsView } from './views/TermsView';
-import { ClaimsListView } from './views/ClaimsListView';
-import { FinesView } from './views/FinesView';
-import { FrotaCondutoresView } from './views/FrotaCondutoresView';
-import { WorkOrdersView } from './views/WorkOrdersView';
-import { FinanceiroView } from './views/FinanceiroView';
 import { DashboardView } from './views/DashboardView';
-import { UsersView } from './views/UsersView';
-import { AuditoriaView } from './views/AuditoriaView';
-import { BackupView } from './views/BackupView';
+
+const TemplateEditorView = lazy(() => import('./views/TemplateEditorView').then((m) => ({ default: m.TemplateEditorView })));
+const TermsView = lazy(() => import('./views/TermsView').then((m) => ({ default: m.TermsView })));
+const ClaimsListView = lazy(() => import('./views/ClaimsListView').then((m) => ({ default: m.ClaimsListView })));
+const FinesView = lazy(() => import('./views/FinesView').then((m) => ({ default: m.FinesView })));
+const FrotaCondutoresView = lazy(() => import('./views/FrotaCondutoresView').then((m) => ({ default: m.FrotaCondutoresView })));
+const WorkOrdersView = lazy(() => import('./views/WorkOrdersView').then((m) => ({ default: m.WorkOrdersView })));
+const FinanceiroView = lazy(() => import('./views/FinanceiroView').then((m) => ({ default: m.FinanceiroView })));
+const UsersView = lazy(() => import('./views/UsersView').then((m) => ({ default: m.UsersView })));
+const AuditoriaView = lazy(() => import('./views/AuditoriaView').then((m) => ({ default: m.AuditoriaView })));
+const BackupView = lazy(() => import('./views/BackupView').then((m) => ({ default: m.BackupView })));
 import { observarAutenticacao, logout } from './services/firebase';
 import {
   useClaims,
@@ -469,6 +470,16 @@ export const App: React.FC = () => {
         />
 
         <main className="flex-1 overflow-y-auto p-3 sm:p-6 relative">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-24">
+                <div className="text-center space-y-2">
+                  <i className="fa-solid fa-spinner fa-spin text-2xl text-amber-500"></i>
+                  <p className="text-xs font-bold text-slate-500">Carregando...</p>
+                </div>
+              </div>
+            }
+          >
           <Routes>
             <Route
               path="/"
@@ -691,6 +702,7 @@ export const App: React.FC = () => {
               element={<BackupView userRole={userRole} userEmail={userEmail} />}
             />
           </Routes>
+          </Suspense>
         </main>
       </div>
 

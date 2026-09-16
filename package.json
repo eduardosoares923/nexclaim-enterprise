@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.28.4",
+    "@tanstack/react-virtual": "^3.14.13",
     "docx-preview": "^0.3.4",
     "docxtemplater": "^3.57.0",
     "file-saver": "^2.0.5",
