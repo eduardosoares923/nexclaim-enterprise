@@ -166,7 +166,7 @@ export async function lerPlanilhaFinanceiro(file: File): Promise<Omit<FinancialE
   return resultado;
 }
 
-function interpretarAcerto(valor: any): { parcelas: number; valorParcela: number } | null {
+export function interpretarAcerto(valor: any): { parcelas: number; valorParcela: number } | null {
   if (!valor) return null;
   const texto = String(valor).trim();
   const match = texto.match(/(\d+)\s*[xX]\s*(?:R\$\s*)?([\d.,]+)?/);
