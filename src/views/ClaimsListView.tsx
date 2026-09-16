@@ -753,17 +753,29 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                       {formatCurrency(claim.estimatedCost)}
                     </td>
                     <td className="p-3.5">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${
-                          claim.status === 'Resolvido'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                            : claim.status === 'Em análise'
-                            ? 'bg-amber-50 text-amber-800 border-amber-300'
-                            : 'bg-blue-50 text-blue-700 border-blue-300'
-                        }`}
-                      >
-                        {claim.status}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold border whitespace-nowrap ${
+                            claim.status === 'Resolvido'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                              : claim.status === 'Em análise'
+                              ? 'bg-amber-50 text-amber-800 border-amber-300'
+                              : 'bg-blue-50 text-blue-700 border-blue-300'
+                          }`}
+                        >
+                          {claim.status}
+                        </span>
+                        {(() => {
+                          const itens = claim.documentChecklist ? Object.values(claim.documentChecklist) : [];
+                          const faltando = itens.length > 0 ? itens.filter((v) => !v).length : 0;
+                          if (faltando === 0) return null;
+                          return (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                              {faltando} doc(s) pendente(s)
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </td>
                     <td className="p-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
@@ -828,15 +840,27 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-900 text-sm">{claim.claimNumber}</span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                      claim.priority === 'Alta' || claim.priority === 'Crítica'
-                        ? 'bg-rose-50 text-rose-700 border-rose-200'
-                        : 'bg-blue-50 text-blue-700 border-blue-200'
-                    }`}
-                  >
-                    {claim.priority}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    {(() => {
+                      const itens = claim.documentChecklist ? Object.values(claim.documentChecklist) : [];
+                      const faltando = itens.length > 0 ? itens.filter((v) => !v).length : 0;
+                      if (faltando === 0) return null;
+                      return (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                          {faltando} doc(s) pendente(s)
+                        </span>
+                      );
+                    })()}
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                        claim.priority === 'Alta' || claim.priority === 'Crítica'
+                          ? 'bg-rose-50 text-rose-700 border-rose-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200'
+                      }`}
+                    >
+                      {claim.priority}
+                    </span>
+                  </div>
                 </div>
                 <h4 className="text-xs font-bold text-slate-800 leading-snug">{claim.occurrenceType}</h4>
                 <div className="text-xs text-slate-500 space-y-0.5 pt-1 border-t border-slate-100">
@@ -901,6 +925,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
             setSelectedClaimDetail(null);
             onOpenTermGenerator(claim);
           }}
+          onUpdateClaim={onUpdateClaim}
         />
       )}
 

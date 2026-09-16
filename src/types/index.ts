@@ -104,6 +104,20 @@ export interface Claim {
   createdAt?: string;
   updatedAt?: string;
   notes?: string;
+  documentChecklist?: {
+    cnhMotorista?: boolean;
+    cnhTerceiro?: boolean;
+    crlvProprio?: boolean;
+    crlvTerceiro?: boolean;
+    croqui?: boolean;
+    fotos?: boolean;
+    lit?: boolean;
+    orcamentos?: boolean;
+    video?: boolean;
+    termo?: boolean;
+  };
+  checklistStatus?: string;
+  checklistObs?: string;
   vehiclePrefix?: string;
   supervisorName?: string;
   thirdPartyVehicleDescription?: string;

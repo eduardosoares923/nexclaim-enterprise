@@ -10,6 +10,7 @@ interface ClaimDetailModalProps {
   terms: Term[];
   onClose: () => void;
   onOpenTermGenerator: (claim: Claim) => void;
+  onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
 }
 
 export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
@@ -19,8 +20,18 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
   terms,
   onClose,
   onOpenTermGenerator,
+  onUpdateClaim,
 }) => {
-  const [activeTab, setActiveTab] = useState<'geral' | 'avarias' | 'termos' | 'documentos'>('geral');
+  const [activeTab, setActiveTab] = useState<'geral' | 'avarias' | 'termos' | 'documentos' | 'checklist'>('geral');
+
+  const alternarChecklist = (campo: keyof NonNullable<Claim['documentChecklist']>) => {
+    onUpdateClaim?.(claim.id, {
+      documentChecklist: {
+        ...claim.documentChecklist,
+        [campo]: !claim.documentChecklist?.[campo],
+      },
+    });
+  };
 
   const relatedTerms = terms.filter((t) => t.claimId === claim.id);
   const matchedVehicle = vehicles.find((v) => v.plate === claim.vehiclePlate);
@@ -126,6 +137,16 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
             }`}
           >
             Fotos & Anexos
+          </button>
+          <button
+            onClick={() => setActiveTab('checklist')}
+            className={`py-3 border-b-2 transition ${
+              activeTab === 'checklist'
+                ? 'border-amber-500 text-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            Checklist
           </button>
         </div>
 
@@ -364,6 +385,74 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                 <p className="text-[11px] text-slate-400">
                   Recurso em standby — upload de fotos e anexos ainda será implementado.
                 </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'checklist' && (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Status da Apuração
+                </label>
+                <input
+                  type="text"
+                  value={claim.checklistStatus || ''}
+                  onChange={(e) => onUpdateClaim?.(claim.id, { checklistStatus: e.target.value })}
+                  placeholder="Ex: Pendente, Orçamento, Aguardando pagamento..."
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-2">
+                  Documentos Providenciados
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    ['cnhMotorista', 'CNH do Motorista'],
+                    ['cnhTerceiro', 'CNH do Terceiro'],
+                    ['crlvProprio', 'CRLV do Nosso Veículo'],
+                    ['crlvTerceiro', 'CRLV do Carro Envolvido'],
+                    ['croqui', 'Croqui'],
+                    ['fotos', 'Fotos'],
+                    ['lit', 'L.I.T'],
+                    ['orcamentos', 'Orçamentos'],
+                    ['video', 'Vídeo'],
+                    ['termo', 'Termo'],
+                  ].map(([campo, rotulo]) => {
+                    const marcado = !!claim.documentChecklist?.[campo as keyof NonNullable<Claim['documentChecklist']>];
+                    return (
+                      <button
+                        key={campo}
+                        type="button"
+                        onClick={() => alternarChecklist(campo as keyof NonNullable<Claim['documentChecklist']>)}
+                        disabled={!onUpdateClaim}
+                        className={`px-3 py-2 rounded-lg border text-xs font-bold flex items-center gap-2 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
+                          marcado
+                            ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                            : 'bg-rose-50 border-rose-200 text-rose-600'
+                        }`}
+                      >
+                        <i className={`fa-solid ${marcado ? 'fa-circle-check' : 'fa-circle-xmark'}`}></i>
+                        {rotulo}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Observações
+                </label>
+                <textarea
+                  rows={4}
+                  value={claim.checklistObs || ''}
+                  onChange={(e) => onUpdateClaim?.(claim.id, { checklistObs: e.target.value })}
+                  placeholder="Ex: Falta pegar orçamento, chamar o terceiro para assinar termo..."
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40 resize-y"
+                />
               </div>
             </div>
           )}
