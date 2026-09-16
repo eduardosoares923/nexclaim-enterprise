@@ -47,6 +47,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const permissoes = usePermissions(userRole, userEmail);
   const confirmar = useConfirm();
   const notificar = useToast();
+  const [abaPrincipal, setAbaPrincipal] = useState<'lista' | 'checklist'>('lista');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -550,6 +551,27 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
         </div>
       </div>
 
+      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg w-fit">
+        <button
+          onClick={() => setAbaPrincipal('lista')}
+          className={`px-4 py-2 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+            abaPrincipal === 'lista' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <i className="fa-solid fa-folder-open"></i> Sinistros
+        </button>
+        <button
+          onClick={() => setAbaPrincipal('checklist')}
+          className={`px-4 py-2 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+            abaPrincipal === 'checklist' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <i className="fa-solid fa-clipboard-check"></i> Checklist de Documentação
+        </button>
+      </div>
+
+      {abaPrincipal === 'lista' && (
+        <>
       {/* Filter and View Mode Controls */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -910,6 +932,112 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
               </div>
             </div>
           ))}
+        </div>
+      )}
+        </>
+      )}
+
+      {abaPrincipal === 'checklist' && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 text-sm">Checklist de Documentação por Sinistro</h3>
+            <span className="text-xs text-slate-500">{claims.length} sinistro(s)</span>
+          </div>
+          <div className="overflow-x-auto max-h-[70vh]">
+            <table className="w-full min-w-[1400px] text-left text-[11px] text-slate-600">
+              <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[9px] sticky top-0 z-10">
+                <tr>
+                  <th className="p-2.5">Status</th>
+                  <th className="p-2.5">Mês</th>
+                  <th className="p-2.5">Veículo</th>
+                  <th className="p-2.5">Prefixo</th>
+                  <th className="p-2.5">Nome</th>
+                  <th className="p-2.5 text-center">CNH Motorista</th>
+                  <th className="p-2.5 text-center">CNH Terceiro</th>
+                  <th className="p-2.5 text-center">CRLV Nosso</th>
+                  <th className="p-2.5 text-center">CRLV Terceiro</th>
+                  <th className="p-2.5 text-center">Croqui</th>
+                  <th className="p-2.5 text-center">Fotos</th>
+                  <th className="p-2.5 text-center">L.I.T</th>
+                  <th className="p-2.5 text-center">Orçamentos</th>
+                  <th className="p-2.5 text-center">Vídeo</th>
+                  <th className="p-2.5 text-center">Termo</th>
+                  <th className="p-2.5">Obs</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {claims.map((claim) => {
+                  const mes = claim.date
+                    ? new Date(claim.date + 'T00:00:00').toLocaleDateString('pt-BR', { month: 'long' })
+                    : '-';
+                  const itensChecklist: [keyof NonNullable<typeof claim.documentChecklist>, string][] = [
+                    ['cnhMotorista', 'CNH Motorista'],
+                    ['cnhTerceiro', 'CNH Terceiro'],
+                    ['crlvProprio', 'CRLV Nosso'],
+                    ['crlvTerceiro', 'CRLV Terceiro'],
+                    ['croqui', 'Croqui'],
+                    ['fotos', 'Fotos'],
+                    ['lit', 'L.I.T'],
+                    ['orcamentos', 'Orçamentos'],
+                    ['video', 'Vídeo'],
+                    ['termo', 'Termo'],
+                  ];
+                  return (
+                    <tr key={claim.id} className="hover:bg-slate-50/60">
+                      <td className="p-2 min-w-[150px]">
+                        <input
+                          type="text"
+                          value={claim.checklistStatus || ''}
+                          onChange={(e) => onUpdateClaim?.(claim.id, { checklistStatus: e.target.value })}
+                          placeholder="Status..."
+                          className="w-full px-1.5 py-1 text-[10px] border border-slate-200 rounded bg-slate-50 focus:bg-white focus:outline-none"
+                        />
+                      </td>
+                      <td className="p-2 capitalize whitespace-nowrap">{mes}</td>
+                      <td className="p-2 font-mono font-bold whitespace-nowrap">{claim.vehiclePlate}</td>
+                      <td className="p-2 whitespace-nowrap">{claim.vehiclePrefix || '-'}</td>
+                      <td className="p-2 font-semibold whitespace-nowrap">{claim.driverName}</td>
+                      {itensChecklist.map(([campo]) => {
+                        const marcado = !!claim.documentChecklist?.[campo];
+                        return (
+                          <td key={campo} className="p-2 text-center">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onUpdateClaim?.(claim.id, {
+                                  documentChecklist: {
+                                    ...claim.documentChecklist,
+                                    [campo]: !marcado,
+                                  },
+                                })
+                              }
+                              disabled={!onUpdateClaim}
+                              className={`px-2 py-1 rounded text-[9px] font-bold cursor-pointer disabled:cursor-not-allowed ${
+                                marcado
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-rose-50 text-rose-600 border border-rose-200'
+                              }`}
+                            >
+                              {marcado ? 'TEM' : 'NÃO TEM'}
+                            </button>
+                          </td>
+                        );
+                      })}
+                      <td className="p-2 min-w-[200px]">
+                        <input
+                          type="text"
+                          value={claim.checklistObs || ''}
+                          onChange={(e) => onUpdateClaim?.(claim.id, { checklistObs: e.target.value })}
+                          placeholder="Observações..."
+                          className="w-full px-1.5 py-1 text-[10px] border border-slate-200 rounded bg-slate-50 focus:bg-white focus:outline-none"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
