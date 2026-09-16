@@ -2,6 +2,44 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Claim, Person, Vehicle, Term } from '../types';
 import { formatarDataHoraBr } from '../utils/dateUtils';
+import { useDebouncedField } from '../hooks/useDebouncedField';
+
+const CampoTextoDebounced: React.FC<{
+  valor: string;
+  placeholder: string;
+  className?: string;
+  onSalvar: (v: string) => void;
+}> = ({ valor, placeholder, className, onSalvar }) => {
+  const [local, atualizar] = useDebouncedField(valor, onSalvar);
+  return (
+    <input
+      type="text"
+      value={local}
+      onChange={(e) => atualizar(e.target.value)}
+      placeholder={placeholder}
+      className={className}
+    />
+  );
+};
+
+const CampoAreaDebounced: React.FC<{
+  valor: string;
+  placeholder: string;
+  className?: string;
+  rows?: number;
+  onSalvar: (v: string) => void;
+}> = ({ valor, placeholder, className, rows = 4, onSalvar }) => {
+  const [local, atualizar] = useDebouncedField(valor, onSalvar);
+  return (
+    <textarea
+      rows={rows}
+      value={local}
+      onChange={(e) => atualizar(e.target.value)}
+      placeholder={placeholder}
+      className={className}
+    />
+  );
+};
 
 interface ClaimDetailModalProps {
   claim: Claim;
@@ -395,12 +433,11 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Status da Apuração
                 </label>
-                <input
-                  type="text"
-                  value={claim.checklistStatus || ''}
-                  onChange={(e) => onUpdateClaim?.(claim.id, { checklistStatus: e.target.value })}
+                <CampoTextoDebounced
+                  valor={claim.checklistStatus || ''}
                   placeholder="Ex: Pendente, Orçamento, Aguardando pagamento..."
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                  onSalvar={(v) => onUpdateClaim?.(claim.id, { checklistStatus: v })}
                 />
               </div>
 
@@ -446,12 +483,12 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Observações
                 </label>
-                <textarea
+                <CampoAreaDebounced
                   rows={4}
-                  value={claim.checklistObs || ''}
-                  onChange={(e) => onUpdateClaim?.(claim.id, { checklistObs: e.target.value })}
+                  valor={claim.checklistObs || ''}
                   placeholder="Ex: Falta pegar orçamento, chamar o terceiro para assinar termo..."
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40 resize-y"
+                  onSalvar={(v) => onUpdateClaim?.(claim.id, { checklistObs: v })}
                 />
               </div>
             </div>

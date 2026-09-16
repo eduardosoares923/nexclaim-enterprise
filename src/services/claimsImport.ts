@@ -274,6 +274,7 @@ export interface ColunaExportacao {
   chave: string;
   rotulo: string;
   tipo?: 'moeda';
+  obterValor?: (c: any) => any;
 }
 
 export const COLUNAS_EXPORTACAO_SINISTROS: ColunaExportacao[] = [
@@ -300,6 +301,18 @@ export const COLUNAS_EXPORTACAO_SINISTROS: ColunaExportacao[] = [
   { chave: 'totalValue', rotulo: 'Valor Total', tipo: 'moeda' },
   { chave: 'priority', rotulo: 'Prioridade' },
   { chave: 'boNumber', rotulo: 'Nº B.O.' },
+  { chave: 'checklistStatus', rotulo: 'Status Checklist' },
+  { chave: 'cnhMotorista', rotulo: 'CNH Motorista', obterValor: (c) => (c.documentChecklist?.cnhMotorista ? 'TEM' : 'NÃO TEM') },
+  { chave: 'cnhTerceiro', rotulo: 'CNH Terceiro', obterValor: (c) => (c.documentChecklist?.cnhTerceiro ? 'TEM' : 'NÃO TEM') },
+  { chave: 'crlvProprio', rotulo: 'CRLV Nosso', obterValor: (c) => (c.documentChecklist?.crlvProprio ? 'TEM' : 'NÃO TEM') },
+  { chave: 'crlvTerceiro', rotulo: 'CRLV Terceiro', obterValor: (c) => (c.documentChecklist?.crlvTerceiro ? 'TEM' : 'NÃO TEM') },
+  { chave: 'croqui', rotulo: 'Croqui', obterValor: (c) => (c.documentChecklist?.croqui ? 'TEM' : 'NÃO TEM') },
+  { chave: 'fotosChecklist', rotulo: 'Fotos (Checklist)', obterValor: (c) => (c.documentChecklist?.fotos ? 'TEM' : 'NÃO TEM') },
+  { chave: 'lit', rotulo: 'L.I.T', obterValor: (c) => (c.documentChecklist?.lit ? 'TEM' : 'NÃO TEM') },
+  { chave: 'orcamentosChecklist', rotulo: 'Orçamentos (Checklist)', obterValor: (c) => (c.documentChecklist?.orcamentos ? 'TEM' : 'NÃO TEM') },
+  { chave: 'videoChecklist', rotulo: 'Vídeo', obterValor: (c) => (c.documentChecklist?.video ? 'TEM' : 'NÃO TEM') },
+  { chave: 'termoChecklist', rotulo: 'Termo (Checklist)', obterValor: (c) => (c.documentChecklist?.termo ? 'TEM' : 'NÃO TEM') },
+  { chave: 'checklistObs', rotulo: 'Obs. Checklist' },
 ];
 
 export function exportarSinistrosParaExcel(claims: Claim[], colunasChaves: string[]) {
@@ -309,7 +322,9 @@ export function exportarSinistrosParaExcel(claims: Claim[], colunasChaves: strin
   const TITULO = 'Relatório de Sinistros — Trans Pinho';
   const dataGeracao = new Date().toLocaleDateString('pt-BR');
 
-  const linhasDados = claims.map((c: any) => colunas.map((col) => c[col.chave] ?? ''));
+  const linhasDados = claims.map((c: any) =>
+    colunas.map((col) => (col.obterValor ? col.obterValor(c) : c[col.chave] ?? ''))
+  );
 
   const aoa: any[][] = [
     [TITULO],
@@ -330,7 +345,10 @@ export function exportarSinistrosParaExcel(claims: Claim[], colunasChaves: strin
   ];
 
   worksheet['!cols'] = colunas.map((col) => {
-    const maior = Math.max(col.rotulo.length, ...claims.map((c: any) => String(c[col.chave] ?? '').length));
+    const maior = Math.max(
+      col.rotulo.length,
+      ...claims.map((c: any) => String(col.obterValor ? col.obterValor(c) : c[col.chave] ?? '').length)
+    );
     return { wch: Math.min(Math.max(maior + 2, 10), 40) };
   });
   worksheet['!freeze'] = { xSplit: 0, ySplit: LINHA_CABECALHO + 1 };
@@ -389,5 +407,89 @@ export function exportarSinistrosParaExcel(claims: Claim[], colunasChaves: strin
 
   const dataArquivo = new Date().toISOString().split('T')[0];
   XLSXStyle.writeFile(workbook, `Sinistros_TransPinho_${dataArquivo}.xlsx`);
+}
+
+export interface LinhaStatusImportada {
+  placa: string;
+  atualizacao: Partial<Claim>;
+}
+
+/**
+ * Lê a aba "STATUS" da planilha (o checklist de documentação por sinistro) e
+ * devolve, por placa, os campos do checklist a atualizar no sinistro já
+ * cadastrado. Não cria sinistro novo, só atualiza o que já existe.
+ */
+export async function lerPlanilhaStatus(file: File): Promise<LinhaStatusImportada[]> {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+
+  const nomeAba = workbook.SheetNames.find((n) => n.trim().toUpperCase() === 'STATUS');
+  if (!nomeAba) {
+    throw new Error('Não encontrei uma aba chamada "STATUS" nessa planilha.');
+  }
+
+  const linhas: any[][] = XLSX.utils.sheet_to_json(workbook.Sheets[nomeAba], { header: 1, defval: null });
+  const indiceHeader = linhas.findIndex((linha) =>
+    (linha || []).some((c) => (c ?? '').toString().trim().toUpperCase() === 'VEICULO')
+  );
+  if (indiceHeader === -1) {
+    throw new Error('Não encontrei a coluna "VEICULO" na aba STATUS.');
+  }
+
+  const headers = linhas[indiceHeader].map((h) => (h ?? '').toString());
+  const idx = {
+    status: acharColuna(headers, ['STATUS']),
+    veiculo: acharColuna(headers, ['VEICULO', 'VEÍCULO']),
+    cnhMotorista: acharColuna(headers, ['CNH DO MOTORISTA']),
+    cnhTerceiro: acharColuna(headers, ['CNH DO TERCEIRO']),
+    crlvProprio: acharColuna(headers, ['CRVL DO NOSSO VEICULO', 'CRLV DO NOSSO VEICULO']),
+    crlvTerceiro: acharColuna(headers, ['CRVL DO CARRO ENVOLVIDO', 'CRLV DO CARRO ENVOLVIDO']),
+    croqui: acharColuna(headers, ['CROQUI']),
+    fotos: acharColuna(headers, ['FOTOS']),
+    lit: acharColuna(headers, ['L.I.T', 'LIT']),
+    orcamentos: acharColuna(headers, ['ORÇAMNTOS', 'ORÇAMENTOS', 'ORCAMENTOS']),
+    video: acharColuna(headers, ['VIDEO', 'VÍDEO']),
+    termo: acharColuna(headers, ['TERMO']),
+    obs: acharColuna(headers, ['OBS', 'OBSERVAÇÃO', 'OBSERVACAO']),
+  };
+
+  const pegar = (linha: any[], i: number) => (i === -1 ? undefined : linha[i]);
+  const tem = (valor: any) => paraTexto(valor).trim().toUpperCase() === 'TEM';
+
+  const resultado: LinhaStatusImportada[] = [];
+
+  for (let l = indiceHeader + 1; l < linhas.length; l++) {
+    const linha = linhas[l];
+    if (!linha) continue;
+
+    const placa = paraTexto(pegar(linha, idx.veiculo)).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!placa) continue;
+
+    resultado.push({
+      placa,
+      atualizacao: {
+        checklistStatus: paraTexto(pegar(linha, idx.status)) || undefined,
+        checklistObs: paraTexto(pegar(linha, idx.obs)) || undefined,
+        documentChecklist: {
+          cnhMotorista: tem(pegar(linha, idx.cnhMotorista)),
+          cnhTerceiro: tem(pegar(linha, idx.cnhTerceiro)),
+          crlvProprio: tem(pegar(linha, idx.crlvProprio)),
+          crlvTerceiro: tem(pegar(linha, idx.crlvTerceiro)),
+          croqui: tem(pegar(linha, idx.croqui)),
+          fotos: tem(pegar(linha, idx.fotos)),
+          lit: tem(pegar(linha, idx.lit)),
+          orcamentos: tem(pegar(linha, idx.orcamentos)),
+          video: tem(pegar(linha, idx.video)),
+          termo: tem(pegar(linha, idx.termo)),
+        },
+      },
+    });
+  }
+
+  if (resultado.length === 0) {
+    throw new Error('Nenhuma linha válida encontrada na aba STATUS.');
+  }
+
+  return resultado;
 }
 

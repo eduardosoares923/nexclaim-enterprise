@@ -6,13 +6,14 @@ import { Claim, Person, Vehicle, Term, DocumentTemplate, RoleType } from '../typ
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
 import { ClaimsPdfReportModal } from '../components/ClaimsPdfReportModal';
-import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS } from '../services/claimsImport';
+import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS, lerPlanilhaStatus } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 import { formatarDataBr } from '../utils/dateUtils';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { useToast } from '../contexts/ToastContext';
+import { useDebouncedField } from '../hooks/useDebouncedField';
 
 interface ClaimsListViewProps {
   claims: Claim[];
@@ -29,6 +30,23 @@ interface ClaimsListViewProps {
 }
 
 const formatarData = formatarDataBr;
+
+const CelulaChecklistTexto: React.FC<{
+  valor: string;
+  placeholder: string;
+  onSalvar: (v: string) => void;
+}> = ({ valor, placeholder, onSalvar }) => {
+  const [local, atualizar] = useDebouncedField(valor, onSalvar);
+  return (
+    <input
+      type="text"
+      value={local}
+      onChange={(e) => atualizar(e.target.value)}
+      placeholder={placeholder}
+      className="w-full px-1.5 py-1 text-[10px] border border-slate-200 rounded bg-slate-50 focus:bg-white focus:outline-none"
+    />
+  );
+};
 
 export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   claims,
@@ -86,6 +104,58 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const sinistrosDaAbaDadosParaImportar = importarSinistrosDaAbaDados
     ? (resultadoDados?.sinistros.length || 0)
     : 0;
+
+  // Estados e Funções do Checklist
+  const [buscaChecklist, setBuscaChecklist] = useState('');
+  const [filtroPendenciaChecklist, setFiltroPendenciaChecklist] = useState<'todos' | 'pendentes'>('todos');
+  const statusInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportarStatus = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const linhas = await lerPlanilhaStatus(file);
+      const porPlaca = new Map(
+        claims.map((c) => [(c.vehiclePlate || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), c])
+      );
+
+      let encontrados = 0;
+      let naoEncontrados = 0;
+      const atualizacoes: { id: string; data: Partial<Claim> }[] = [];
+
+      linhas.forEach((linha) => {
+        const claim = porPlaca.get(linha.placa);
+        if (claim) {
+          atualizacoes.push({ id: claim.id, data: linha.atualizacao });
+          encontrados += 1;
+        } else {
+          naoEncontrados += 1;
+        }
+      });
+
+      if (atualizacoes.length === 0) {
+        notificar('Nenhuma placa da planilha bateu com sinistros já cadastrados.', 'aviso');
+        return;
+      }
+
+      const ok = await confirmar({
+        title: 'Importar Checklist de Documentação',
+        message: `${encontrados} sinistro(s) serão atualizados com o checklist da planilha.${
+          naoEncontrados > 0 ? `\n${naoEncontrados} linha(s) não encontraram sinistro cadastrado com a mesma placa e serão ignoradas.` : ''
+        }\n\nContinuar?`,
+        confirmLabel: 'Importar',
+      });
+
+      if (ok) {
+        atualizacoes.forEach(({ id, data }) => onUpdateClaim?.(id, data));
+        notificar(`${atualizacoes.length} sinistro(s) atualizados com o checklist.`, 'sucesso');
+      }
+    } catch (err: any) {
+      notificar(err?.message || 'Não foi possível importar a planilha de status.', 'erro');
+    } finally {
+      if (statusInputRef.current) statusInputRef.current.value = '';
+    }
+  };
 
   // Menu Mais Ações
   const [showMoreActions, setShowMoreActions] = useState(false);
@@ -939,10 +1009,48 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
       {abaPrincipal === 'checklist' && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 text-sm">Checklist de Documentação por Sinistro</h3>
-            <span className="text-xs text-slate-500">{claims.length} sinistro(s)</span>
+          <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">Checklist de Documentação por Sinistro</h3>
+              <p className="text-xs text-slate-500">{claims.length} sinistro(s)</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                ref={statusInputRef}
+                onChange={handleImportarStatus}
+                accept=".xlsx, .xls"
+                className="hidden"
+              />
+              <button
+                onClick={() => statusInputRef.current?.click()}
+                className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-xs border border-slate-200 transition cursor-pointer"
+                title="Importar a aba STATUS de uma planilha"
+              >
+                <i className="fa-solid fa-file-import text-xs"></i>
+                <span>Importar Planilha</span>
+              </button>
+            </div>
           </div>
+
+          <div className="p-3 border-b border-slate-200 bg-white flex flex-wrap gap-2.5">
+            <input
+              type="text"
+              value={buscaChecklist}
+              onChange={(e) => setBuscaChecklist(e.target.value)}
+              placeholder="Buscar por placa, motorista ou status..."
+              className="flex-1 min-w-[220px] px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+            />
+            <select
+              value={filtroPendenciaChecklist}
+              onChange={(e) => setFiltroPendenciaChecklist(e.target.value as 'todos' | 'pendentes')}
+              className="px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white font-bold text-slate-700"
+            >
+              <option value="todos">Todos</option>
+              <option value="pendentes">Só com pendência</option>
+            </select>
+          </div>
+
           <div className="overflow-x-auto max-h-[70vh]">
             <table className="w-full min-w-[1400px] text-left text-[11px] text-slate-600">
               <thead className="bg-slate-50 text-slate-900 font-bold border-b border-slate-200 uppercase tracking-wider text-[9px] sticky top-0 z-10">
@@ -966,7 +1074,24 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {claims.map((claim) => {
+                {[...claims]
+                  .filter((claim) => {
+                    const t = buscaChecklist.trim().toLowerCase();
+                    const bate =
+                      !t ||
+                      (claim.vehiclePlate || '').toLowerCase().includes(t) ||
+                      (claim.driverName || '').toLowerCase().includes(t) ||
+                      (claim.checklistStatus || '').toLowerCase().includes(t);
+                    if (!bate) return false;
+                    if (filtroPendenciaChecklist === 'pendentes') {
+                      const itens = claim.documentChecklist ? Object.values(claim.documentChecklist) : [];
+                      const temPendencia = itens.length === 0 || itens.some((v) => !v);
+                      if (!temPendencia) return false;
+                    }
+                    return true;
+                  })
+                  .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+                  .map((claim) => {
                   const mes = claim.date
                     ? new Date(claim.date + 'T00:00:00').toLocaleDateString('pt-BR', { month: 'long' })
                     : '-';
@@ -985,12 +1110,10 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   return (
                     <tr key={claim.id} className="hover:bg-slate-50/60">
                       <td className="p-2 min-w-[150px]">
-                        <input
-                          type="text"
-                          value={claim.checklistStatus || ''}
-                          onChange={(e) => onUpdateClaim?.(claim.id, { checklistStatus: e.target.value })}
+                        <CelulaChecklistTexto
+                          valor={claim.checklistStatus || ''}
                           placeholder="Status..."
-                          className="w-full px-1.5 py-1 text-[10px] border border-slate-200 rounded bg-slate-50 focus:bg-white focus:outline-none"
+                          onSalvar={(v) => onUpdateClaim?.(claim.id, { checklistStatus: v })}
                         />
                       </td>
                       <td className="p-2 capitalize whitespace-nowrap">{mes}</td>
@@ -1024,12 +1147,10 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                         );
                       })}
                       <td className="p-2 min-w-[200px]">
-                        <input
-                          type="text"
-                          value={claim.checklistObs || ''}
-                          onChange={(e) => onUpdateClaim?.(claim.id, { checklistObs: e.target.value })}
+                        <CelulaChecklistTexto
+                          valor={claim.checklistObs || ''}
                           placeholder="Observações..."
-                          className="w-full px-1.5 py-1 text-[10px] border border-slate-200 rounded bg-slate-50 focus:bg-white focus:outline-none"
+                          onSalvar={(v) => onUpdateClaim?.(claim.id, { checklistObs: v })}
                         />
                       </td>
                     </tr>
