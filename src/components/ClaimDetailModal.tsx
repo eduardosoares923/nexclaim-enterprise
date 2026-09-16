@@ -286,30 +286,49 @@ export const ClaimDetailModal: React.FC<ClaimDetailModalProps> = ({
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    {claim.thirdPartyName && (
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Nome do Terceiro</span>
-                        <p className="font-bold text-slate-900">{claim.thirdPartyName}</p>
-                      </div>
-                    )}
-                    {claim.thirdPartyVehicleDescription && (
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Veículo do Terceiro</span>
-                        <p className="font-bold text-slate-900">{claim.thirdPartyVehicleDescription}</p>
-                      </div>
-                    )}
-                    {claim.thirdPartyPlate && (
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase">Placa do Terceiro</span>
-                        <p className="font-mono font-bold text-slate-900">{claim.thirdPartyPlate}</p>
-                      </div>
-                    )}
-                    {claim.thirdPartyDocument && (
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase">CPF / Doc do Terceiro</span>
-                        <p className="font-semibold text-slate-800">{claim.thirdPartyDocument}</p>
-                      </div>
-                    )}
+                    {(claim.thirdParties && claim.thirdParties.length > 0
+                      ? claim.thirdParties
+                      : claim.thirdPartyName || claim.thirdPartyPlate || claim.thirdPartyVehicleDescription || claim.thirdPartyDocument
+                      ? [{
+                          name: claim.thirdPartyName,
+                          vehicleDescription: claim.thirdPartyVehicleDescription,
+                          plate: claim.thirdPartyPlate,
+                          document: claim.thirdPartyDocument,
+                        }]
+                      : []
+                    ).map((terceiro, index, lista) => (
+                      <React.Fragment key={index}>
+                        {lista.length > 1 && (
+                          <div className="sm:col-span-2 md:col-span-4 text-[9px] font-bold text-blue-700 uppercase pt-1 border-t border-blue-200">
+                            Terceiro {index + 1}
+                          </div>
+                        )}
+                        {terceiro.name && (
+                          <div>
+                            <span className="block text-[10px] font-bold text-slate-500 uppercase">Nome do Terceiro</span>
+                            <p className="font-bold text-slate-900">{terceiro.name}</p>
+                          </div>
+                        )}
+                        {terceiro.vehicleDescription && (
+                          <div>
+                            <span className="block text-[10px] font-bold text-slate-500 uppercase">Veículo do Terceiro</span>
+                            <p className="font-bold text-slate-900">{terceiro.vehicleDescription}</p>
+                          </div>
+                        )}
+                        {terceiro.plate && (
+                          <div>
+                            <span className="block text-[10px] font-bold text-slate-500 uppercase">Placa do Terceiro</span>
+                            <p className="font-mono font-bold text-slate-900">{terceiro.plate}</p>
+                          </div>
+                        )}
+                        {terceiro.document && (
+                          <div>
+                            <span className="block text-[10px] font-bold text-slate-500 uppercase">CPF / Doc do Terceiro</span>
+                            <p className="font-semibold text-slate-800">{terceiro.document}</p>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    ))}
                     {claim.paymentDirection && (
                       <div>
                         <span className="block text-[10px] font-bold text-slate-500 uppercase">Direção do Pagamento</span>

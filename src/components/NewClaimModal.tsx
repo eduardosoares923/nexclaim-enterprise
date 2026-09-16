@@ -43,13 +43,34 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
   const [caseDetail, setCaseDetail] = useState(claim?.caseDetail || '');
 
   // Estados de Terceiro & Responsabilidade
-  const [thirdPartyName, setThirdPartyName] = useState(claim?.thirdPartyName || '');
-  const [thirdPartyVehicleDescription, setThirdPartyVehicleDescription] = useState(claim?.thirdPartyVehicleDescription || '');
-  const [thirdPartyPlate, setThirdPartyPlate] = useState(claim?.thirdPartyPlate || '');
+  const [terceiros, setTerceiros] = useState(
+    claim?.thirdParties && claim.thirdParties.length > 0
+      ? claim.thirdParties
+      : claim?.thirdPartyName || claim?.thirdPartyPlate || claim?.thirdPartyVehicleDescription || claim?.thirdPartyDocument
+      ? [{
+          name: claim?.thirdPartyName || '',
+          vehicleDescription: claim?.thirdPartyVehicleDescription || '',
+          plate: claim?.thirdPartyPlate || '',
+          document: claim?.thirdPartyDocument || '',
+        }]
+      : [{ name: '', vehicleDescription: '', plate: '', document: '' }]
+  );
+
+  const atualizarTerceiro = (index: number, campo: 'name' | 'vehicleDescription' | 'plate' | 'document', valor: string) => {
+    setTerceiros((prev) => prev.map((t, i) => (i === index ? { ...t, [campo]: valor } : t)));
+  };
+
+  const adicionarTerceiro = () => {
+    setTerceiros((prev) => [...prev, { name: '', vehicleDescription: '', plate: '', document: '' }]);
+  };
+
+  const removerTerceiro = (index: number) => {
+    setTerceiros((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const [atFault, setAtFault] = useState(claim?.atFault || '');
   const [paymentDirection, setPaymentDirection] = useState<'Pagar' | 'Cobrar' | ''>(claim?.paymentDirection || '');
   const [thirdPartyRepairCost, setThirdPartyRepairCost] = useState<string>(claim?.thirdPartyRepairCost?.toString() || '');
-  const [thirdPartyDocument, setThirdPartyDocument] = useState(claim?.thirdPartyDocument || '');
 
   const valorTotalCalculado = (
     (parseFloat(thirdPartyRepairCost) || 0) + (parseFloat(ownVehicleRepairCost) || 0)
@@ -89,10 +110,11 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         approvedCost: valorTotalCalculado,
         supervisorName: supervisorName || undefined,
         caseDetail: caseDetail || undefined,
-        thirdPartyName: thirdPartyName || undefined,
-        thirdPartyVehicleDescription: thirdPartyVehicleDescription || undefined,
-        thirdPartyPlate: thirdPartyPlate || undefined,
-        thirdPartyDocument: thirdPartyDocument || undefined,
+        thirdParties: terceiros.filter((t) => t.name || t.plate || t.vehicleDescription || t.document),
+        thirdPartyName: terceiros[0]?.name || undefined,
+        thirdPartyVehicleDescription: terceiros[0]?.vehicleDescription || undefined,
+        thirdPartyPlate: terceiros[0]?.plate || undefined,
+        thirdPartyDocument: terceiros[0]?.document || undefined,
         atFault: atFault || undefined,
         paymentDirection: paymentDirection || undefined,
         thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
@@ -126,10 +148,11 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
         approvedCost: valorTotalCalculado,
         supervisorName: supervisorName || undefined,
         caseDetail: caseDetail || undefined,
-        thirdPartyName: thirdPartyName || undefined,
-        thirdPartyVehicleDescription: thirdPartyVehicleDescription || undefined,
-        thirdPartyPlate: thirdPartyPlate || undefined,
-        thirdPartyDocument: thirdPartyDocument || undefined,
+        thirdParties: terceiros.filter((t) => t.name || t.plate || t.vehicleDescription || t.document),
+        thirdPartyName: terceiros[0]?.name || undefined,
+        thirdPartyVehicleDescription: terceiros[0]?.vehicleDescription || undefined,
+        thirdPartyPlate: terceiros[0]?.plate || undefined,
+        thirdPartyDocument: terceiros[0]?.document || undefined,
         atFault: atFault || undefined,
         paymentDirection: paymentDirection || undefined,
         thirdPartyRepairCost: parseNum(thirdPartyRepairCost),
@@ -399,48 +422,65 @@ export const NewClaimModal: React.FC<NewClaimModalProps> = ({
               Dados do Terceiro Envolvido & Responsabilidade
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Nome do Responsável Envolvido</label>
-                <input
-                  type="text"
-                  value={thirdPartyName}
-                  onChange={(e) => setThirdPartyName(e.target.value)}
-                  placeholder="Nome da pessoa envolvida (terceiro)"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
-              </div>
+              <div className="sm:col-span-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                    Terceiros Envolvidos
+                  </label>
+                  <button
+                    type="button"
+                    onClick={adicionarTerceiro}
+                    className="text-[10px] font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-plus"></i> Adicionar Terceiro
+                  </button>
+                </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Veículo do Terceiro</label>
-                <input
-                  type="text"
-                  value={thirdPartyVehicleDescription}
-                  onChange={(e) => setThirdPartyVehicleDescription(e.target.value)}
-                  placeholder="Ex: Fiat Palio Prata"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Placa do Terceiro</label>
-                <input
-                  type="text"
-                  value={thirdPartyPlate}
-                  onChange={(e) => setThirdPartyPlate(e.target.value.toUpperCase())}
-                  placeholder="Ex: ABC1D23"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 uppercase font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">CPF / Documento do Terceiro</label>
-                <input
-                  type="text"
-                  value={thirdPartyDocument}
-                  onChange={(e) => setThirdPartyDocument(e.target.value)}
-                  placeholder="Ex: 000.000.000-00"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-                />
+                {terceiros.map((terceiro, index) => (
+                  <div key={index} className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 relative">
+                    {terceiros.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removerTerceiro(index)}
+                        className="absolute top-2 right-2 text-rose-500 hover:text-rose-700 cursor-pointer"
+                        title="Remover este terceiro"
+                      >
+                        <i className="fa-solid fa-xmark"></i>
+                      </button>
+                    )}
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">Terceiro {index + 1}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={terceiro.name}
+                        onChange={(e) => atualizarTerceiro(index, 'name', e.target.value)}
+                        placeholder="Nome do Terceiro"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                      />
+                      <input
+                        type="text"
+                        value={terceiro.plate}
+                        onChange={(e) => atualizarTerceiro(index, 'plate', e.target.value.toUpperCase())}
+                        placeholder="Placa do Terceiro"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50 uppercase font-mono"
+                      />
+                      <input
+                        type="text"
+                        value={terceiro.vehicleDescription}
+                        onChange={(e) => atualizarTerceiro(index, 'vehicleDescription', e.target.value)}
+                        placeholder="Veículo do Terceiro"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                      />
+                      <input
+                        type="text"
+                        value={terceiro.document}
+                        onChange={(e) => atualizarTerceiro(index, 'document', e.target.value)}
+                        placeholder="CPF / Documento do Terceiro"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div>

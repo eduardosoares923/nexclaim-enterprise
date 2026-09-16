@@ -130,6 +130,12 @@ export interface Claim {
   chargeAmount?: number;
   firstDiscountMonth?: string;
   thirdPartyDocument?: string;
+  thirdParties?: {
+    name?: string;
+    vehicleDescription?: string;
+    plate?: string;
+    document?: string;
+  }[];
   thirdPartyName?: string;
   thirdPartyPhone?: string;
   enviarAdvogado?: boolean;
