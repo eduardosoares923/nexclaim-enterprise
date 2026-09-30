@@ -27,6 +27,7 @@ import { WorkOrder } from '../views/WorkOrdersView';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
 
+import { removeUndefinedFields } from '../utils/firestoreLimpeza';
 // Configuração do Worker do PDF.js bundled
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
@@ -46,19 +47,6 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
-
-/**
- * Remove campos undefined para evitar erros no Firestore
- */
-function removeUndefinedFields<T extends Record<string, any>>(obj: T): T {
-  const cleaned = { ...obj };
-  Object.keys(cleaned).forEach((key) => {
-    if (cleaned[key] === undefined) {
-      delete cleaned[key];
-    }
-  });
-  return cleaned;
-}
 
 // Firestore Realtime Collections API Services
 export const firebaseService = {

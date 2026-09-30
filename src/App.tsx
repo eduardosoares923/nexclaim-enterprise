@@ -491,12 +491,19 @@ export const App: React.FC = () => {
                     const { id, ...data } = newClaim;
                     createClaimMutation.mutate(data);
                   }}
+                  onSaveNewClaimAsync={async (newClaim) => {
+                    const { id, ...data } = newClaim;
+                    await createClaimMutation.mutateAsync(data);
+                  }}
                   onOpenTermGenerator={(claim) => {
                     setSelectedClaim(claim);
                     setShowTermGenModal(true);
                   }}
                   onDeleteClaim={(id) => deleteClaimMutation.mutate(id)}
                   onUpdateClaim={(id, data) => updateClaimMutation.mutate({ id, data })}
+                  onUpdateClaimAsync={async (id, data) => {
+                    await updateClaimMutation.mutateAsync({ id, data });
+                  }}
                   userRole={userRole}
                   userEmail={userEmail}
                 />

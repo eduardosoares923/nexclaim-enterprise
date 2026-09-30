@@ -257,16 +257,16 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       const placaCarro2 = valorUtil(paraTexto(pegar(linha, idx.placaCarro2)));
       const cpfTerceiro = paraTexto(pegar(linha, idx.cpfs));
 
-      const terceiros: { name?: string; vehicleDescription?: string; plate?: string; document?: string }[] = [];
+      const terceiros: { vehicleDescription: string; plate: string; document?: string }[] = [];
       if (placaCarro2) {
         // Linha com dois terceiros: cada carro tem descrição e placa próprias
-        terceiros.push({ vehicleDescription: carro1, plate: placaNormal, document: cpfTerceiro || undefined });
-        terceiros.push({ vehicleDescription: carro2Coluna, plate: placaCarro2 });
+        terceiros.push({ vehicleDescription: carro1, plate: placaNormal, document: cpfTerceiro });
+        terceiros.push({ vehicleDescription: carro2Coluna, plate: placaCarro2, document: '' });
       } else {
         terceiros.push({
           vehicleDescription: carro1,
           plate: placaNormal || carro2Coluna,
-          document: cpfTerceiro || undefined,
+          document: cpfTerceiro,
         });
       }
       const terceirosUteis = terceiros.filter((t) => t.vehicleDescription || t.plate || t.document);

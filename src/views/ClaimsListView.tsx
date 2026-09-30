@@ -22,9 +22,11 @@ interface ClaimsListViewProps {
   terms: Term[];
   templates: DocumentTemplate[];
   onSaveNewClaim: (claim: Claim) => void;
+  onSaveNewClaimAsync?: (claim: Claim) => Promise<void>;
   onOpenTermGenerator: (claim: Claim) => void;
   onDeleteClaim?: (id: string) => void;
   onUpdateClaim?: (id: string, data: Partial<Claim>) => void;
+  onUpdateClaimAsync?: (id: string, data: Partial<Claim>) => Promise<void>;
   userRole?: RoleType;
   userEmail?: string;
 }
@@ -55,9 +57,11 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   terms,
   templates,
   onSaveNewClaim,
+  onSaveNewClaimAsync,
   onOpenTermGenerator,
   onDeleteClaim,
   onUpdateClaim,
+  onUpdateClaimAsync,
   userRole,
   userEmail,
 }) => {
@@ -388,30 +392,54 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       setImportProgress({ current: processados, total: totalItens });
     }
 
-    // 3. Gravar sinistros históricos da aba DADOS (só se o usuário marcou)
-    if (importarSinistrosDaAbaDados && resultadoDados?.sinistros) {
-      for (const s of resultadoDados.sinistros) {
-        onSaveNewClaim(s.claim as Claim);
-        processados++;
+    // Grava em lotes e CONTA as falhas, para nunca perder registro sem avisar
+    const TAMANHO_LOTE = 10;
+    let falhas = 0;
+    let primeiroErro = '';
+    const registrarFalha = (motivo: any) => {
+      falhas += 1;
+      if (!primeiroErro) primeiroErro = motivo?.message || String(motivo);
+    };
+
+    const salvarNovos = async (lista: Claim[]) => {
+      for (let i = 0; i < lista.length; i += TAMANHO_LOTE) {
+        const lote = lista.slice(i, i + TAMANHO_LOTE);
+        const resultados = await Promise.allSettled(
+          lote.map((c) =>
+            onSaveNewClaimAsync ? onSaveNewClaimAsync(c) : Promise.resolve().then(() => onSaveNewClaim(c))
+          )
+        );
+        resultados.forEach((r) => {
+          if (r.status === 'rejected') registrarFalha(r.reason);
+        });
+        processados += lote.length;
         setImportProgress({ current: processados, total: totalItens });
       }
+    };
+
+    // 3. Gravar sinistros históricos da aba DADOS (só se o usuário marcou)
+    if (importarSinistrosDaAbaDados && resultadoDados?.sinistros) {
+      await salvarNovos(resultadoDados.sinistros.map((s) => s.claim as Claim));
     }
 
     // 4. Gravar só os sinistros NOVOS (os que já existem ou se repetem entre abas não são duplicados)
-    for (let i = 0; i < plano.novas.length; i++) {
-      onSaveNewClaim(plano.novas[i].claim as Claim);
-      processados++;
-      setImportProgress({ current: processados, total: totalItens });
-      if (plano.novas.length > 50 && i % 10 === 0) {
-        await new Promise((r) => setTimeout(r, 10));
-      }
-    }
+    await salvarNovos(plano.novas.map((l) => l.claim as Claim));
 
     // 4b. Completar, nos sinistros já cadastrados, só os campos que estavam vazios
     if (completarExistentes) {
-      for (const { claimId, patch } of existentesComDados) {
-        onUpdateClaim?.(claimId, patch);
-        processados++;
+      for (let i = 0; i < existentesComDados.length; i += TAMANHO_LOTE) {
+        const lote = existentesComDados.slice(i, i + TAMANHO_LOTE);
+        const resultados = await Promise.allSettled(
+          lote.map(({ claimId, patch }) =>
+            onUpdateClaimAsync
+              ? onUpdateClaimAsync(claimId, patch)
+              : Promise.resolve().then(() => onUpdateClaim?.(claimId, patch))
+          )
+        );
+        resultados.forEach((r) => {
+          if (r.status === 'rejected') registrarFalha(r.reason);
+        });
+        processados += lote.length;
         setImportProgress({ current: processados, total: totalItens });
       }
     }
@@ -423,6 +451,19 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     setIsImporting(false);
     setImportProgress(null);
     setShowImportModal(false);
+
+    if (falhas > 0) {
+      notificar(
+        `${falhas} registro(s) NÃO foram salvos. Motivo do primeiro erro: ${primeiroErro}`,
+        'erro'
+      );
+    } else {
+      notificar(
+        `Importação concluída: ${plano.novas.length + sinistrosDaAbaDadosParaImportar} sinistro(s) novo(s)` +
+          (qtdParaCompletar > 0 ? ` e ${qtdParaCompletar} completado(s).` : '.'),
+        'sucesso'
+      );
+    }
     setLinhasParaImportar([]);
     setAbasSelecionadas(new Set());
     setResultadoDados(null);

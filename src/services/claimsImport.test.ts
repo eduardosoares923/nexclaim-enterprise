@@ -109,6 +109,23 @@ describe('lerPlanilhaSinistros', () => {
   });
 });
 
+describe('dados aninhados seguros para o Firestore', () => {
+  const temUndefinedNested = (v: any): boolean =>
+    Array.isArray(v) ? v.some((i) => i === undefined || temUndefinedNested(i)) : v && typeof v === 'object' ? Object.values(v).some((i) => i === undefined || temUndefinedNested(i)) : false;
+
+  it('os terceiros importados nunca têm campo undefined dentro', async () => {
+    const cab = ['PLACA', 'DATA', 'MOTORISTA', 'OCORRIDO', 'CARRO ENVOLVIDO', 'PLACA2', 'CARRO ENVOLVIDO2', 'PLACA CARRO 2'];
+    const f = await arquivoComAba('2026', [
+      ['SINISTROS'],
+      cab,
+      ['AAA1B23', '2026-08-01', 'JOAO', 'bateu', 'Gol', 'XXX1X11', '', ''],
+      ['AAA1B24', '2026-09-01', 'MARIA', 'raspou', 'I30', 'IRW6J24', 'STRADA', 'ISC0995'],
+    ]);
+    const r = await lerPlanilhaSinistros(f);
+    r.forEach((l) => expect(temUndefinedNested(l.claim.thirdParties)).toBe(false));
+  });
+});
+
 describe('escolherAbasIniciais', () => {
   const c = (placa: string, date: string) => ({ vehiclePlate: placa, date, driverName: 'X', description: 'y' });
 
