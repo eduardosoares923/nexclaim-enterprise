@@ -16,12 +16,34 @@ const MAPA_STATUS: Record<string, ClaimStatus> = {
 
 function paraData(valor: any): string {
   if (!valor) return '';
-  if (valor instanceof Date) return valor.toISOString().split('T')[0];
+  if (valor instanceof Date) {
+    // Usa os componentes locais para não deslocar o dia por causa do fuso horário
+    const a = valor.getFullYear();
+    const m = String(valor.getMonth() + 1).padStart(2, '0');
+    const d = String(valor.getDate()).padStart(2, '0');
+    return `${a}-${m}-${d}`;
+  }
   if (typeof valor === 'number') {
     const data = XLSX.SSF.parse_date_code(valor);
     if (data) return `${data.y}-${String(data.m).padStart(2, '0')}-${String(data.d).padStart(2, '0')}`;
+    return '';
   }
-  return String(valor).split(' ')[0];
+
+  const texto = String(valor).trim().split(' ')[0];
+
+  // Já no formato AAAA-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}/.test(texto)) return texto.slice(0, 10);
+
+  // DD/MM/AAAA ou D/M/AAAA
+  const br = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (br) return `${br[3]}-${br[2].padStart(2, '0')}-${br[1].padStart(2, '0')}`;
+
+  // DDMM/AAAA (barra no lugar errado, ex: "2509/2026")
+  const colado = texto.match(/^(\d{2})(\d{2})\/(\d{4})$/);
+  if (colado) return `${colado[3]}-${colado[2]}-${colado[1]}`;
+
+  // Não deu pra entender: devolve vazio em vez de gravar texto quebrado
+  return '';
 }
 
 function paraTexto(valor: any): string {
@@ -52,6 +74,85 @@ export interface LinhaImportada {
   claim: Omit<Claim, 'id'>;
   aba: string;
   linhaOriginal: number;
+  avisos?: string[];
+}
+
+const PLACEHOLDER_TEXTO = /^(-+|SEM\s+IN[FM]ORMA[CÇ][AÃ]O|SEM\s+PLACA|N\/?I|N[AÃ]O\s+INFORMADO)$/;
+
+/** Devolve o texto, ou vazio se for só um marcador tipo "-" ou "SEM INFORMAÇÃO". */
+function valorUtil(valor: string): string {
+  const t = (valor || '').trim();
+  if (!t) return '';
+  return PLACEHOLDER_TEXTO.test(NORMALIZAR(t)) ? '' : t;
+}
+
+/** Traduz a coluna SITUAÇÃO (com erros de digitação) para o status do sistema. */
+export function mapearSituacao(bruto: string): { status: ClaimStatus; advogado: boolean } {
+  const n = NORMALIZAR(bruto).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (!n) return { status: 'Em análise', advogado: false };
+  if (/ADV[OA]GAD/.test(n)) return { status: 'Em análise', advogado: true };
+  if (/RESOLV/.test(n)) return { status: 'Resolvido', advogado: false };
+  if (/CANCEL/.test(n)) return { status: 'Cancelado', advogado: false };
+  if (/ENCERR/.test(n)) return { status: 'Encerrado', advogado: false };
+  if (/SE?G+URO/.test(n)) return { status: 'Aguardando seguradora', advogado: false };
+  if (/ASSINATURA|DOCUMENT/.test(n)) return { status: 'Aguardando documentos', advogado: false };
+  return { status: MAPA_STATUS[NORMALIZAR(bruto)] || 'Em análise', advogado: false };
+}
+
+/**
+ * Chave que identifica um sinistro pelo conteúdo. Com placa, usa placa + data (não depende do
+ * nome do motorista, que tem muito erro de digitação entre as abas). Sem placa, usa data +
+ * motorista + começo do texto do ocorrido.
+ */
+export function chaveSinistro(c: {
+  vehiclePlate?: string;
+  date?: string;
+  driverName?: string;
+  description?: string;
+}): string {
+  const placa = (c.vehiclePlate || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (placa) return `${placa}|${c.date || ''}`;
+  const motorista = (c.driverName || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  const ocorrido = (c.description || '').toUpperCase().replace(/\s+/g, ' ').trim().slice(0, 30);
+  return `|${c.date || ''}|${motorista}|${ocorrido}`;
+}
+
+/**
+ * Escolhe quais abas vêm marcadas por padrão. Se existe uma aba consolidada do ano
+ * (ex: "2026") que já contém todas as linhas de uma aba mensal, a mensal fica desmarcada
+ * pra não duplicar, e a consolidada fica marcada (ela costuma ser a mais completa).
+ */
+export function escolherAbasIniciais(linhas: LinhaImportada[]): Set<string> {
+  const porAba = new Map<string, LinhaImportada[]>();
+  linhas.forEach((l) => {
+    const lista = porAba.get(l.aba) || [];
+    lista.push(l);
+    porAba.set(l.aba, lista);
+  });
+
+  const nome = (a: string) => a.trim().toUpperCase();
+  const consolidadas = Array.from(porAba.keys()).filter((a) => /^\d{4}$/.test(nome(a)));
+  const cobertas = new Set<string>();
+
+  consolidadas.forEach((cons) => {
+    const chaves = new Set((porAba.get(cons) || []).map((l) => chaveSinistro(l.claim)));
+    porAba.forEach((lista, aba) => {
+      if (aba === cons || consolidadas.includes(aba)) return;
+      if (lista.length > 0 && lista.every((l) => chaves.has(chaveSinistro(l.claim)))) cobertas.add(aba);
+    });
+  });
+
+  const selecionadas = new Set<string>();
+  porAba.forEach((_, aba) => {
+    const n = nome(aba);
+    if (n === 'DADOS' || n === 'RESUMO') return;
+    if (cobertas.has(aba)) return;
+    // Aba em que nenhuma linha tem data não parece registro de sinistro (ex: lista de apoio)
+    const lista = porAba.get(aba) || [];
+    if (lista.length > 0 && lista.every((l) => !l.claim.date)) return;
+    selecionadas.add(aba);
+  });
+  return selecionadas;
 }
 
 export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]> {
@@ -83,6 +184,10 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       ocorrido: acharColuna(headers, ['OCORRIDO']),
       carroEnvolvido: acharColuna(headers, ['CARRO ENVOLVIDO']),
       placa2: acharColuna(headers, ['PLACA2', 'PLACAS']),
+      carroEnvolvido2: acharColuna(headers, ['CARRO ENVOLVIDO2']),
+      placaCarro2: acharColuna(headers, ['PLACA CARRO 2']),
+      bo: acharColuna(headers, ['B.O', 'B.O.', 'BO', 'NUMERO DO B.O', 'Nº B.O']),
+      valorTotal: acharColuna(headers, ['VALOR TOTAL']),
       culpado: acharColuna(headers, ['CULPADO', 'RESPONSÁVEL', 'RESPONSAVEL']),
       situacao: acharColuna(headers, ['SITUAÇÃO', 'SITUACAO']),
       pagarCobrar: acharColuna(headers, ['PAGAR OU COBRAR']),
@@ -113,20 +218,65 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
       // Ignora linhas completamente vazias de conteúdo relevante
       if (!placa && !motorista && !ocorrido && !data) continue;
 
-      const situacaoRaw = NORMALIZAR(pegar(linha, idx.situacao));
-      const status: ClaimStatus = MAPA_STATUS[situacaoRaw] || 'Em análise';
+      const avisos: string[] = [];
+
+      const situacaoTexto = paraTexto(pegar(linha, idx.situacao));
+      const { status, advogado } = mapearSituacao(situacaoTexto);
 
       const descricaoPartes = [paraTexto(ocorrido), paraTexto(pegar(linha, idx.observacao))].filter(Boolean);
 
       const custoTerceiro = pegarNum(linha, idx.custoEnvolvido);
       const custoNosso = pegarNum(linha, idx.custoNosso);
-      const totalCalculado = (custoTerceiro || 0) + (custoNosso || 0);
+      const somaCustos = (custoTerceiro || 0) + (custoNosso || 0);
+      const valorTotalPlanilha = pegarNum(linha, idx.valorTotal);
+      const totalFinal = valorTotalPlanilha && valorTotalPlanilha > 0 ? valorTotalPlanilha : somaCustos;
+
+      // Data: avisa quando não dá pra aproveitar
+      const dataFinal = paraData(data);
+      if (!dataFinal) {
+        avisos.push(
+          data
+            ? `Data não reconhecida ("${paraTexto(data)}"), ficou em branco.`
+            : 'Linha sem data.'
+        );
+      }
+
+      // Pagar ou cobrar: só aceita os dois valores certos
+      const pagarCobrarTexto = NORMALIZAR(pegar(linha, idx.pagarCobrar));
+      let direcao: '' | 'Pagar' | 'Cobrar' = '';
+      if (pagarCobrarTexto === 'PAGAR') direcao = 'Pagar';
+      else if (pagarCobrarTexto === 'COBRAR') direcao = 'Cobrar';
+      else if (pagarCobrarTexto && pagarCobrarTexto !== '-') {
+        avisos.push(`"Pagar ou cobrar" com valor não reconhecido ("${pagarCobrarTexto}"), ficou em branco.`);
+      }
+
+      // Terceiros: a coluna "CARRO ENVOLVIDO2" costuma ser usada pra digitar a placa do 1º terceiro.
+      const carro1 = valorUtil(paraTexto(pegar(linha, idx.carroEnvolvido)));
+      const placaNormal = valorUtil(paraTexto(pegar(linha, idx.placa2)));
+      const carro2Coluna = valorUtil(paraTexto(pegar(linha, idx.carroEnvolvido2)));
+      const placaCarro2 = valorUtil(paraTexto(pegar(linha, idx.placaCarro2)));
+      const cpfTerceiro = paraTexto(pegar(linha, idx.cpfs));
+
+      const terceiros: { name?: string; vehicleDescription?: string; plate?: string; document?: string }[] = [];
+      if (placaCarro2) {
+        // Linha com dois terceiros: cada carro tem descrição e placa próprias
+        terceiros.push({ vehicleDescription: carro1, plate: placaNormal, document: cpfTerceiro || undefined });
+        terceiros.push({ vehicleDescription: carro2Coluna, plate: placaCarro2 });
+      } else {
+        terceiros.push({
+          vehicleDescription: carro1,
+          plate: placaNormal || carro2Coluna,
+          document: cpfTerceiro || undefined,
+        });
+      }
+      const terceirosUteis = terceiros.filter((t) => t.vehicleDescription || t.plate || t.document);
+      const primeiro = terceirosUteis[0];
 
       const claim: Omit<Claim, 'id'> = {
         claimNumber: `SIN-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
         protocol: `PROT-IMP-${nomeAba.replace(/\s+/g, '')}-${l}`,
         occurrenceType: normalizarTipoOcorrencia(paraTexto(pegar(linha, idx.tipo))),
-        date: paraData(data),
+        date: dataFinal,
         time: paraTexto(pegar(linha, idx.horario)),
         occurrenceTime: paraTexto(pegar(linha, idx.horario)),
         location: '',
@@ -140,26 +290,115 @@ export async function lerPlanilhaSinistros(file: File): Promise<LinhaImportada[]
         estimatedCost: custoNosso ?? 0,
         insurer: '',
         policyNumber: '',
-        boNumber: '',
+        boNumber: paraTexto(pegar(linha, idx.bo)),
         description: descricaoPartes.join(' — ') || 'Importado de planilha, sem descrição detalhada.',
         supervisorName: paraTexto(pegar(linha, idx.supervisor)),
-        thirdPartyVehicleDescription: paraTexto(pegar(linha, idx.carroEnvolvido)),
-        thirdPartyPlate: paraTexto(pegar(linha, idx.placa2)),
+        thirdParties: terceirosUteis,
+        thirdPartyVehicleDescription: primeiro?.vehicleDescription || '',
+        thirdPartyPlate: primeiro?.plate || '',
+        thirdPartyDocument: primeiro?.document || '',
         atFault: normalizarCulpado(paraTexto(pegar(linha, idx.culpado))),
-        paymentDirection: (NORMALIZAR(pegar(linha, idx.pagarCobrar)) === 'PAGAR' ? 'Pagar' : NORMALIZAR(pegar(linha, idx.pagarCobrar)) === 'COBRAR' ? 'Cobrar' : ''),
+        paymentDirection: direcao,
         thirdPartyRepairCost: custoTerceiro,
         ownVehicleRepairCost: custoNosso,
-        totalValue: totalCalculado > 0 ? totalCalculado : undefined,
+        totalValue: totalFinal > 0 ? totalFinal : undefined,
         chargeAmount: pegarNum(linha, idx.quantoCobrar),
         firstDiscountMonth: paraTexto(pegar(linha, idx.mesDesconto)),
-        thirdPartyDocument: paraTexto(pegar(linha, idx.cpfs)),
+        checklistStatus: situacaoTexto || undefined,
+        enviarAdvogado: advogado || undefined,
       };
 
-      resultado.push({ claim, aba: nomeAba, linhaOriginal: l + 1 });
+      resultado.push({ claim, aba: nomeAba, linhaOriginal: l + 1, avisos });
     }
   });
 
   return resultado;
+}
+
+export interface PlanoImportacao {
+  /** Sinistros que ainda não existem no sistema: serão criados */
+  novas: LinhaImportada[];
+  /** Sinistros que já existem no sistema: podem ser completados com os dados que faltam */
+  existentes: { linha: LinhaImportada; claimId: string }[];
+  /** Linhas repetidas em outra aba desta mesma planilha: ignoradas */
+  repetidasEntreAbas: LinhaImportada[];
+}
+
+/**
+ * Separa as linhas marcadas em: novas, já cadastradas e repetidas entre abas.
+ * Abas consolidadas (ex: "2026") entram primeiro, porque costumam ter as colunas mais completas.
+ * Linhas repetidas DENTRO da mesma aba são mantidas (são registros distintos da planilha).
+ */
+export function planejarImportacao(
+  selecionadas: LinhaImportada[],
+  existentes: { id: string; vehiclePlate?: string; date?: string; driverName?: string; description?: string }[]
+): PlanoImportacao {
+  const ehConsolidada = (aba: string) => /^\d{4}$/.test(aba.trim());
+  const ordenadas = [
+    ...selecionadas.filter((l) => ehConsolidada(l.aba)),
+    ...selecionadas.filter((l) => !ehConsolidada(l.aba)),
+  ];
+
+  const noBanco = new Map<string, string>();
+  existentes.forEach((c) => {
+    const chave = chaveSinistro(c);
+    if (!noBanco.has(chave)) noBanco.set(chave, c.id);
+  });
+
+  const vistaEmAba = new Map<string, string>();
+  const plano: PlanoImportacao = { novas: [], existentes: [], repetidasEntreAbas: [] };
+
+  ordenadas.forEach((linha) => {
+    const chave = chaveSinistro(linha.claim);
+    const abaAnterior = vistaEmAba.get(chave);
+    if (abaAnterior !== undefined && abaAnterior !== linha.aba) {
+      plano.repetidasEntreAbas.push(linha);
+      return;
+    }
+    if (abaAnterior === undefined) vistaEmAba.set(chave, linha.aba);
+
+    const idNoBanco = noBanco.get(chave);
+    if (idNoBanco) plano.existentes.push({ linha, claimId: idNoBanco });
+    else plano.novas.push(linha);
+  });
+
+  return plano;
+}
+
+const CAMPOS_COMPLETAVEIS = [
+  'boNumber',
+  'supervisorName',
+  'vehiclePrefix',
+  'time',
+  'atFault',
+  'paymentDirection',
+  'thirdPartyRepairCost',
+  'ownVehicleRepairCost',
+  'totalValue',
+  'chargeAmount',
+  'firstDiscountMonth',
+  'checklistStatus',
+  'thirdPartyVehicleDescription',
+  'thirdPartyPlate',
+  'thirdPartyDocument',
+  'thirdParties',
+  'enviarAdvogado',
+] as const;
+
+/**
+ * Devolve só os campos que estão VAZIOS no sinistro já cadastrado e que a planilha traz preenchidos.
+ * Nunca sobrescreve o que já está preenchido (nem o status, que pode ter mudado no sistema).
+ */
+export function camposQueFaltam(existente: Partial<Claim>, novo: Omit<Claim, 'id'>): Partial<Claim> {
+  const vazio = (v: any) =>
+    v === undefined || v === null || v === '' || v === 0 || v === false || (Array.isArray(v) && v.length === 0);
+  const patch: Record<string, any> = {};
+  CAMPOS_COMPLETAVEIS.forEach((campo) => {
+    const atual = (existente as any)[campo];
+    const vindo = (novo as any)[campo];
+    if (vazio(atual) && !vazio(vindo)) patch[campo] = vindo;
+  });
+  return patch as Partial<Claim>;
 }
 
 export interface CadastroImportado {

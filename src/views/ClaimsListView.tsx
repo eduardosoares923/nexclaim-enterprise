@@ -6,7 +6,7 @@ import { Claim, Person, Vehicle, Term, DocumentTemplate, RoleType } from '../typ
 import { NewClaimModal } from '../components/NewClaimModal';
 import { ClaimDetailModal } from '../components/ClaimDetailModal';
 import { ClaimsPdfReportModal } from '../components/ClaimsPdfReportModal';
-import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS, lerPlanilhaStatus, lerPlanilhaAdvogado } from '../services/claimsImport';
+import { lerPlanilhaSinistros, LinhaImportada, lerAbaDados, ResultadoAbaDados, exportarSinistrosParaExcel, COLUNAS_EXPORTACAO_SINISTROS, lerPlanilhaStatus, lerPlanilhaAdvogado, escolherAbasIniciais, planejarImportacao, camposQueFaltam } from '../services/claimsImport';
 import { firebaseService } from '../services/firebase';
 import { normalizarTipoOcorrencia } from '../utils/textNormalization';
 import { formatarDataBr } from '../utils/dateUtils';
@@ -100,6 +100,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [completarExistentes, setCompletarExistentes] = useState(true);
 
   const sinistrosDaAbaDadosParaImportar = importarSinistrosDaAbaDados
     ? (resultadoDados?.sinistros.length || 0)
@@ -241,11 +243,6 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const isAbaResumo = (aba: string) => {
-    const norm = (aba ?? '').toString().trim().toUpperCase();
-    return norm === '2026' || norm === 'DADOS' || norm === 'RESUMO' || /^\d{4}$/.test(norm);
-  };
-
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
@@ -291,10 +288,8 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       setLinhasParaImportar(linhas || []);
       setResultadoDados(dados);
 
-      // Inicializa com todas as abas EXCETO as que são resumos/agregados ("2026", "DADOS", etc.)
-      const todasAbas = Array.from(new Set((linhas || []).map((l) => l.aba)));
-      const abasIniciais = new Set(todasAbas.filter((aba) => !isAbaResumo(aba)));
-      setAbasSelecionadas(abasIniciais);
+      // Marca a aba consolidada do ano (ex: "2026") e só as abas mensais que ela não cobre por completo
+      setAbasSelecionadas(escolherAbasIniciais(linhas || []));
 
       setShowImportModal(true);
     } catch (err: any) {
@@ -328,9 +323,23 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
   const linhasFiltradas = linhasParaImportar.filter((l) => abasSelecionadas.has(l.aba));
 
+  // Separa o que é novo, o que já existe no sistema e o que se repete entre abas da planilha
+  const plano = planejarImportacao(linhasFiltradas, claims);
+  const existentesComDados = plano.existentes
+    .map(({ linha, claimId }) => ({
+      claimId,
+      patch: camposQueFaltam(claims.find((c) => c.id === claimId) || {}, linha.claim),
+    }))
+    .filter((x) => Object.keys(x.patch).length > 0);
+  const qtdParaCompletar = completarExistentes ? existentesComDados.length : 0;
+  const avisosDaSelecao = [...plano.novas, ...plano.existentes.map((e) => e.linha)].flatMap((l) =>
+    (l.avisos || []).map((a) => `${l.aba.trim()}, linha ${l.linhaOriginal}: ${a}`)
+  );
+
   const handleConfirmImport = async () => {
     const totalItens =
-      linhasFiltradas.length +
+      plano.novas.length +
+      qtdParaCompletar +
       novosVeiculosParaSalvar.length +
       novosMotoristasParaSalvar.length +
       sinistrosDaAbaDadosParaImportar;
@@ -388,14 +397,22 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
       }
     }
 
-    // 4. Gravar sinistros das abas mensais selecionadas
-    for (let i = 0; i < linhasFiltradas.length; i++) {
-      const item = linhasFiltradas[i];
-      onSaveNewClaim(item.claim as Claim);
+    // 4. Gravar só os sinistros NOVOS (os que já existem ou se repetem entre abas não são duplicados)
+    for (let i = 0; i < plano.novas.length; i++) {
+      onSaveNewClaim(plano.novas[i].claim as Claim);
       processados++;
       setImportProgress({ current: processados, total: totalItens });
-      if (linhasFiltradas.length > 50 && i % 10 === 0) {
+      if (plano.novas.length > 50 && i % 10 === 0) {
         await new Promise((r) => setTimeout(r, 10));
+      }
+    }
+
+    // 4b. Completar, nos sinistros já cadastrados, só os campos que estavam vazios
+    if (completarExistentes) {
+      for (const { claimId, patch } of existentesComDados) {
+        onUpdateClaim?.(claimId, patch);
+        processados++;
+        setImportProgress({ current: processados, total: totalItens });
       }
     }
 
@@ -415,13 +432,6 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
     acc[l.aba] = (acc[l.aba] || 0) + 1;
     return acc;
   }, {});
-
-  const numerosCadastrados = new Set(
-    claims.map((c) => (c.claimNumber || '').trim().toUpperCase()).filter(Boolean)
-  );
-  const sinistrosRepetidos = linhasFiltradas.filter((item: any) =>
-    numerosCadastrados.has((item.claim?.claimNumber || '').trim().toUpperCase())
-  ).length;
 
   const sinistrosDaAbaDados = claims.filter((c) => c.claimNumber?.startsWith('SIN-IMP-DADOS-'));
 
@@ -1399,7 +1409,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     Pré-visualização da Importação de Sinistros & Frota
                   </h3>
                   <span className="text-[10px] text-emerald-400 font-bold">
-                    {linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros no total: {linhasFiltradas.length} das abas mensais{sinistrosDaAbaDadosParaImportar > 0 ? ` + ${sinistrosDaAbaDadosParaImportar} da aba DADOS` : ''} • {novosVeiculosParaSalvar.length} veículos novos • {novosMotoristasParaSalvar.length} condutores novos
+                    {plano.novas.length + sinistrosDaAbaDadosParaImportar} sinistros novos: {plano.novas.length} das abas selecionadas{sinistrosDaAbaDadosParaImportar > 0 ? ` + ${sinistrosDaAbaDadosParaImportar} da aba DADOS` : ''} • {novosVeiculosParaSalvar.length} veículos novos • {novosMotoristasParaSalvar.length} condutores novos
                   </span>
                 </div>
               </div>
@@ -1603,20 +1613,54 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
 
             {/* Footer */}
             <div className="p-4 bg-slate-50 border-t border-slate-200">
-              {sinistrosRepetidos > 0 && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 mb-3">
-                  <i className="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
-                  <p className="text-xs text-amber-900 leading-relaxed">
-                    <strong>{sinistrosRepetidos}</strong> sinistro(s) desta planilha já estão cadastrados
-                    (mesmo número de sinistro). Importar de novo vai criar registros duplicados.
+              {(plano.existentes.length > 0 || plano.repetidasEntreAbas.length > 0) && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-3 space-y-1.5">
+                  <p className="text-xs text-blue-900 leading-relaxed">
+                    <i className="fa-solid fa-shield-halved mr-1.5"></i>
+                    Nada será duplicado: <strong>{plano.novas.length}</strong> sinistro(s) novo(s) serão criados.
+                    {plano.existentes.length > 0 && (
+                      <> <strong>{plano.existentes.length}</strong> já estão cadastrados (mesma placa e data).</>
+                    )}
+                    {plano.repetidasEntreAbas.length > 0 && (
+                      <> <strong>{plano.repetidasEntreAbas.length}</strong> se repetem em outra aba da planilha e foram ignorados.</>
+                    )}
                   </p>
+                  {existentesComDados.length > 0 && (
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={completarExistentes}
+                        onChange={(e) => setCompletarExistentes(e.target.checked)}
+                        className="mt-0.5 cursor-pointer"
+                      />
+                      <span className="text-[11px] text-blue-900 leading-relaxed">
+                        Completar <strong>{existentesComDados.length}</strong> sinistro(s) já cadastrado(s) com os dados
+                        que estavam vazios (B.O, terceiros, situação, valor total, advogado). Nunca sobrescreve o que já
+                        está preenchido.
+                      </span>
+                    </label>
+                  )}
+                </div>
+              )}
+              {avisosDaSelecao.length > 0 && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg mb-3">
+                  <p className="text-xs font-bold text-amber-900 mb-1">
+                    <i className="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                    {avisosDaSelecao.length} ponto(s) da planilha merecem conferência
+                  </p>
+                  <ul className="text-[11px] text-amber-900 leading-relaxed list-disc pl-5 max-h-24 overflow-y-auto">
+                    {avisosDaSelecao.slice(0, 15).map((a, i) => (
+                      <li key={i}>{a}</li>
+                    ))}
+                    {avisosDaSelecao.length > 15 && <li>e mais {avisosDaSelecao.length - 15}...</li>}
+                  </ul>
                 </div>
               )}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <span className="text-xs text-slate-500">
                   {linhasFiltradas.length === 0 && !resultadoDados
                     ? 'Selecione pelo menos uma aba para importar.'
-                    : `Pronto para importar ${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros${sinistrosDaAbaDadosParaImportar > 0 ? ` (${linhasFiltradas.length} das abas mensais e ${sinistrosDaAbaDadosParaImportar} da aba DADOS)` : ''} e cadastrar ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
+                    : `Pronto para importar ${plano.novas.length + sinistrosDaAbaDadosParaImportar} sinistros novos${qtdParaCompletar > 0 ? `, completar ${qtdParaCompletar} já cadastrados` : ''} e cadastrar ${novosVeiculosParaSalvar.length} veículos / ${novosMotoristasParaSalvar.length} motoristas novos.`}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -1634,7 +1678,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                   </button>
                   <button
                     type="button"
-                    disabled={isImporting || (linhasFiltradas.length === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && sinistrosDaAbaDadosParaImportar === 0)))}
+                    disabled={isImporting || (plano.novas.length === 0 && qtdParaCompletar === 0 && (!resultadoDados || (novosVeiculosParaSalvar.length === 0 && novosMotoristasParaSalvar.length === 0 && sinistrosDaAbaDadosParaImportar === 0)))}
                     onClick={handleConfirmImport}
                     className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-lg shadow-sm transition active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -1642,7 +1686,7 @@ export const ClaimsListView: React.FC<ClaimsListViewProps> = ({
                     <span>
                       {isImporting
                         ? `Importando (${importProgress?.current || 0}/${importProgress?.total || 0})...`
-                        : `Confirmar Importação (${linhasFiltradas.length + sinistrosDaAbaDadosParaImportar} sinistros)`}
+                        : `Confirmar Importação (${plano.novas.length + sinistrosDaAbaDadosParaImportar} novos${qtdParaCompletar > 0 ? ` + ${qtdParaCompletar} a completar` : ''})`}
                     </span>
                   </button>
                 </div>
